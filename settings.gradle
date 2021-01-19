@@ -1,2 +1,3 @@
 include ':app'
+include ':ScatterRoutingService:app'
 rootProject.name = "RoutingServiceFrontend"
