@@ -1,6 +1,6 @@
 [submodule "ScatterRoutingService"]
 	path = ScatterRoutingService
-	url = git@github.com:Scatterbrain-DTN/ScatterRoutingService.git
+	url = https://github.com/Scatterbrain-DTN/ScatterRoutingService.git
 [submodule "RxAndroidBle"]
 	path = RxAndroidBle
 	url = https://github.com/gnu3ra/RxAndroidBle.git
