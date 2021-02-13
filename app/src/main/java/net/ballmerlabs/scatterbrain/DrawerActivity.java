@@ -1,6 +1,9 @@
 package net.ballmerlabs.scatterbrain;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
 
@@ -36,13 +39,14 @@ public class DrawerActivity extends AppCompatActivity {
         });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+        mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
                 .setDrawerLayout(drawer)
                 .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
     }
@@ -59,5 +63,12 @@ public class DrawerActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        return NavigationUI.onNavDestinationSelected(item, navController)
+                || super.onOptionsItemSelected(item);
     }
 }

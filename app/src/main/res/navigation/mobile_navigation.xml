@@ -9,11 +9,28 @@
         android:id="@+id/navigation_power"
         android:name="net.ballmerlabs.scatterbrain.ui.power.PowerFragment"
         android:label="@string/title_power"
-        tools:layout="@layout/fragment_power" />
+        tools:layout="@layout/fragment_power" >
+        <action
+            android:id="@+id/action_navigation_power_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
+        <action
+            android:id="@+id/action_navigation_power_to_navigation_settings2"
+            app:destination="@id/navigation_settings" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="net.ballmerlabs.scatterbrain.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard" >
+        <action
+            android:id="@+id/action_navigation_dashboard_to_navigation_power"
+            app:destination="@id/navigation_power" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="net.ballmerlabs.scatterbrain.ui.SettingsFragment"
+        android:label="@string/action_settings"
+        />
 </navigation>
