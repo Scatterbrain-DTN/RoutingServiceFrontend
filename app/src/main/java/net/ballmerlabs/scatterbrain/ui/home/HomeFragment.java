@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain.ui.home;
+    package net.ballmerlabs.scatterbrain.ui.home;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
