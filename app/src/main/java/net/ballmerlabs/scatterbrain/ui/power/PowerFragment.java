@@ -39,7 +39,8 @@ public class PowerFragment extends Fragment {
             binder = ScatterbrainAPI.Stub.asInterface(service);
             Log.v(TAG, "connected to ScatterRoutingService binder");
             try {
-                binder.startDiscovery();
+                if (!binder.isDiscovering())
+                    binder.startDiscovery();
                 updateCheckedStatus();
             } catch (RemoteException e) {
                 Log.e(TAG, "RemoteException: " + e);
