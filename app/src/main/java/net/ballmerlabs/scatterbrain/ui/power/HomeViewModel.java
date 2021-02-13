@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain.ui.home;
+package net.ballmerlabs.scatterbrain.ui.power;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
