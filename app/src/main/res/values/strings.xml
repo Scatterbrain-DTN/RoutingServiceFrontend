@@ -38,5 +38,7 @@
         <item>@string/powersave_opportunistic</item>
         <item>@string/powersave_passive</item>
     </string-array>
+    <string name="grant_location_text">Scatterbrain needs location permission in order to scan for bluetooth and wifi.</string>
+    <string name="failed_location_text">If location permission is not granted, scatterbrain will only function in passive mode</string>
 
 </resources>
