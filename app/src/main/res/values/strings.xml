@@ -29,14 +29,14 @@
     <string name="power_mode_title">Power saving mode</string>
     <string-array name="power_modes">
         <item>Active</item>
-        <item>Opertunistic</item>
+        <item>Opportunistic</item>
         <item>Passive</item>
     </string-array>
 
     <string-array name="power_modes_vals">
-        <item>Active</item>
-        <item>Opertunistic</item>
-        <item>Passive</item>
+        <item>@string/powersave_active</item>
+        <item>@string/powersave_opportunistic</item>
+        <item>@string/powersave_passive</item>
     </string-array>
 
 </resources>

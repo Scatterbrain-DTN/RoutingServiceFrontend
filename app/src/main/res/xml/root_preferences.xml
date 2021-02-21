@@ -4,13 +4,13 @@
     <PreferenceCategory app:title="@string/general_header">
 
         <EditTextPreference
-            app:key="identity_share_cap"
+            app:key="@string/pref_identitycap"
             app:title="@string/identity_share_title"
             android:defaultValue="512"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:defaultValue="512"
-            app:key="message_share_cap"
+            app:key="@string/pref_blockdatacap"
             app:title="@string/message_share_title"
             app:useSimpleSummaryProvider="true" />
 
@@ -24,7 +24,7 @@
         <ListPreference
             app:entries="@array/power_modes"
             android:entryValues="@array/power_modes_vals"
-            app:key="power_mode"
+            app:key="@string/pref_powersave"
             app:title="@string/power_mode_title"
             app:defaultValue="Active"
             app:useSimpleSummaryProvider="true"/>
