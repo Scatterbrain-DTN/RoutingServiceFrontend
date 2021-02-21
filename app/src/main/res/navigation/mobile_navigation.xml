@@ -6,6 +6,14 @@
     app:startDestination="@+id/navigation_power">
 
     <fragment
+        android:id="@+id/navigation_identity"
+        android:name="net.ballmerlabs.scatterbrain.ui.identity.IdentityFragment"
+        android:label="@string/title_identity"
+        tools:layout="@layout/fragment_identity">
+
+    </fragment>
+
+    <fragment
         android:id="@+id/navigation_power"
         android:name="net.ballmerlabs.scatterbrain.ui.power.PowerFragment"
         android:label="@string/title_power"
@@ -16,6 +24,9 @@
         <action
             android:id="@+id/action_navigation_power_to_navigation_settings2"
             app:destination="@id/navigation_settings" />
+        <action
+            android:id="@+id/action_navigation_power_to_navigation_identity"
+            app:destination="@id/navigation_identity" />
     </fragment>
 
     <fragment

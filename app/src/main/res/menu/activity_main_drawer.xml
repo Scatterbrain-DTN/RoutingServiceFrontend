@@ -7,11 +7,15 @@
             android:id="@+id/navigation_power"
             android:icon="@drawable/ic_baseline_power_settings_new_24"
             android:title="@string/menu_power" />
-    </group>
-    <group android:checkableBehavior="single">
         <item
             android:id="@+id/navigation_settings"
             android:icon="@drawable/ic_baseline_settings_24"
             android:title="@string/action_settings"/>
+        <item
+            android:id="@+id/navigation_identity"
+            android:icon="@drawable/ic_baseline_perm_identity_24"
+            android:title="@string/title_identity"
+            />
+
     </group>
 </menu>

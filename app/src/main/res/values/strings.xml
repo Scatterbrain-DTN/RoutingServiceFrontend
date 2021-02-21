@@ -10,6 +10,8 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
+    <string name="title_identity">Identity Management</string>
+
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
@@ -40,5 +42,7 @@
     </string-array>
     <string name="grant_location_text">Scatterbrain needs location permission in order to scan for bluetooth and wifi.</string>
     <string name="failed_location_text">If location permission is not granted, scatterbrain will only function in passive mode</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
