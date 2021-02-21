@@ -1,33 +1,24 @@
     package net.ballmerlabs.scatterbrain.ui.power;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
-import android.os.RemoteException;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.ToggleButton;
+    import android.content.ComponentName;
+    import android.content.Intent;
+    import android.content.ServiceConnection;
+    import android.os.Bundle;
+    import android.os.IBinder;
+    import android.os.RemoteException;
+    import android.util.Log;
+    import android.view.LayoutInflater;
+    import android.view.View;
+    import android.view.ViewGroup;
+    import android.widget.TextView;
+    import android.widget.ToggleButton;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+    import androidx.annotation.NonNull;
+    import androidx.fragment.app.Fragment;
 
-import net.ballmerlabs.scatterbrain.R;
-import net.ballmerlabs.uscatterbrain.API.ScatterMessage;
-import net.ballmerlabs.uscatterbrain.ScatterRoutingService;
-import net.ballmerlabs.uscatterbrain.ScatterbrainAPI;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Random;
+    import net.ballmerlabs.scatterbrain.R;
+    import net.ballmerlabs.scatterbrainsdk.ScatterbrainAPI;
+    import net.ballmerlabs.uscatterbrain.ScatterRoutingService;
 
 public class PowerFragment extends Fragment {
     private static final String TAG = "PowerFragment";

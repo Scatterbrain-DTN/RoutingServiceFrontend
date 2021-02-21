@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "net.ballmerlabs.scatterbrain"
-        minSdkVersion 28
+        minSdkVersion 29
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -38,6 +38,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation project(':ScatterRoutingService:app')
+    implementation project(':ScatterRoutingService:scatterbrainSDK')
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.+'
