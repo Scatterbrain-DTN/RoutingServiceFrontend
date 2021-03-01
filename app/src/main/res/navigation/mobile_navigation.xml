@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/navigation_identity"
-        android:name="net.ballmerlabs.scatterbrain.ui.identity.IdentityFragment"
+        android:name="net.ballmerlabs.scatterbrain.ui.identity.IdentityHomeFragment"
         android:label="@string/title_identity"
-        tools:layout="@layout/fragment_identity">
+        tools:layout="@layout/fragment_identity_home">
 
     </fragment>
 
