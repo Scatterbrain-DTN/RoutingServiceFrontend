@@ -19,20 +19,16 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import net.ballmerlabs.scatterbrain.databinding.ActivityDrawerBinding
-import net.ballmerlabs.scatterbrain.databinding.AppBarMainBinding
-import net.ballmerlabs.scatterbrain.databinding.ContentMainBinding
 
 class DrawerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDrawerBinding
-    private lateinit var contentBinding: ContentMainBinding
-    private lateinit var appBarMainBinding: AppBarMainBinding
 
     private var mAppBarConfiguration: AppBarConfiguration? = null
     private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult (RequestPermission()) { isGranted: Boolean ->
         if (isGranted) {
-            contentBinding.grantlocationbanner.dismiss()
+            binding.appbar.maincontent.grantlocationbanner.dismiss()
         } else {
-            contentBinding.grantlocationbanner.setMessage(R.string.failed_location_text)
+            binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
         }
     }
 
@@ -40,22 +36,20 @@ class DrawerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDrawerBinding.inflate(layoutInflater)
-        contentBinding = ContentMainBinding.inflate(layoutInflater)
-        appBarMainBinding = AppBarMainBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_drawer)
+        setContentView(binding.root)
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         val collapsingToolbarLayout = findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar)
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
-            contentBinding.grantlocationbanner.show()
+            binding.appbar.maincontent.grantlocationbanner.show()
         }
-        contentBinding.grantlocationbanner.setRightButtonListener {
+        binding.appbar.maincontent.grantlocationbanner.setRightButtonListener {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
-        contentBinding.grantlocationbanner.setLeftButtonListener {
-            contentBinding.grantlocationbanner.setMessage(R.string.failed_location_text)
+        binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
+            binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
         }
         val fabParams = fab.layoutParams as CoordinatorLayout.LayoutParams
-        setSupportActionBar(appBarMainBinding.toolbar)
+        setSupportActionBar(binding.appbar.toolbar)
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
