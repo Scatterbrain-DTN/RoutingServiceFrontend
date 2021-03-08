@@ -3,6 +3,7 @@ package net.ballmerlabs.scatterbrain
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -37,7 +38,7 @@ class DrawerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDrawerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
+        val fab = binding.appbar.fab
         val collapsingToolbarLayout = findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar)
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
             binding.appbar.maincontent.grantlocationbanner.show()
@@ -56,9 +57,13 @@ class DrawerActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _: NavController?, destination: NavDestination, _: Bundle? ->
             if (destination.id == R.id.navigation_identity) {
                 fabParams.anchorId = R.id.appbar_layout
+                fabParams.anchorGravity = Gravity.BOTTOM or Gravity.END
+                fab.show()
             } else {
                 fabParams.anchorId = View.NO_ID
+                fab.hide()
             }
+            fab.layoutParams = fabParams
         }
 
         // Passing each menu ID as a set of Ids because each
