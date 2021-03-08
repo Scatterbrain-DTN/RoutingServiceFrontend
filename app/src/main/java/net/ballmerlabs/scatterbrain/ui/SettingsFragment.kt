@@ -8,7 +8,7 @@ import androidx.preference.PreferenceFragmentCompat
 import net.ballmerlabs.scatterbrain.R
 
 class SettingsFragment : PreferenceFragmentCompat() {
-    override fun onCreatePreferences(savedInstanceState: Bundle, rootKey: String) {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         for (key in arrayOf("identity_share_cap", "message_share_cap")) {
             val editTextPreference = preferenceManager.findPreference<EditTextPreference>(key)
