@@ -13,6 +13,7 @@ interface ServiceConnectionRepository {
     suspend fun getScatterMessages(application: String): List<ScatterMessage>
     suspend fun observeIdentities(): Flow<List<Identity>>
     suspend fun observeMessages(application: String): Flow<List<ScatterMessage>>
+    suspend fun generateIdentity(name: String)
 
     companion object {
         val TAG = "ServiceConnectionRepository"

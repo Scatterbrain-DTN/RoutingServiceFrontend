@@ -40,6 +40,15 @@
         <item>@string/powersave_opportunistic</item>
         <item>@string/powersave_passive</item>
     </string-array>
+
+    <!-- identity -->
+    <string name="create_hint">Display Name</string>
+    <string name="create_dialog_title">Generate new identity</string>
+    <string name="create_cancel">Cancel</string>
+    <string name="create_create">Generate</string>
+
+
+    <!-- location -->
     <string name="grant_location_text">Scatterbrain needs location permission in order to scan for bluetooth and wifi.</string>
     <string name="failed_location_text">If location permission is not granted, scatterbrain will only function in passive mode</string>
     <!-- TODO: Remove or change this placeholder text -->

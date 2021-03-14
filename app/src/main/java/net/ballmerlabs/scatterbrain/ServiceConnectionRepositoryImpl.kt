@@ -133,6 +133,10 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun generateIdentity(name: String) {
+        autoBindService()
+        binder!!.generateIdentity(name)
+    }
     
     init {
         Log.v(TAG, "init called")

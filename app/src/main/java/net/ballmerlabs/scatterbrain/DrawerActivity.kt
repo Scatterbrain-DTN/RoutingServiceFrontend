@@ -3,11 +3,12 @@ package net.ballmerlabs.scatterbrain
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.Gravity
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.drawerlayout.widget.DrawerLayout
@@ -17,15 +18,20 @@ import androidx.navigation.Navigation
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
 import net.ballmerlabs.scatterbrain.databinding.ActivityDrawerBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DrawerActivity @Inject constructor() : AppCompatActivity() {
+class DrawerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDrawerBinding
+
+    @Inject lateinit var repository: ServiceConnectionRepository
+
 
     private var mAppBarConfiguration: AppBarConfiguration? = null
     private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult (RequestPermission()) { isGranted: Boolean ->
@@ -60,6 +66,24 @@ class DrawerActivity @Inject constructor() : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _: NavController?, destination: NavDestination, _: Bundle? ->
             if (destination.id == R.id.navigation_identity) {
                 fabParams.anchorId = R.id.appbar_layout
+                fab.setOnClickListener {
+                    MaterialAlertDialogBuilder(this)
+                            .setView(R.layout.create_identity_dialog_view)
+                            .setTitle(R.string.create_dialog_title)
+                            .setNeutralButton(R.string.create_cancel) { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .setPositiveButton(R.string.create_create) { dialog, _ ->
+                                val dialogLayout = dialog as AlertDialog
+                                val editText = dialogLayout.findViewById<TextInputEditText>(R.id.identity_name_text)
+                                Log.v(TAG, "got text val ${editText!!.text}")
+                                runBlocking {
+                                    repository.generateIdentity(editText!!.text.toString())
+                                }
+                                dialog.dismiss()
+                            }
+                            .show()
+                }
                 fab.show()
             } else {
                 fabParams.anchorId = View.NO_ID
@@ -87,5 +111,9 @@ class DrawerActivity @Inject constructor() : AppCompatActivity() {
         val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         return (NavigationUI.onNavDestinationSelected(item, navController)
                 || super.onOptionsItemSelected(item))
+    }
+
+    companion object {
+        val TAG = "DrawerActivity"
     }
 }
