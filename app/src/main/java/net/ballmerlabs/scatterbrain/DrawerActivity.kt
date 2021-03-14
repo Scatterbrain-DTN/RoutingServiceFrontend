@@ -19,9 +19,12 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
+import dagger.hilt.android.AndroidEntryPoint
 import net.ballmerlabs.scatterbrain.databinding.ActivityDrawerBinding
+import javax.inject.Inject
 
-class DrawerActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class DrawerActivity @Inject constructor() : AppCompatActivity() {
     private lateinit var binding: ActivityDrawerBinding
 
     private var mAppBarConfiguration: AppBarConfiguration? = null
@@ -57,7 +60,6 @@ class DrawerActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _: NavController?, destination: NavDestination, _: Bundle? ->
             if (destination.id == R.id.navigation_identity) {
                 fabParams.anchorId = R.id.appbar_layout
-                fabParams.anchorGravity = Gravity.BOTTOM or Gravity.END
                 fab.show()
             } else {
                 fabParams.anchorId = View.NO_ID
