@@ -18,8 +18,16 @@ class IdentityListAdapter : RecyclerView.Adapter<IdentityListEntry>() {
         return viewlist.size
     }
 
+    fun setItems(items: List<Identity>) {
+        viewlist.clear()
+        viewlist.addAll(items)
+        notifyDataSetChanged()
+    }
+
     override fun onBindViewHolder(holder: IdentityListEntry, position: Int) {
-        
+        val id = viewlist[position]
+        holder.fingerintText.text = id.fingerprint
+        holder.nameText.text = id.givenname
     }
 
 }

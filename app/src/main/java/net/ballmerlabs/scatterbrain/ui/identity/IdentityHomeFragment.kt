@@ -5,8 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import net.ballmerlabs.scatterbrain.R
+import net.ballmerlabs.scatterbrain.databinding.FragmentIdentityHomeBinding
+import net.ballmerlabs.scatterbrainsdk.Identity
+import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
+import net.ballmerlabs.uscatterbrain.db.entities.ApiIdentity
 import javax.inject.Inject
 
 /**
@@ -16,14 +21,30 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class IdentityHomeFragment @Inject constructor() : Fragment() {
+    lateinit var bind: FragmentIdentityHomeBinding
+    val adapter = IdentityListAdapter()
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
+    private fun addTestData() {
+        adapter.setItems(listOf(ApiIdentity
+                .newBuilder()
+                .setName("fmef")
+                .setSig("fmef".encodeToByteArray())
+                .addKeys(mapOf(Pair(ScatterbrainApi.PROTOBUF_PRIVKEY_KEY, "fmef".encodeToByteArray())))
+                .build()))
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
+        bind = FragmentIdentityHomeBinding.inflate(inflater)
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_identity_home, container, false)
+        bind.recyclerView.adapter = adapter
+        bind.recyclerView.layoutManager = LinearLayoutManager(context)
+        addTestData()
+        return bind.root
     }
 
     companion object {
