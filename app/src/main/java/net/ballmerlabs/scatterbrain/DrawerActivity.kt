@@ -22,6 +22,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.ballmerlabs.scatterbrain.databinding.ActivityDrawerBinding
 import javax.inject.Inject
@@ -77,8 +79,8 @@ class DrawerActivity : AppCompatActivity() {
                                 val dialogLayout = dialog as AlertDialog
                                 val editText = dialogLayout.findViewById<TextInputEditText>(R.id.identity_name_text)
                                 Log.v(TAG, "got text val ${editText!!.text}")
-                                runBlocking {
-                                    repository.generateIdentity(editText!!.text.toString())
+                                GlobalScope.launch {
+                                    repository.generateIdentity(editText.text.toString())
                                 }
                                 dialog.dismiss()
                             }

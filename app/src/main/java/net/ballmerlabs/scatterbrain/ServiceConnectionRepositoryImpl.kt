@@ -8,11 +8,13 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrain.ServiceConnectionRepository.Companion.TAG
 import net.ballmerlabs.scatterbrainsdk.HandshakeResult
 import net.ballmerlabs.scatterbrainsdk.Identity
@@ -135,7 +137,13 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
 
     override suspend fun generateIdentity(name: String) {
         autoBindService()
-        binder!!.generateIdentity(name)
+        Log.e("debug", "generateIdentity wrapper called")
+        try {
+                binder!!.generateIdentity(name)
+            } catch (re: RemoteException) {
+                Log.e(TAG, "remoteException")
+                re.printStackTrace()
+            }
     }
     
     init {
