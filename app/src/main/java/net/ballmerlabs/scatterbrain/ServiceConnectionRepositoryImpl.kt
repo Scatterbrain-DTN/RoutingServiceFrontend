@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.flow
 import net.ballmerlabs.scatterbrain.ServiceConnectionRepository.Companion.TAG
 import net.ballmerlabs.scatterbrainsdk.HandshakeResult
 import net.ballmerlabs.scatterbrainsdk.Identity
+import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainAPI
 import net.ballmerlabs.uscatterbrain.ScatterRoutingService
 import java.lang.IllegalStateException
@@ -71,6 +72,13 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
             ret.resume(true)
         }
     }
+
+    private suspend fun autoBindService() {
+        val r = bindService()
+        if (!r) {
+            throw IllegalStateException("service not bound")
+        }
+    }
     
     override suspend fun unbindService(): Boolean = suspendCoroutine { ret ->
         registerCallback { r ->
@@ -85,19 +93,13 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getIdentities(): List<Identity> {
-        val r = bindService()
-        if (!r) {
-            throw IllegalStateException("service not bound")
-        }
+        autoBindService()
         return binder!!.identities
     }
 
     @ExperimentalCoroutinesApi
     override suspend fun observeIdentities(): Flow<List<Identity>>  = callbackFlow {
-        val r = bindService()
-        if (!r) {
-            throw IllegalStateException("service not bound")
-        }
+        autoBindService()
         val callback: suspend (handshakeResult: HandshakeResult) -> Unit = { handshakeResult ->
             if (handshakeResult.identities > 0) {
                 offer(getIdentities())
@@ -106,6 +108,27 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         broadcastReceiver.addOnReceiveCallback(callback)
         
         awaitClose { 
+            broadcastReceiver.removeOnReceiveCallback(callback)
+        }
+    }
+
+    override suspend fun getScatterMessages(application: String): List<ScatterMessage> {
+        autoBindService()
+        return binder!!.getByApplication(application)
+    }
+
+    @ExperimentalCoroutinesApi
+    override suspend fun observeMessages(application: String): Flow<List<ScatterMessage>> = callbackFlow  {
+        autoBindService()
+        val callback: suspend (handshakeResult: HandshakeResult) -> Unit = { handshakeResult ->
+            if (handshakeResult.messages > 0) {
+                offer(getScatterMessages(application))
+            }
+        }
+
+        broadcastReceiver.addOnReceiveCallback(callback)
+
+        awaitClose {
             broadcastReceiver.removeOnReceiveCallback(callback)
         }
     }
