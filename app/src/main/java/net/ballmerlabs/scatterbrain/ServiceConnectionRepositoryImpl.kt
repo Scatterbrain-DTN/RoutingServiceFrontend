@@ -11,6 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import net.ballmerlabs.scatterbrain.ServiceConnectionRepository.Companion.TAG
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainAPI
 import net.ballmerlabs.uscatterbrain.ScatterRoutingService
+import java.lang.IllegalStateException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -48,9 +49,10 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         bindCallbackSet.add(c)
     }
 
-    override suspend fun bindService(): Boolean? = suspendCoroutine { ret ->
+    override suspend fun bindService(): Boolean = suspendCoroutine { ret ->
         if (binder == null) {
             registerCallback { b ->
+                if (b == null) throw IllegalStateException("failed to bind service")
                 ret.resume(b)
             }
             val bindIntent = Intent(context, ScatterRoutingService::class.java)
@@ -62,8 +64,11 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         }
     }
     
-    override suspend fun unbindService(): Boolean? = suspendCoroutine { ret ->
-        registerCallback { r -> ret.resume(r)}
+    override suspend fun unbindService(): Boolean = suspendCoroutine { ret ->
+        registerCallback { r ->
+            if (r == null) throw IllegalStateException("failed to bind service")
+            ret.resume(r)
+        }
         if (binder != null) {
             context.unbindService(callback)
         }

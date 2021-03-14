@@ -14,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import net.ballmerlabs.scatterbrain.R
 import net.ballmerlabs.scatterbrain.ServiceConnectionRepository
 import net.ballmerlabs.scatterbrain.databinding.FragmentPowerBinding
+import java.lang.IllegalStateException
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,11 +33,16 @@ class PowerFragment : Fragment() {
         _binding = FragmentPowerBinding.inflate(layoutInflater)
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             GlobalScope.launch {
-                val v = if (b)
-                    serviceConnectionRepository.bindService()
-                else
-                    serviceConnectionRepository.unbindService()
-                compoundButton.isChecked = v ?: false
+                try {
+                    val v = if (b)
+                        serviceConnectionRepository.bindService()
+                    else
+                        serviceConnectionRepository.unbindService()
+                    compoundButton.isChecked = v
+                } catch (e: IllegalStateException) {
+                    compoundButton.isChecked = false
+                    //TODO: update ui with error
+                }
             }
         }
         return binding.root
