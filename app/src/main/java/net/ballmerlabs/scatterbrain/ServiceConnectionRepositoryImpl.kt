@@ -135,15 +135,16 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun generateIdentity(name: String) {
+    override suspend fun generateIdentity(name: String): String? {
         autoBindService()
-        Log.e("debug", "generateIdentity wrapper called")
-        try {
-                binder!!.generateIdentity(name)
-            } catch (re: RemoteException) {
-                Log.e(TAG, "remoteException")
-                re.printStackTrace()
-            }
+        return try {
+            binder!!.generateIdentity(name)
+            null
+        } catch (re: RemoteException) {
+            Log.e(TAG, "remoteException")
+            re.printStackTrace()
+            re.localizedMessage
+        }
     }
     
     init {

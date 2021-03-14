@@ -80,9 +80,15 @@ class DrawerActivity : AppCompatActivity() {
                                 val editText = dialogLayout.findViewById<TextInputEditText>(R.id.identity_name_text)
                                 Log.v(TAG, "got text val ${editText!!.text}")
                                 GlobalScope.launch {
-                                    repository.generateIdentity(editText.text.toString())
+                                    val respose = repository.generateIdentity(editText.text.toString())
+                                    
+                                    if (respose == null) {
+                                        dialog.dismiss()
+                                    } else {
+                                        dialog.setTitle("Failed to generate identity: $respose")
+                                    }
+
                                 }
-                                dialog.dismiss()
                             }
                             .show()
                 }
