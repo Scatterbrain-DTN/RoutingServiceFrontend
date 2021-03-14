@@ -28,12 +28,12 @@ import kotlin.coroutines.suspendCoroutine
 @Singleton
 class ServiceConnectionRepositoryImpl @Inject constructor(
         @ApplicationContext val context: Context,
-        val broadcastReceiver: ScatterbrainBroadcastReceiver
+        private val broadcastReceiver: ScatterbrainBroadcastReceiver
 ) : ServiceConnectionRepository {
 
     private var binder: ScatterbrainAPI? = null
     private val bindCallbackSet: MutableSet<(Boolean?) -> Unit> = mutableSetOf()
-    val callback = object: ServiceConnection {
+    private val callback = object: ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             binder = ScatterbrainAPI.Stub.asInterface(service)
             Log.v(TAG, "connected to ScatterRoutingService binder")

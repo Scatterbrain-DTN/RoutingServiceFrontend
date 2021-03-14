@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RoutingServiceViewModel @Inject constructor(
-        val repository: ServiceConnectionRepository
+        private val repository: ServiceConnectionRepository
 ) : ViewModel() {
     suspend fun observeMessages(application: String): LiveData<List<ScatterMessage>> {
         return repository.observeMessages(application).asLiveData()
