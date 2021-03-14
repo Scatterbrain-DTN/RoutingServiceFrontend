@@ -24,9 +24,8 @@ allprojects {
         mavenLocal()
         google()
         jcenter()
-        maven {
-            url  "https://dl.bintray.com/terl/lazysodium-maven"
-        }
+        maven { url  "https://dl.bintray.com/terl/lazysodium-maven"}
+        maven { url "https://jitpack.io" }
         flatDir {
             dirs 'src/main/libs'
         }

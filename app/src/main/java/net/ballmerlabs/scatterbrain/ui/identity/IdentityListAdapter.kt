@@ -28,6 +28,7 @@ class IdentityListAdapter : RecyclerView.Adapter<IdentityListEntry>() {
         val id = viewlist[position]
         holder.fingerintText.text = id.fingerprint
         holder.nameText.text = id.givenname
+        holder.identicon.hash = id.fingerprint.hashCode()
     }
 
 }
