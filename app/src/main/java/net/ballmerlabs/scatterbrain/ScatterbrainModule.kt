@@ -9,6 +9,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class ScatterbrainModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindScatterbrainBroadcastReceiver(
+            broadcastReceiverImpl: ScatterbrainBroadcastReceiverImpl
+    ): ScatterbrainBroadcastReceiver
+
     @Singleton
     @Binds
     abstract fun bindServiceConnectionRepository(
