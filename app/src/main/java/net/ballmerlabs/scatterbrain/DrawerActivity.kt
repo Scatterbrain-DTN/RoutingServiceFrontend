@@ -33,6 +33,8 @@ class DrawerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDrawerBinding
 
     @Inject lateinit var repository: ServiceConnectionRepository
+    
+    @Inject lateinit var broadcastReceiver: ScatterbrainBroadcastReceiver
 
 
     private var mAppBarConfiguration: AppBarConfiguration? = null
@@ -121,6 +123,16 @@ class DrawerActivity : AppCompatActivity() {
                 || super.onOptionsItemSelected(item))
     }
 
+    override fun onPause() {
+        super.onPause()
+        broadcastReceiver.unregister()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        broadcastReceiver.register()
+    }
+    
     companion object {
         val TAG = "DrawerActivity"
     }
