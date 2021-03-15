@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.runBlocking
 import net.ballmerlabs.scatterbrainsdk.HandshakeResult
@@ -18,6 +19,7 @@ class ScatterbrainBroadcastReceiverImpl @Inject constructor(
     
     override fun onReceive(ctx: Context, intent: Intent) {
         val handshakeResult = intent.getParcelableExtra<HandshakeResult>(ScatterbrainApi.EXTRA_TRANSACTION_RESULT)!!
+        Log.e("debug", "received handshake result")
         callbackSet.forEach { h -> runBlocking {  h(handshakeResult) } }
     }
 

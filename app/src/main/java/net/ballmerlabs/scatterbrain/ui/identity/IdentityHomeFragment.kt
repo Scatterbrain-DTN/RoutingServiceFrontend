@@ -5,9 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrain.R
+import net.ballmerlabs.scatterbrain.RoutingServiceViewModel
 import net.ballmerlabs.scatterbrain.databinding.FragmentIdentityHomeBinding
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
@@ -23,7 +28,7 @@ import javax.inject.Inject
 class IdentityHomeFragment @Inject constructor() : Fragment() {
     lateinit var bind: FragmentIdentityHomeBinding
     val adapter = IdentityListAdapter()
-    
+    val model: RoutingServiceViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -43,7 +48,12 @@ class IdentityHomeFragment @Inject constructor() : Fragment() {
         // Inflate the layout for this fragment
         bind.recyclerView.adapter = adapter
         bind.recyclerView.layoutManager = LinearLayoutManager(context)
-        addTestData()
+        model.viewModelScope.launch {
+            model.observeIdentities()
+                    .observe(viewLifecycleOwner) { newList ->
+                        adapter.setItems(newList)
+                    }
+        }
         return bind.root
     }
 
