@@ -102,6 +102,7 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
     @ExperimentalCoroutinesApi
     override suspend fun observeIdentities(): Flow<List<Identity>>  = callbackFlow {
         autoBindService()
+        offer(getIdentities())
         val callback: suspend (handshakeResult: HandshakeResult) -> Unit = { handshakeResult ->
             if (handshakeResult.identities > 0) {
                 offer(getIdentities())
@@ -122,6 +123,7 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
     @ExperimentalCoroutinesApi
     override suspend fun observeMessages(application: String): Flow<List<ScatterMessage>> = callbackFlow  {
         autoBindService()
+        offer(getScatterMessages(application))
         val callback: suspend (handshakeResult: HandshakeResult) -> Unit = { handshakeResult ->
             if (handshakeResult.messages > 0) {
                 offer(getScatterMessages(application))
