@@ -8,10 +8,12 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.Navigation
@@ -22,9 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.ballmerlabs.scatterbrain.databinding.ActivityDrawerBinding
 import javax.inject.Inject
 
@@ -35,6 +34,8 @@ class DrawerActivity : AppCompatActivity() {
     @Inject lateinit var repository: ServiceConnectionRepository
     
     @Inject lateinit var broadcastReceiver: ScatterbrainBroadcastReceiver
+
+    val model: RoutingServiceViewModel by viewModels()
 
 
     private var mAppBarConfiguration: AppBarConfiguration? = null
@@ -81,7 +82,7 @@ class DrawerActivity : AppCompatActivity() {
                                 val dialogLayout = dialog as AlertDialog
                                 val editText = dialogLayout.findViewById<TextInputEditText>(R.id.identity_name_text)
                                 Log.v(TAG, "got text val ${editText!!.text}")
-                                GlobalScope.launch {
+                                model.viewModelScope.softCancelLaunch {
                                     val respose = repository.generateIdentity(editText.text.toString())
                                     
                                     if (respose == null) {

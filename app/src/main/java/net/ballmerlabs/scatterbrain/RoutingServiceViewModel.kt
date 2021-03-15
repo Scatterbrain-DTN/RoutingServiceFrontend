@@ -5,8 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import javax.inject.Inject
@@ -23,5 +22,15 @@ class RoutingServiceViewModel @Inject constructor(
 
     suspend fun observeIdentities() : LiveData<List<Identity>> {
         return repository.observeIdentities().asLiveData()
+    }
+}
+
+fun CoroutineScope.softCancelLaunch(f: suspend CoroutineScope.() -> Unit): Job {
+    return this.launch {
+        try {
+            f()
+        } catch (e: CancellationException) {
+            //ignored
+        }
     }
 }

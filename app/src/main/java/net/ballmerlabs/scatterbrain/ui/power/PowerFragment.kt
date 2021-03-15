@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -16,6 +17,7 @@ import net.ballmerlabs.scatterbrain.R
 import net.ballmerlabs.scatterbrain.RoutingServiceViewModel
 import net.ballmerlabs.scatterbrain.ServiceConnectionRepository
 import net.ballmerlabs.scatterbrain.databinding.FragmentPowerBinding
+import net.ballmerlabs.scatterbrain.softCancelLaunch
 import java.lang.IllegalStateException
 import javax.inject.Inject
 
@@ -36,7 +38,7 @@ class PowerFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentPowerBinding.inflate(layoutInflater)
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            GlobalScope.launch {
+            model.viewModelScope.softCancelLaunch {
                 try {
                     if (b) {
                         serviceConnectionRepository.startService()

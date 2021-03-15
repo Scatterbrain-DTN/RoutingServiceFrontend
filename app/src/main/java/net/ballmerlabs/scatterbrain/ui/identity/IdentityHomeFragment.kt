@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrain.R
 import net.ballmerlabs.scatterbrain.RoutingServiceViewModel
 import net.ballmerlabs.scatterbrain.databinding.FragmentIdentityHomeBinding
+import net.ballmerlabs.scatterbrain.softCancelLaunch
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.uscatterbrain.db.entities.ApiIdentity
@@ -48,7 +49,7 @@ class IdentityHomeFragment @Inject constructor() : Fragment() {
         // Inflate the layout for this fragment
         bind.recyclerView.adapter = adapter
         bind.recyclerView.layoutManager = LinearLayoutManager(context)
-        model.viewModelScope.launch {
+        model.viewModelScope.softCancelLaunch {
             model.observeIdentities()
                     .observe(viewLifecycleOwner) { newList ->
                         adapter.setItems(newList)
