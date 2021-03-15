@@ -3,6 +3,7 @@
     package="net.ballmerlabs.scatterbrain">
 
     <uses-permission android:name="net.ballmerlabs.scatterbrain.permission.SUPERUSER" />
+    <uses-permission android:name="net.ballmerlabs.scatterbrain.permission.ACCESS"/>
 
     <application
         android:allowBackup="true"
