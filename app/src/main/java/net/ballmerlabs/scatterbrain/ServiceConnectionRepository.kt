@@ -6,15 +6,16 @@ import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 
 interface ServiceConnectionRepository {
-
-    suspend fun bindService(): Boolean
+    val serviceConnections: Flow<Boolean>
+    suspend fun startService()
+    suspend fun stopService()
+    suspend fun bindService()
     suspend fun unbindService(): Boolean
     suspend fun getIdentities(): List<Identity>
     suspend fun getScatterMessages(application: String): List<ScatterMessage>
     suspend fun observeIdentities(): Flow<List<Identity>>
     suspend fun observeMessages(application: String): Flow<List<ScatterMessage>>
     suspend fun generateIdentity(name: String): String?
-
     companion object {
         val TAG = "ServiceConnectionRepository"
     }

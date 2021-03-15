@@ -15,12 +15,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import net.ballmerlabs.scatterbrain.ServiceConnectionRepository.Companion.TAG
 import net.ballmerlabs.scatterbrainsdk.HandshakeResult
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainAPI
 import net.ballmerlabs.uscatterbrain.ScatterRoutingService
+import java.lang.Exception
+import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,73 +38,103 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
 
     private var binder: ScatterbrainAPI? = null
     private val bindCallbackSet: MutableSet<(Boolean?) -> Unit> = mutableSetOf()
-    private val callback = object: ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            binder = ScatterbrainAPI.Stub.asInterface(service)
-            Log.v(TAG, "connected to ScatterRoutingService binder")
-            try {
-                bindCallbackSet.forEach { c ->  c(true)}
-            } catch (e: RemoteException) {
-                Log.e(TAG, "RemoteException: $e")
-                bindCallbackSet.forEach { c -> c(null) }
-            } finally {
+
+    private lateinit var callback: ServiceConnection
+
+    @ExperimentalCoroutinesApi
+    override val serviceConnections = callbackFlow {
+        offer(false)
+        callback  = object: ServiceConnection {
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                binder = ScatterbrainAPI.Stub.asInterface(service)
+                Log.v(TAG, "connected to ScatterRoutingService binder")
+                try {
+                    bindCallbackSet.forEach { c ->  c(true)}
+                    offer(true)
+                } catch (e: RemoteException) {
+                    Log.e(TAG, "RemoteException: $e")
+                    bindCallbackSet.forEach { c -> c(null) }
+                    offer(false)
+                } finally {
+                    bindCallbackSet.clear()
+                }
+            }
+
+            override fun onServiceDisconnected(componentName: ComponentName) {
+                binder = null
+                bindCallbackSet.forEach { c -> c(false) }
                 bindCallbackSet.clear()
+                offer(false)
             }
         }
 
-        override fun onServiceDisconnected(componentName: ComponentName) {
-            binder = null
-            bindCallbackSet.forEach { c -> c(false) }
-            bindCallbackSet.clear()
-        }
+        awaitClose {  }
     }
 
     private fun registerCallback(c: (Boolean?) -> Unit) {
         bindCallbackSet.add(c)
     }
     
-    override suspend fun bindService(): Boolean = suspendCoroutine { ret ->
+    private fun unregisterCallback(c: (Boolean?) -> Unit) {
+        bindCallbackSet.remove(c)
+    }
+
+    private suspend fun bindServiceWithoutTimeout(): Unit = suspendCoroutine { ret ->
         if (binder == null) {
             registerCallback { b ->
-                if (b == null) throw IllegalStateException("failed to bind service")
-                ret.resume(b)
+                if (b == null || b == false) throw IllegalStateException("failed to bind service")
+                ret.resume(Unit)
             }
             val bindIntent = Intent(context, ScatterRoutingService::class.java)
             context.bindService(bindIntent, callback, 0)
-            val startIntent = Intent(context, ScatterRoutingService::class.java)
-            context.startForegroundService(startIntent)
         } else {
-            ret.resume(true)
+            ret.resume(Unit)
         }
     }
 
-    private suspend fun autoBindService() {
-        val r = bindService()
-        if (!r) {
-            throw IllegalStateException("service not bound")
+    override suspend fun startService() {
+        val startIntent = Intent(context, ScatterRoutingService::class.java)
+        context.startForegroundService(startIntent)
+        bindService()
+    }
+
+    override suspend fun bindService() {
+        withTimeout(5000L) {
+            bindServiceWithoutTimeout()
         }
     }
     
     override suspend fun unbindService(): Boolean = suspendCoroutine { ret ->
-        registerCallback { r ->
+        val c: (Boolean?) -> Unit = { r ->
             if (r == null) throw IllegalStateException("failed to bind service")
             ret.resume(r)
+            
         }
-        if (binder != null) {
-            context.unbindService(callback)
+        try {
+            registerCallback(c)
+            if (binder != null) {
+                context.unbindService(callback)
+            }
+        } catch (e: IllegalArgumentException) {
+            ret.resume(true) //service already unbound
+        } finally {
+            unregisterCallback(c)
         }
+    }
+
+    override suspend fun getIdentities(): List<Identity> {
+        bindService()
+        return binder!!.identities
+    }
+
+    override suspend fun stopService() {
         val stopIntent = Intent(context, ScatterRoutingService::class.java)
         context.stopService(stopIntent)
     }
 
-    override suspend fun getIdentities(): List<Identity> {
-        autoBindService()
-        return binder!!.identities
-    }
-
     @ExperimentalCoroutinesApi
     override suspend fun observeIdentities(): Flow<List<Identity>>  = callbackFlow {
-        autoBindService()
+        bindService()
         offer(getIdentities())
         val callback: suspend (handshakeResult: HandshakeResult) -> Unit = { handshakeResult ->
             if (handshakeResult.identities > 0) {
@@ -116,13 +149,13 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getScatterMessages(application: String): List<ScatterMessage> {
-        autoBindService()
+        bindService()
         return binder!!.getByApplication(application)
     }
 
     @ExperimentalCoroutinesApi
     override suspend fun observeMessages(application: String): Flow<List<ScatterMessage>> = callbackFlow  {
-        autoBindService()
+        bindService()
         offer(getScatterMessages(application))
         val callback: suspend (handshakeResult: HandshakeResult) -> Unit = { handshakeResult ->
             if (handshakeResult.messages > 0) {
@@ -138,7 +171,7 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun generateIdentity(name: String): String? {
-        autoBindService()
+        bindService()
         return try {
             binder!!.generateIdentity(name)
             null
