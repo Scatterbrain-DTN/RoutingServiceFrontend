@@ -1,5 +1,6 @@
 package net.ballmerlabs.scatterbrain
 
+import android.content.pm.ApplicationInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RoutingServiceViewModel @Inject constructor(
-        private val repository: ServiceConnectionRepository
+        val repository: ServiceConnectionRepository
 ) : ViewModel() {
     val serviceConnections = repository.serviceConnections.asLiveData()
     
@@ -22,6 +23,10 @@ class RoutingServiceViewModel @Inject constructor(
 
     suspend fun observeIdentities() : LiveData<List<Identity>> {
         return repository.observeIdentities().asLiveData()
+    }
+
+    suspend fun getApplicationInfo(identity: Identity): LiveData<List<ApplicationInfo>> {
+        return repository.getPermissions(identity).asLiveData()
     }
 }
 

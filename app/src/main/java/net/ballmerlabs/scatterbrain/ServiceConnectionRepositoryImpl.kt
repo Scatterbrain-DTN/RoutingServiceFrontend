@@ -4,6 +4,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
@@ -180,6 +182,18 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
             re.printStackTrace()
             re.localizedMessage
         }
+    }
+
+    override suspend fun getPermissions(identity: Identity): Flow<List<ApplicationInfo>> = flow {
+        bindService()
+        val identities = binder!!.getAppPermissions(identity.fingerprint)
+        val result = mutableListOf<ApplicationInfo>()
+        val pm = context.packageManager
+        for (id in identities) {
+            val r = pm.getApplicationInfo(id, PackageManager.GET_META_DATA)
+            result.add(r)
+        }
+        emit(result)
     }
     
     init {

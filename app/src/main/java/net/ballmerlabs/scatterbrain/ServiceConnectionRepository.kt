@@ -1,5 +1,6 @@
 package net.ballmerlabs.scatterbrain
 
+import android.content.pm.ApplicationInfo
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import net.ballmerlabs.scatterbrainsdk.Identity
@@ -16,6 +17,7 @@ interface ServiceConnectionRepository {
     suspend fun observeIdentities(): Flow<List<Identity>>
     suspend fun observeMessages(application: String): Flow<List<ScatterMessage>>
     suspend fun generateIdentity(name: String): String?
+    suspend fun getPermissions(identity: Identity): Flow<List<ApplicationInfo>>
     companion object {
         val TAG = "ServiceConnectionRepository"
     }

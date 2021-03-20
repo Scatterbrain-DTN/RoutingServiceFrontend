@@ -28,7 +28,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class IdentityHomeFragment @Inject constructor() : Fragment() {
     lateinit var bind: FragmentIdentityHomeBinding
-    val adapter = IdentityListAdapter()
+    lateinit var adapter: IdentityListAdapter
     val model: RoutingServiceViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +47,7 @@ class IdentityHomeFragment @Inject constructor() : Fragment() {
                               savedInstanceState: Bundle?): View {
         bind = FragmentIdentityHomeBinding.inflate(inflater)
         // Inflate the layout for this fragment
+        adapter = IdentityListAdapter(requireActivity().supportFragmentManager)
         bind.recyclerView.adapter = adapter
         bind.recyclerView.layoutManager = LinearLayoutManager(context)
         model.viewModelScope.softCancelLaunch {
