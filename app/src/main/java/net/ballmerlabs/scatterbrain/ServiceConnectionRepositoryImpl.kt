@@ -184,6 +184,11 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun authorizeIdentity(identity: Identity, packageName: String) {
+        bindService()
+        binder!!.authorizeApp(identity.fingerprint, packageName)
+    }
+
     override suspend fun getPermissions(identity: Identity): Flow<List<ApplicationInfo>> = flow {
         bindService()
         val identities = binder!!.getAppPermissions(identity.fingerprint)

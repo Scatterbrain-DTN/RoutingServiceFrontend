@@ -35,15 +35,19 @@
         app:layout_constraintTop_toBottomOf="@id/editname"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <MultiAutoCompleteTextView
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintHeight_min="150dp"
-        android:id="@+id/autocomplete_app_selector"
-        android:hint="@string/permission_hint"
+        style="@style/Widget.AppCompat.AutoCompleteTextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editidenticon"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
+        app:layout_constraintEnd_toEndOf="parent">
+        <MultiAutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/autocomplete_app_selector"
+            android:hint="@string/permission_hint" />
+    </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
