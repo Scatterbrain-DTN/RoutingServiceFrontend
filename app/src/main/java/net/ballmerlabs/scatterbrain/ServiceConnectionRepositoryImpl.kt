@@ -10,14 +10,11 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import net.ballmerlabs.scatterbrain.ServiceConnectionRepository.Companion.TAG
 import net.ballmerlabs.scatterbrainsdk.HandshakeResult
 import net.ballmerlabs.scatterbrainsdk.Identity
@@ -40,6 +37,7 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
 
     private var binder: ScatterbrainAPI? = null
     private val bindCallbackSet: MutableSet<(Boolean?) -> Unit> = mutableSetOf()
+    private val pm = context.packageManager
 
     private lateinit var callback: ServiceConnection
 
@@ -189,14 +187,15 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         binder!!.authorizeApp(identity.fingerprint, packageName)
     }
 
-    override suspend fun getPermissions(identity: Identity): Flow<List<ApplicationInfo>> = flow {
+    override suspend fun getPermissions(identity: Identity): Flow<List<NamePackage>> = flow {
         bindService()
         val identities = binder!!.getAppPermissions(identity.fingerprint)
-        val result = mutableListOf<ApplicationInfo>()
+        val result = mutableListOf<NamePackage>()
         val pm = context.packageManager
         for (id in identities) {
+            yield()
             val r = pm.getApplicationInfo(id, PackageManager.GET_META_DATA)
-            result.add(r)
+            result.add(NamePackage(pm.getApplicationLabel(r).toString(), r))
         }
         emit(result)
     }

@@ -17,9 +17,15 @@ interface ServiceConnectionRepository {
     suspend fun observeIdentities(): Flow<List<Identity>>
     suspend fun observeMessages(application: String): Flow<List<ScatterMessage>>
     suspend fun generateIdentity(name: String): String?
-    suspend fun getPermissions(identity: Identity): Flow<List<ApplicationInfo>>
+    suspend fun getPermissions(identity: Identity): Flow<List<NamePackage>>
     suspend fun authorizeIdentity(identity: Identity, packageName: String)
     companion object {
         val TAG = "ServiceConnectionRepository"
     }
 }
+
+
+data class NamePackage(
+        val name: String,
+        val info: ApplicationInfo
+)

@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ImageSpan
 import android.util.Log
@@ -16,21 +17,24 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.chip.ChipDrawable
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import net.ballmerlabs.scatterbrain.R
-import net.ballmerlabs.scatterbrain.RoutingServiceViewModel
-import net.ballmerlabs.scatterbrain.ServiceConnectionRepository
+import net.ballmerlabs.scatterbrain.*
 import net.ballmerlabs.scatterbrain.databinding.FragmentEditIdentityDialogListDialogBinding
-import net.ballmerlabs.scatterbrain.softCancelLaunch
 import net.ballmerlabs.scatterbrainsdk.Identity
+import java.io.IOException
 import java.lang.UnsupportedOperationException
 import java.util.*
 import java.util.stream.IntStream
 import javax.inject.Inject
 import kotlin.collections.ArrayList
+import kotlin.jvm.Throws
 
 // TODO: Customize parameter argument names
 const val ARG_IDENTITY = "identity"
@@ -51,7 +55,6 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
     private lateinit var identity: Identity
     private lateinit var adapter: AppPackageArrayAdapter<ApplicationInfo>
     private val model: RoutingServiceViewModel by viewModels()
-    private lateinit var pm: PackageManager
 
     @Inject lateinit var repository: ServiceConnectionRepository
     
@@ -63,11 +66,28 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         chip.setBounds(0, 0, chip.intrinsicWidth, chip.intrinsicHeight)
         editText.setSpan(span, 0, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
-    
+
     @SuppressLint("QueryPermissionsNeeded") //we declare the queries element
+    private suspend fun composeInfoList() : List<ComparableApp> {
+        val apps = requireContext().packageManager.getInstalledApplications(0)
+        val infoList = ArrayList<ComparableApp>()
+        for (info in apps) {
+            yield()
+            if (info.name != null) {
+                Log.v(TAG, "loading package: ${info.name}")
+                infoList.add(
+                        ComparableApp(
+                                requireContext().packageManager.getApplicationLabel(info).toString(),
+                                info
+                        )
+                )
+            }
+        }
+        return infoList
+    }
+    
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        pm = requireActivity().packageManager
         binding = FragmentEditIdentityDialogListDialogBinding.inflate(inflater)
         identity = requireArguments().getParcelable(ARG_IDENTITY)!!
         binding.editname.text = identity.givenname
@@ -88,30 +108,44 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                 Log.w(TAG, "attempted to create chip for null string at $i")
             }
         }
-        val apps = requireContext().packageManager.getInstalledApplications(0)
-        val infoList = ArrayList<ComparableApp>()
-        for (info in apps) {
-            if (info.name != null) {
-                Log.v(TAG, "loading package: ${info.name}")
-                infoList.add(ComparableApp(pm.getApplicationLabel(info).toString(), info))
+        
+        lifecycleScope.softCancelLaunch {
+            val infoList = withContext(Dispatchers.IO) { composeInfoList() }
+
+            withContext(Dispatchers.Main) {
+                adapter = AppPackageArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, infoList)
+                adapter.notifyDataSetChanged()
+                model.getApplicationInfo(identity)
+                        .observe(viewLifecycleOwner, { list ->
+                            lifecycleScope.softCancelLaunch {
+                                val spannableString = buildInitialSpan(list)
+                                withContext(Dispatchers.Main) {
+                                    binding.autocompleteAppSelector.setText(spannableString)
+                                }
+                            }
+                            binding.autocompleteAppSelector.setAdapter(adapter)
+                        })
             }
+
         }
-        adapter = AppPackageArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, infoList)
-        binding.autocompleteAppSelector.setAdapter(adapter)
-        adapter.notifyDataSetChanged()
-        model.getApplicationInfo(identity)
-                .observe(viewLifecycleOwner, { list ->
-                    var offset = 0;
-                    for (info in list) {
-                        val str = pm.getApplicationLabel(info).toString() + ", "
-                        Log.v(TAG, "restoreing saved permission chip")
-                        binding.autocompleteAppSelector.append(str)
-                        createPermissionChip(str, offset)
-                        offset += str.length
-                    }
-                    adapter.notifyDataSetChanged()
-                })
         return binding.root
+    }
+
+    private suspend fun buildInitialSpan(packageList: List<NamePackage>): SpannableStringBuilder = runInterruptible(Dispatchers.Default) {
+        var offset = 0;
+        val spanstr = SpannableStringBuilder()
+        for (info in packageList) {
+            Log.v(TAG, "restoreing saved permission chip ${info.info.packageName} (${info.name})")
+            val chip = ChipDrawable.createFromResource(requireContext(), R.xml.permission_chip)
+            val span = ImageSpan(chip)
+            val str = info.name + ", "
+            offset += str.length
+            chip.text = str
+            chip.setBounds(0, 0, chip.intrinsicWidth, chip.intrinsicHeight)
+            spanstr.append(str)
+            spanstr.setSpan(span, offset - str.length, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        spanstr
     }
     
     private data class ComparableApp(
