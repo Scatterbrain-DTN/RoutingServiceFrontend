@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import javax.inject.Inject
@@ -14,7 +15,23 @@ import kotlin.coroutines.cancellation.CancellationException
 class RoutingServiceViewModel @Inject constructor(
         val repository: ServiceConnectionRepository
 ) : ViewModel() {
-    val serviceConnections = repository.serviceConnections.asLiveData()
+    val serviceConnections = MutableLiveData<Boolean>()
+
+    init {
+        viewModelScope.launch {
+            repository.serviceConnections.collect {
+                yield()
+                serviceConnections.postValue(it)
+            }
+        }
+    }
+
+    suspend fun observeServiceConnections() {
+        repository.serviceConnections.collect {
+
+
+        }
+    }
     
     fun observeMessages(application: String): LiveData<List<ScatterMessage>> = runBlocking {
         repository.observeMessages(application).asLiveData()

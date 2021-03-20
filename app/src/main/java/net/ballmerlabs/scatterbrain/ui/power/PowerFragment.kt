@@ -10,13 +10,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrain.RoutingServiceViewModel
 import net.ballmerlabs.scatterbrain.ServiceConnectionRepository
 import net.ballmerlabs.scatterbrain.databinding.FragmentPowerBinding
 import net.ballmerlabs.scatterbrain.softCancelLaunch
 import javax.inject.Inject
-import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class PowerFragment : Fragment() {

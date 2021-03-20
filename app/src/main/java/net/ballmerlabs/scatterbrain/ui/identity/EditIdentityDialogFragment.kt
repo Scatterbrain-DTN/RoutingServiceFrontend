@@ -78,7 +78,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
             val info = adapterView.getItemAtPosition(i) as ComparableApp?
             if (info != null) {
                 lifecycleScope.softCancelLaunch {
-                  repository.authorizeIdentity(identity, info.info.packageName)
+                    repository.authorizeIdentity(identity, info.info.packageName)
                 }
                 createPermissionChip(
                         info.name,
