@@ -24,8 +24,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@id/editidenticon" />
 
-    <AutoCompleteTextView
-        android:layout_width="match_parent"
+    <MultiAutoCompleteTextView
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:id="@+id/autocomplete_app_selector"
         android:hint="@string/permission_hint"
