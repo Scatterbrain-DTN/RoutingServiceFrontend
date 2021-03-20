@@ -52,7 +52,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         val editText = binding.autocompleteAppSelector.text
         val span = ImageSpan(chip)
         chip.text = name
-        chip.maxWidth = CHIP_MAX_WIDTH
+        chip.maxWidth = binding.autocompleteAppSelector.width
         chip.setBounds(0, 0, chip.intrinsicWidth, chip.intrinsicHeight)
         editText.setSpan(span, 0, editText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
@@ -114,7 +114,6 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
 
     companion object {
         const val TAG = "EditIdentityDialogFragment"
-        private const val CHIP_MAX_WIDTH = 120
         fun newInstance(identity: Identity): EditIdentityDialogFragment =
                 EditIdentityDialogFragment().apply {
                     arguments = Bundle().apply {
