@@ -1,6 +1,7 @@
 package net.ballmerlabs.scatterbrain
 
 import android.content.pm.ApplicationInfo
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,7 @@ import kotlinx.coroutines.*
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class RoutingServiceViewModel @Inject constructor(
@@ -29,13 +31,16 @@ class RoutingServiceViewModel @Inject constructor(
         return repository.getPermissions(identity).asLiveData()
     }
 }
-
+const val TAG = "RoutingServiceViewModel"
 fun CoroutineScope.softCancelLaunch(f: suspend CoroutineScope.() -> Unit): Job {
     return this.launch {
         try {
             f()
         } catch (e: CancellationException) {
             //ignored
+        } catch (e : Exception) {
+            Log.e(TAG, "EXCEPTION in coroutine: $e")
+            e.printStackTrace()
         }
     }
 }
