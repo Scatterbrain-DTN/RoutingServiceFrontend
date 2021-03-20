@@ -64,7 +64,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         val span = ImageSpan(chip)
         chip.text = str
         chip.setBounds(0, 0, chip.intrinsicWidth, chip.intrinsicHeight)
-        editText.setSpan(span, 0, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        editText.setSpan(span, offset - str.length, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 
     @SuppressLint("QueryPermissionsNeeded") //we declare the queries element
@@ -101,7 +101,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                     repository.authorizeIdentity(identity, info.info.packageName)
                 }
                 createPermissionChip(
-                        info.name,
+                        info.name + ", ",
                         binding.autocompleteAppSelector.text.length
                 )
             } else {
@@ -148,10 +148,14 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         spanstr
     }
     
-    private data class ComparableApp(
+    private class ComparableApp(
             public val name: String,
             public val info: ApplicationInfo
-            ) {}
+            ) {
+        override fun toString(): String {
+            return name
+        }
+    }
 
     private inner class AppPackageArrayAdapter<T>(
             context: Context,
