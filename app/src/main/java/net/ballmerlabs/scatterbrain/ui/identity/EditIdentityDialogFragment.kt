@@ -3,6 +3,7 @@ package net.ballmerlabs.scatterbrain.ui.identity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Spanned
 import android.text.style.ImageSpan
@@ -44,6 +45,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
     private lateinit var identity: Identity
     private lateinit var adapter: AppPackageArrayAdapter
     private val model: RoutingServiceViewModel by viewModels()
+    private lateinit var pm: PackageManager
     
     private fun createPermissionChip(name: String) {
         val chip = ChipDrawable.createFromResource(requireContext(), R.xml.permission_chip)
@@ -58,6 +60,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
     @SuppressLint("QueryPermissionsNeeded") //we declare the queries element
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
+        pm = requireActivity().packageManager
         binding = FragmentEditIdentityDialogListDialogBinding.inflate(inflater)
         identity = requireArguments().getParcelable(ARG_IDENTITY)!!
         adapter = AppPackageArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line)
@@ -69,7 +72,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         { _: AdapterView<*>, _: View, i: Int, _: Long ->
             val str = adapter.getItem(i)
             if (str != null) {
-                createPermissionChip(requireContext().packageManager.getApplicationLabel(str).toString())
+                createPermissionChip(str)
             } else {
                 Log.w(TAG, "attempted to create chip for null string at $i")
             }
@@ -79,21 +82,21 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
             for (info in apps) {
                 if (info.name != null) {
                     Log.v(TAG, "loading package: ${info.name}")
-                    adapter.add(info)
+                    adapter.add(pm.getApplicationLabel(info).toString())
                 }
             }
             adapter.notifyDataSetChanged()
             model.getApplicationInfo(identity)
                     .observe(viewLifecycleOwner, { list ->
                         for (info in list) {
-                            adapter.add(info)
+                            adapter.add(pm.getApplicationLabel(info).toString())
                         }
                     })
         }
         return binding.root
     }
 
-    private inner class AppPackageArrayAdapter(context: Context, resource: Int) : ArrayAdapter<ApplicationInfo>(context, resource) {
+    private inner class AppPackageArrayAdapter(context: Context, resource: Int) : ArrayAdapter<String>(context, resource) {
         val pm = requireContext().packageManager
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val item = getItem(position)
@@ -101,7 +104,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
             return if (convertView == null) {
                 val inflater = LayoutInflater.from(requireContext())
                 textView  = inflater.inflate(R.layout.permission_autocomplete_item, parent, false) as TextView
-                textView.text = pm.getApplicationLabel(item!!)
+                textView.text = item
                 textView
             } else {
                 convertView
