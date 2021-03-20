@@ -2,10 +2,7 @@ package net.ballmerlabs.scatterbrain
 
 import android.content.pm.ApplicationInfo
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import net.ballmerlabs.scatterbrainsdk.Identity
@@ -19,16 +16,16 @@ class RoutingServiceViewModel @Inject constructor(
 ) : ViewModel() {
     val serviceConnections = repository.serviceConnections.asLiveData()
     
-    suspend fun observeMessages(application: String): LiveData<List<ScatterMessage>> {
-        return repository.observeMessages(application).asLiveData()
+    fun observeMessages(application: String): LiveData<List<ScatterMessage>> = runBlocking {
+        repository.observeMessages(application).asLiveData()
     }
 
-    suspend fun observeIdentities() : LiveData<List<Identity>> {
-        return repository.observeIdentities().asLiveData()
+    fun observeIdentities() : LiveData<List<Identity>> = runBlocking {
+        repository.observeIdentities().asLiveData()
     }
 
-    suspend fun getApplicationInfo(identity: Identity): LiveData<List<ApplicationInfo>> {
-        return repository.getPermissions(identity).asLiveData()
+    fun getApplicationInfo(identity: Identity): LiveData<List<ApplicationInfo>> = runBlocking {
+        repository.getPermissions(identity).asLiveData()
     }
 }
 const val TAG = "RoutingServiceViewModel"

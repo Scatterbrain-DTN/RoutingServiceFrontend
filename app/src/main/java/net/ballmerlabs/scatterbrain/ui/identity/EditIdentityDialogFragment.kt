@@ -15,9 +15,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.chip.ChipDrawable
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.yield
 import net.ballmerlabs.scatterbrain.R
 import net.ballmerlabs.scatterbrain.RoutingServiceViewModel
 import net.ballmerlabs.scatterbrain.ServiceConnectionRepository
@@ -75,9 +77,9 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         { adapterView: AdapterView<*>, _: View, i: Int, _: Long ->
             val info = adapterView.getItemAtPosition(i) as ComparableApp?
             if (info != null) {
-              ///  model.viewModelScope.softCancelLaunch {
-                 //   repository.authorizeIdentity(identity, str.packageName)
-                //}
+                lifecycleScope.softCancelLaunch {
+                  repository.authorizeIdentity(identity, info.info.packageName)
+                }
                 createPermissionChip(
                         info.name,
                         binding.autocompleteAppSelector.text.length
@@ -86,31 +88,29 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                 Log.w(TAG, "attempted to create chip for null string at $i")
             }
         }
-        model.viewModelScope.softCancelLaunch {
-            val apps = requireContext().packageManager.getInstalledApplications(0)
-            val infoList = ArrayList<ComparableApp>()
-            for (info in apps) {
-                if (info.name != null) {
-                    Log.v(TAG, "loading package: ${info.name}")
-                    infoList.add(ComparableApp(pm.getApplicationLabel(info).toString(), info))
-                }
+        val apps = requireContext().packageManager.getInstalledApplications(0)
+        val infoList = ArrayList<ComparableApp>()
+        for (info in apps) {
+            if (info.name != null) {
+                Log.v(TAG, "loading package: ${info.name}")
+                infoList.add(ComparableApp(pm.getApplicationLabel(info).toString(), info))
             }
-            adapter = AppPackageArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, infoList)
-            binding.autocompleteAppSelector.setAdapter(adapter)
-            adapter.notifyDataSetChanged()
-            model.getApplicationInfo(identity)
-                    .observe(viewLifecycleOwner, { list ->
-                        var offset = 0;
-                        for (info in list) {
-                            val str = pm.getApplicationLabel(info).toString() + ", "
-                            Log.v(TAG, "restoreing saved permission chip")
-                            binding.autocompleteAppSelector.append(str)
-                            createPermissionChip(str, offset)
-                            offset += str.length
-                        }
-                        adapter.notifyDataSetChanged()
-                    })
         }
+        adapter = AppPackageArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, infoList)
+        binding.autocompleteAppSelector.setAdapter(adapter)
+        adapter.notifyDataSetChanged()
+        model.getApplicationInfo(identity)
+                .observe(viewLifecycleOwner, { list ->
+                    var offset = 0;
+                    for (info in list) {
+                        val str = pm.getApplicationLabel(info).toString() + ", "
+                        Log.v(TAG, "restoreing saved permission chip")
+                        binding.autocompleteAppSelector.append(str)
+                        createPermissionChip(str, offset)
+                        offset += str.length
+                    }
+                    adapter.notifyDataSetChanged()
+                })
         return binding.root
     }
     

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -82,7 +83,7 @@ class DrawerActivity : AppCompatActivity() {
                                 val dialogLayout = dialog as AlertDialog
                                 val editText = dialogLayout.findViewById<TextInputEditText>(R.id.identity_name_text)
                                 Log.v(TAG, "got text val ${editText!!.text}")
-                                model.viewModelScope.softCancelLaunch {
+                                lifecycleScope.softCancelLaunch {
                                     val respose = repository.generateIdentity(editText.text.toString())
                                     
                                     if (respose == null) {

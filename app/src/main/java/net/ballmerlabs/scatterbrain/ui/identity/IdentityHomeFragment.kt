@@ -6,16 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import net.ballmerlabs.scatterbrain.R
 import net.ballmerlabs.scatterbrain.RoutingServiceViewModel
 import net.ballmerlabs.scatterbrain.databinding.FragmentIdentityHomeBinding
-import net.ballmerlabs.scatterbrain.softCancelLaunch
-import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.uscatterbrain.db.entities.ApiIdentity
 import javax.inject.Inject
@@ -50,12 +44,10 @@ class IdentityHomeFragment @Inject constructor() : Fragment() {
         adapter = IdentityListAdapter(requireActivity().supportFragmentManager)
         bind.recyclerView.adapter = adapter
         bind.recyclerView.layoutManager = LinearLayoutManager(context)
-        model.viewModelScope.softCancelLaunch {
-            model.observeIdentities()
-                    .observe(viewLifecycleOwner) { newList ->
-                        adapter.setItems(newList)
-                    }
-        }
+        model.observeIdentities()
+                .observe(viewLifecycleOwner) { newList ->
+                    adapter.setItems(newList)
+                }
         return bind.root
     }
 
