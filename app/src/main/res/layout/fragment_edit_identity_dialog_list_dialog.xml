@@ -7,31 +7,42 @@
 
     <com.lelloman.identicon.view.ClassicIdenticonView
         android:id="@+id/editidenticon"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:hash="1832742836"
+        app:layout_constraintBottom_toBottomOf="@id/permission_description"
+        app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/editname"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="name humanreadable"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/editidenticon" />
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/permission_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/permission_subtext"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:layout_constraintTop_toBottomOf="@id/editname"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <MultiAutoCompleteTextView
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="300dp"
         android:id="@+id/autocomplete_app_selector"
         android:hint="@string/permission_hint"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editname"
-        app:layout_constraintEnd_toStartOf="@id/editidenticon"/>
+        app:layout_constraintTop_toBottomOf="@id/editidenticon"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

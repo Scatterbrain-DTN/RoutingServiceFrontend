@@ -47,7 +47,8 @@
     <string name="create_cancel">Cancel</string>
     <string name="create_create">Generate</string>
     <string name="chip_owned">Owned!</string>
-    <string name="permission_hint">Select apps...</string>
+    <string name="permission_hint">Select apps…</string>
+    <string name="permission_subtext">Edit app permissions for this identity</string>
 
 
     <!-- location -->
