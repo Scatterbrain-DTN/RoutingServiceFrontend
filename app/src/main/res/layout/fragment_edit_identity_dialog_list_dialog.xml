@@ -37,7 +37,7 @@
 
     <MultiAutoCompleteTextView
         android:layout_width="0dp"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:id="@+id/autocomplete_app_selector"
         android:hint="@string/permission_hint"
         app:layout_constraintBottom_toBottomOf="parent"
