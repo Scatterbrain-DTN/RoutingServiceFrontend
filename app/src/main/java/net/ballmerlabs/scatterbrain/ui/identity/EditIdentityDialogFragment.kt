@@ -19,6 +19,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -58,13 +59,15 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
 
     @Inject lateinit var repository: ServiceConnectionRepository
     
-    private fun createPermissionChip(str: String, offset: Int) {
-        val chip = ChipDrawable.createFromResource(requireContext(), R.xml.permission_chip)
-        val editText = binding.autocompleteAppSelector.text
-        val span = ImageSpan(chip)
+    private fun createPermissionChip(str: String) {
+        val chip = Chip(requireContext())
         chip.text = str
-        chip.setBounds(0, 0, chip.intrinsicWidth, chip.intrinsicHeight)
-        editText.setSpan(span, offset - str.length, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        chip.isCloseIconVisible = true
+        chip.isCheckable = false
+        chip.isClickable = false
+        chip.isCheckable = false
+        binding.flexbox.addView(chip as View, binding.flexbox.childCount - 1)
+        chip.setOnCloseIconClickListener { binding.flexbox.removeView(chip as View) }
     }
 
     @SuppressLint("QueryPermissionsNeeded") //we declare the queries element
@@ -102,7 +105,6 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                 }
                 createPermissionChip(
                         info.name + ", ",
-                        binding.autocompleteAppSelector.text.length
                 )
             } else {
                 Log.w(TAG, "attempted to create chip for null string at $i")
@@ -117,11 +119,8 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                 adapter.notifyDataSetChanged()
                 model.getApplicationInfo(identity)
                         .observe(viewLifecycleOwner, { list ->
-                            lifecycleScope.softCancelLaunch {
-                                val spannableString = buildInitialSpan(list)
-                                withContext(Dispatchers.Main) {
-                                    binding.autocompleteAppSelector.setText(spannableString)
-                                }
+                            list.forEach {
+                                createPermissionChip(it.name)
                             }
                             binding.autocompleteAppSelector.setAdapter(adapter)
                         })
@@ -129,23 +128,6 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
 
         }
         return binding.root
-    }
-
-    private suspend fun buildInitialSpan(packageList: List<NamePackage>): SpannableStringBuilder = runInterruptible(Dispatchers.Default) {
-        var offset = 0;
-        val spanstr = SpannableStringBuilder()
-        for (info in packageList) {
-            Log.v(TAG, "restoreing saved permission chip ${info.info.packageName} (${info.name})")
-            val chip = ChipDrawable.createFromResource(requireContext(), R.xml.permission_chip)
-            val span = ImageSpan(chip)
-            val str = info.name + ", "
-            offset += str.length
-            chip.text = str
-            chip.setBounds(0, 0, chip.intrinsicWidth, chip.intrinsicHeight)
-            spanstr.append(str)
-            spanstr.setSpan(span, offset - str.length, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        spanstr
     }
     
     private class ComparableApp(
