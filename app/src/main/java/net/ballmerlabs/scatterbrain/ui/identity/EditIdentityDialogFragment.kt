@@ -59,27 +59,30 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
 
     @Inject lateinit var repository: ServiceConnectionRepository
     
-    private fun createPermissionChip(str: String) {
+    private fun createPermissionChip(info: NamePackage) {
         val chip = Chip(requireContext())
-        chip.text = str
+        chip.text = info.name
         chip.isCloseIconVisible = true
         chip.isCheckable = false
         chip.isClickable = false
         chip.isCheckable = false
         binding.flexbox.addView(chip as View, binding.flexbox.childCount - 1)
-        chip.setOnCloseIconClickListener { binding.flexbox.removeView(chip as View) }
+        chip.setOnCloseIconClickListener {
+            lifecycleScope.softCancelLaunch { repository.deauthorizeIdentity(identity, info.info.packageName) }
+            binding.flexbox.removeView(chip as View)
+        }
     }
 
     @SuppressLint("QueryPermissionsNeeded") //we declare the queries element
-    private suspend fun composeInfoList() : List<ComparableApp> {
+    private suspend fun composeInfoList() : List<NamePackage> {
         val apps = requireContext().packageManager.getInstalledApplications(0)
-        val infoList = ArrayList<ComparableApp>()
+        val infoList = ArrayList<NamePackage>()
         for (info in apps) {
             yield()
             if (info.name != null) {
                 Log.v(TAG, "loading package: ${info.name}")
                 infoList.add(
-                        ComparableApp(
+                        NamePackage(
                                 requireContext().packageManager.getApplicationLabel(info).toString(),
                                 info
                         )
@@ -98,14 +101,12 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         binding.autocompleteAppSelector.threshold = 1
         binding.autocompleteAppSelector.onItemClickListener = AdapterView.OnItemClickListener()
         { adapterView: AdapterView<*>, _: View, i: Int, _: Long ->
-            val info = adapterView.getItemAtPosition(i) as ComparableApp?
+            val info = adapterView.getItemAtPosition(i) as NamePackage?
             if (info != null) {
                 lifecycleScope.softCancelLaunch {
                     repository.authorizeIdentity(identity, info.info.packageName)
                 }
-                createPermissionChip(
-                        info.name + ", ",
-                )
+                createPermissionChip(info)
             } else {
                 Log.w(TAG, "attempted to create chip for null string at $i")
             }
@@ -120,7 +121,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                 model.getApplicationInfo(identity)
                         .observe(viewLifecycleOwner, { list ->
                             list.forEach {
-                                createPermissionChip(it.name)
+                                createPermissionChip(it)
                             }
                             binding.autocompleteAppSelector.setAdapter(adapter)
                         })
@@ -129,28 +130,19 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         }
         return binding.root
     }
-    
-    private class ComparableApp(
-            public val name: String,
-            public val info: ApplicationInfo
-            ) {
-        override fun toString(): String {
-            return name
-        }
-    }
 
     private inner class AppPackageArrayAdapter<T>(
             context: Context,
             resource: Int,
-            private val allVals: List<ComparableApp>
-    ) : ArrayAdapter<ComparableApp>(context, resource, allVals) {
+            private val allVals: List<NamePackage>
+    ) : ArrayAdapter<NamePackage>(context, resource, allVals) {
         private var items = allVals
 
         override fun getCount(): Int {
             return items.size
         }
 
-        override fun getItem(position: Int): ComparableApp? {
+        override fun getItem(position: Int): NamePackage? {
             return items[position]
         }
 
@@ -176,7 +168,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                 }
 
                 override fun publishResults(p0: CharSequence?, p1: FilterResults?) {
-                    items = (p1!!.values as List<ComparableApp>)
+                    items = (p1!!.values as List<NamePackage>)
                     notifyDataSetChanged()
                 }
             }   

@@ -19,13 +19,18 @@ interface ServiceConnectionRepository {
     suspend fun generateIdentity(name: String): String?
     suspend fun getPermissions(identity: Identity): Flow<List<NamePackage>>
     suspend fun authorizeIdentity(identity: Identity, packageName: String)
+    suspend fun deauthorizeIdentity(identity: Identity, packageName: String)
     companion object {
         val TAG = "ServiceConnectionRepository"
     }
 }
 
 
-data class NamePackage(
+class NamePackage(
         val name: String,
         val info: ApplicationInfo
-)
+) {
+    override fun toString(): String {
+        return name
+    }
+}

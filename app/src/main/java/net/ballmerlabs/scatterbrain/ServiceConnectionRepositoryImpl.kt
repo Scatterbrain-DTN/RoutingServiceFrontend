@@ -187,6 +187,12 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         binder!!.authorizeApp(identity.fingerprint, packageName)
     }
 
+    override suspend fun deauthorizeIdentity(identity: Identity, packageName: String) {
+        bindService()
+        Log.v(TAG, "deauthorizing $packageName")
+        binder!!.deauthorizeApp(identity.fingerprint, packageName)
+    }
+
     override suspend fun getPermissions(identity: Identity): Flow<List<NamePackage>> = flow {
         bindService()
         val identities = binder!!.getAppPermissions(identity.fingerprint)

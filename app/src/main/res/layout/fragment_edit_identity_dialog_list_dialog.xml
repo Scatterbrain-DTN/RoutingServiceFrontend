@@ -47,7 +47,7 @@
         app:alignContent="space_around"
         android:id="@+id/flexbox">
             <MultiAutoCompleteTextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="64dp"
                 app:layout_flexGrow="1"
