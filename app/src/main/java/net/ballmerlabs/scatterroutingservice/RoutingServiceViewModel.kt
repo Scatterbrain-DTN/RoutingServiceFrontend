@@ -1,8 +1,5 @@
-package net.ballmerlabs.scatterbrain
+package net.ballmerlabs.scatterroutingservice
 
-import android.content.pm.ApplicationInfo
-import android.text.SpannableString
-import android.text.SpannableStringBuilder
 import android.util.Log
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel

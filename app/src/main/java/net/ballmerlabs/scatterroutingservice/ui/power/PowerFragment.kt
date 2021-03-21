@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain.ui.power
+package net.ballmerlabs.scatterroutingservice.ui.power
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,10 +10,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.isActive
-import net.ballmerlabs.scatterbrain.RoutingServiceViewModel
-import net.ballmerlabs.scatterbrain.ServiceConnectionRepository
-import net.ballmerlabs.scatterbrain.databinding.FragmentPowerBinding
-import net.ballmerlabs.scatterbrain.softCancelLaunch
+import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
+import net.ballmerlabs.scatterroutingservice.ServiceConnectionRepository
+import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
+import net.ballmerlabs.scatterroutingservice.softCancelLaunch
 import javax.inject.Inject
 
 @AndroidEntryPoint

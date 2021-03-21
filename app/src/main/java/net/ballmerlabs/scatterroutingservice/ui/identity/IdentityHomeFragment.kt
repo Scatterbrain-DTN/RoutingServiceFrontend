@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain.ui.identity
+package net.ballmerlabs.scatterroutingservice.ui.identity
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,8 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import net.ballmerlabs.scatterbrain.RoutingServiceViewModel
-import net.ballmerlabs.scatterbrain.databinding.FragmentIdentityHomeBinding
+import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
+import net.ballmerlabs.scatterroutingservice.databinding.FragmentIdentityHomeBinding
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.uscatterbrain.db.entities.ApiIdentity
 import javax.inject.Inject

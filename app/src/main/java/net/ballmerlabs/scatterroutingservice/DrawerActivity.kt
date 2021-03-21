@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain
+package net.ballmerlabs.scatterroutingservice
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.Navigation
@@ -25,7 +24,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
-import net.ballmerlabs.scatterbrain.databinding.ActivityDrawerBinding
+import net.ballmerlabs.scatterroutingservice.databinding.ActivityDrawerBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint

@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain
+package net.ballmerlabs.scatterroutingservice
 
 import net.ballmerlabs.scatterbrainsdk.HandshakeResult
 

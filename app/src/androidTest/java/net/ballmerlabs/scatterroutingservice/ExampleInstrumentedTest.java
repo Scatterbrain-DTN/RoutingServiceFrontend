@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain;
+package net.ballmerlabs.scatterroutingservice;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("net.ballmerlabs.scatterbrain", appContext.getPackageName());
+        assertEquals("net.ballmerlabs.scatterroutingservice", appContext.getPackageName());
     }
 }

@@ -1,7 +1,6 @@
-package net.ballmerlabs.scatterbrain
+package net.ballmerlabs.scatterroutingservice
 
 import android.content.pm.ApplicationInfo
-import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage

@@ -1,9 +1,8 @@
-package net.ballmerlabs.scatterbrain
+package net.ballmerlabs.scatterroutingservice
 
 import android.app.Application
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.GlobalScope
 
 @HiltAndroidApp
 class ScatterbrainApp : Application() {

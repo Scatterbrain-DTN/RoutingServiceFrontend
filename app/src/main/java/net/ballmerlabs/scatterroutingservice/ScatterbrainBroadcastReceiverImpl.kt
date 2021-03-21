@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain
+package net.ballmerlabs.scatterroutingservice
 
 import android.content.BroadcastReceiver
 import android.content.Context

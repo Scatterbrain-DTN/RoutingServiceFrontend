@@ -1,14 +1,9 @@
-package net.ballmerlabs.scatterbrain.ui.identity
+package net.ballmerlabs.scatterroutingservice.ui.identity
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.text.Editable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.ImageSpan
 import android.util.Log
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.view.LayoutInflater
@@ -17,25 +12,17 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.map
-import androidx.lifecycle.viewModelScope
 import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipDrawable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import net.ballmerlabs.scatterbrain.*
-import net.ballmerlabs.scatterbrain.databinding.FragmentEditIdentityDialogListDialogBinding
+import net.ballmerlabs.scatterroutingservice.*
+import net.ballmerlabs.scatterroutingservice.databinding.FragmentEditIdentityDialogListDialogBinding
 import net.ballmerlabs.scatterbrainsdk.Identity
-import java.io.IOException
-import java.lang.UnsupportedOperationException
 import java.util.*
-import java.util.stream.IntStream
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-import kotlin.jvm.Throws
 
 // TODO: Customize parameter argument names
 const val ARG_IDENTITY = "identity"

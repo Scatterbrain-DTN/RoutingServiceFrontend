@@ -11,7 +11,7 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "net.ballmerlabs.scatterbrain"
+        applicationId "net.ballmerlabs.scatterroutingservice"
         minSdkVersion 29
         targetSdkVersion 30
         versionCode 2

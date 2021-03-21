@@ -1,18 +1,15 @@
-package net.ballmerlabs.scatterbrain.ui.identity
+package net.ballmerlabs.scatterroutingservice.ui.identity
 
-import android.app.Activity
 import android.content.Context
-import android.opengl.Visibility
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.marginStart
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
-import net.ballmerlabs.scatterbrain.R
+import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterbrainsdk.Identity
 
 class IdentityListAdapter(private val fragmentManager: FragmentManager) : RecyclerView.Adapter<IdentityListEntry>() {

@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain.ui
+package net.ballmerlabs.scatterroutingservice.ui
 
 import android.os.Bundle
 import android.text.InputType
@@ -6,7 +6,7 @@ import android.widget.EditText
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
 import dagger.hilt.android.AndroidEntryPoint
-import net.ballmerlabs.scatterbrain.R
+import net.ballmerlabs.scatterroutingservice.R
 import javax.inject.Inject
 
 @AndroidEntryPoint

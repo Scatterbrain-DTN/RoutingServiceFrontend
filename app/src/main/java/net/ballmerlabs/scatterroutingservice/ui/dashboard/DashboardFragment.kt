@@ -1,4 +1,4 @@
-package net.ballmerlabs.scatterbrain.ui.dashboard
+package net.ballmerlabs.scatterroutingservice.ui.dashboard
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
-import net.ballmerlabs.scatterbrain.R
+import net.ballmerlabs.scatterroutingservice.R
 import javax.inject.Inject
 
 @AndroidEntryPoint
