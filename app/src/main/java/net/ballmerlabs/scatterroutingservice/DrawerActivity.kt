@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.viewModels
@@ -63,6 +64,8 @@ class DrawerActivity : AppCompatActivity() {
         binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
             binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
         }
+        val versionView = binding.navView.getHeaderView(0).findViewById<TextView>(R.id.textView) //Viewbinding doesn't work with the nav header
+        versionView.append(BuildConfig.VERSION_NAME)
         val fabParams = fab.layoutParams as CoordinatorLayout.LayoutParams
         setSupportActionBar(binding.appbar.toolbar)
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
