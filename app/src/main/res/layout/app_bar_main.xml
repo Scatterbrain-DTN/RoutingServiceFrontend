@@ -48,6 +48,7 @@
         android:layout_height="wrap_content"
         app:layout_anchor="@id/appbar_layout"
         app:layout_anchorGravity="bottom|end"
+        android:src="@drawable/ic_baseline_identity_add_24"
         android:layout_margin="@dimen/fab_margin"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
