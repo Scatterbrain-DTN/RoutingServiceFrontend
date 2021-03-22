@@ -15,12 +15,20 @@ class RoutingServiceViewModel @Inject constructor(
         val repository: ServiceConnectionRepository
 ) : ViewModel() {
     val serviceConnections = MutableLiveData<Boolean>()
+    private val identityLiveData = MediatorLiveData<List<Identity>>()
 
     init {
         viewModelScope.launch {
             repository.serviceConnections.collect {
                 yield()
                 serviceConnections.postValue(it)
+            }
+        }
+
+        viewModelScope.launch {
+            repository.observeIdentities().collect {
+                yield()
+                identityLiveData.postValue(it)
             }
         }
     }
@@ -31,9 +39,13 @@ class RoutingServiceViewModel @Inject constructor(
         }
     }
 
-    fun observeIdentities() : LiveData<List<Identity>> = liveData {
-        repository.observeIdentities().collect {
-            emit(it)
+    fun observeIdentities() : LiveData<List<Identity>> {
+        return identityLiveData
+    }
+
+    fun refreshIdentities() {
+        viewModelScope.launch {
+            identityLiveData.postValue(repository.getIdentities())
         }
     }
 

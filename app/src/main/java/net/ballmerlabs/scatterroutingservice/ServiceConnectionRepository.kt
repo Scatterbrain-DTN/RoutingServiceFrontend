@@ -19,6 +19,7 @@ interface ServiceConnectionRepository {
     suspend fun getPermissions(identity: Identity): Flow<List<NamePackage>>
     suspend fun authorizeIdentity(identity: Identity, packageName: String)
     suspend fun deauthorizeIdentity(identity: Identity, packageName: String)
+    suspend fun removeIdentity(identity: Identity): Boolean
     companion object {
         val TAG = "ServiceConnectionRepository"
     }

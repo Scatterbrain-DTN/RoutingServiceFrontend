@@ -203,6 +203,11 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         }
         emit(result)
     }
+
+    override suspend fun removeIdentity(identity: Identity): Boolean {
+        bindService()
+        return binder!!.removeIdentity(identity.fingerprint)
+    }
     
     init {
         Log.v(TAG, "init called")
