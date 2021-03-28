@@ -9,6 +9,7 @@
     <string name="nav_header_subtitle">reference implementation version: </string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="powersave_table">Router status:</string>
 
     <string name="title_identity">Identity Management</string>
 
