@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RoutingServiceFrontend</string>
+    <string name="app_name">Scatterbrain Router</string>
     <string name="title_power">Router status</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_activity_drawer">DrawerActivity</string>
