@@ -20,6 +20,10 @@ interface ServiceConnectionRepository {
     suspend fun authorizeIdentity(identity: Identity, packageName: String)
     suspend fun deauthorizeIdentity(identity: Identity, packageName: String)
     suspend fun removeIdentity(identity: Identity): Boolean
+    suspend fun startDiscover()
+    suspend fun stopDiscover()
+    suspend fun startPassive()
+    suspend fun stopPassive()
     companion object {
         val TAG = "ServiceConnectionRepository"
     }

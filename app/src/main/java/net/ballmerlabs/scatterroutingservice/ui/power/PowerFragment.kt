@@ -8,8 +8,10 @@ import android.widget.CompoundButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.isActive
+import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.ServiceConnectionRepository
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
@@ -36,12 +38,25 @@ class PowerFragment : Fragment() {
             lifecycleScope.softCancelLaunch {
                 if (isActive) {
                     try {
+                        val powersave = PreferenceManager.getDefaultSharedPreferences(
+                                requireContext()).getString(getString(R.string.pref_powersave), getString(R.string.powersave_active)
+                        )!!
                         if (b) {
                             serviceConnectionRepository.startService()
                             serviceConnectionRepository.bindService()
+                            if (powersave == getString(R.string.powersave_active)) {
+                                serviceConnectionRepository.startDiscover()
+                            } else {
+                                serviceConnectionRepository.startPassive()
+                            }
                         } else {
                             serviceConnectionRepository.stopService()
                             serviceConnectionRepository.unbindService()
+                            if (powersave == getString(R.string.powersave_active)) {
+                                serviceConnectionRepository.stopPassive()
+                            } else {
+                                serviceConnectionRepository.stopPassive()
+                            }
                         }
                     } catch (e: IllegalStateException) {
                         compoundButton.isChecked = false

@@ -208,6 +208,26 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         bindService()
         return binder!!.removeIdentity(identity.fingerprint)
     }
+
+    override suspend fun startDiscover() {
+        bindService()
+        binder!!.startDiscovery()
+    }
+
+    override suspend fun startPassive() {
+        bindService()
+        binder!!.startPassive()
+    }
+
+    override suspend fun stopDiscover() {
+        bindService()
+        binder!!.stopDiscovery()
+    }
+
+    override suspend fun stopPassive() {
+        bindService()
+        binder!!.stopPassive()
+    }
     
     init {
         Log.v(TAG, "init called")
