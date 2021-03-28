@@ -59,6 +59,7 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
             }
 
             override fun onServiceDisconnected(componentName: ComponentName) {
+                Log.v(TAG, "onservicedisconnected")
                 binder = null
                 bindCallbackSet.forEach { c -> c(false) }
                 bindCallbackSet.clear()
@@ -103,20 +104,13 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
     }
     
     override suspend fun unbindService(): Boolean = suspendCoroutine { ret ->
-        val c: (Boolean?) -> Unit = { r ->
-            if (r == null) throw IllegalStateException("failed to bind service")
-            ret.resume(r)
-            
-        }
         try {
-            registerCallback(c)
             if (binder != null) {
                 context.unbindService(callback)
             }
+            ret.resume(true)
         } catch (e: IllegalArgumentException) {
             ret.resume(true) //service already unbound
-        } finally {
-            unregisterCallback(c)
         }
     }
 

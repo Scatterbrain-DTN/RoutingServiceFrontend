@@ -15,7 +15,8 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_power">Power</string>
+    <string name="menu_power">Power                            serviceConnectionRepository.unbindService()
+</string>
     <!-- Preference Titles -->
     <string name="power_header">Power Management</string>
     <string name="general_header">General</string>

@@ -1,6 +1,8 @@
 package net.ballmerlabs.scatterroutingservice.ui.power
 
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,17 +32,51 @@ class PowerFragment : Fragment() {
 
     private val model: RoutingServiceViewModel by viewModels()
 
+    private val DISABLED = "Disabled"
+
+    private lateinit var sharedPreferences: SharedPreferences
+
+    private val sharedPreferencesListener = SharedPreferences.OnSharedPreferenceChangeListener {
+        sharedPreferences: SharedPreferences, s: String ->
+        if (s == requireContext().getString(R.string.pref_powersave)) {
+            binding.statusText.text = getStatusText()
+        }
+
+    }
+
+    private fun getStatusText(sharedPreferences: SharedPreferences): String {
+        return if (binding.toggleButton.isChecked) {
+            sharedPreferences.getString(requireContext().getString(R.string.pref_powersave), DISABLED)!!
+        } else {
+            DISABLED
+        }
+    }
+
+    private fun getStatusText(): String {
+        return getStatusText(sharedPreferences)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
+    }
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentPowerBinding.inflate(layoutInflater)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
+        binding.statusText.text = getStatusText()
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             lifecycleScope.softCancelLaunch {
                 if (isActive) {
+                    val powersave = getStatusText()
                     try {
-                        val powersave = PreferenceManager.getDefaultSharedPreferences(
-                                requireContext()).getString(getString(R.string.pref_powersave), getString(R.string.powersave_active)
-                        )!!
                         if (b) {
                             serviceConnectionRepository.startService()
                             serviceConnectionRepository.bindService()
@@ -50,23 +86,28 @@ class PowerFragment : Fragment() {
                                 serviceConnectionRepository.startPassive()
                             }
                         } else {
-                            serviceConnectionRepository.stopService()
-                            serviceConnectionRepository.unbindService()
                             if (powersave == getString(R.string.powersave_active)) {
                                 serviceConnectionRepository.stopPassive()
                             } else {
                                 serviceConnectionRepository.stopPassive()
                             }
+                            serviceConnectionRepository.unbindService()
+                            serviceConnectionRepository.stopService()
                         }
                     } catch (e: IllegalStateException) {
                         compoundButton.isChecked = false
                         e.printStackTrace()
+                    } finally {
+                        binding.statusText.text = powersave
                     }
                 }
             }
         }
         model.serviceConnections
-                .observe(viewLifecycleOwner) {b -> binding.toggleButton.isChecked = b}
+                .observe(viewLifecycleOwner) {b ->
+                    binding.toggleButton.isChecked = b
+                    binding.statusText.text = getStatusText()
+                }
         return binding.root
     }
 
