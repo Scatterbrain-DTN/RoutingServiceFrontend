@@ -18,14 +18,14 @@ class RoutingServiceViewModel @Inject constructor(
     private val identityLiveData = MediatorLiveData<List<Identity>>()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.softCancelLaunch {
             repository.serviceConnections.collect {
                 yield()
                 serviceConnections.postValue(it)
             }
         }
 
-        viewModelScope.launch {
+        viewModelScope.softCancelLaunch {
             repository.observeIdentities().collect {
                 yield()
                 identityLiveData.postValue(it)
