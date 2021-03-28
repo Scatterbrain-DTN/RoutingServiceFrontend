@@ -49,6 +49,25 @@ class IdentityHomeFragment : Fragment() {
                 .build()))
     }
 
+    private fun checkConnected() {
+        if (repository.isConnected()) {
+            if (adapter.itemCount == 0) {
+                bind.serviceNotConnected.text = requireContext().getString(R.string.noid)
+            } else {
+                bind.serviceNotConnected.visibility = View.GONE
+            }
+
+        } else {
+            bind.serviceNotConnected.text = requireContext().getString(R.string.service_not_connected)
+            bind.serviceNotConnected.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkConnected()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         bind = FragmentIdentityHomeBinding.inflate(inflater)
@@ -62,6 +81,7 @@ class IdentityHomeFragment : Fragment() {
                         adapter.setItems(newList)
                     }
         }
+        checkConnected()
         return bind.root
     }
 
