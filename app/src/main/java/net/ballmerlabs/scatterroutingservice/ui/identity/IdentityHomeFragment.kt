@@ -53,6 +53,7 @@ class IdentityHomeFragment : Fragment() {
         if (repository.isConnected()) {
             if (adapter.itemCount == 0) {
                 bind.serviceNotConnected.text = requireContext().getString(R.string.noid)
+                bind.serviceNotConnected.visibility = View.VISIBLE
             } else {
                 bind.serviceNotConnected.visibility = View.GONE
             }
@@ -79,6 +80,7 @@ class IdentityHomeFragment : Fragment() {
             model.observeIdentities()
                     .observe(viewLifecycleOwner) { newList ->
                         adapter.setItems(newList)
+                        checkConnected()
                     }
         }
         checkConnected()
