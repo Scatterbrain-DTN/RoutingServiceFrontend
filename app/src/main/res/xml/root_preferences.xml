@@ -26,7 +26,7 @@
             android:entryValues="@array/power_modes_vals"
             app:key="@string/pref_powersave"
             app:title="@string/power_mode_title"
-            app:defaultValue="Active"
+            app:defaultValue="@string/powersave_active"
             app:useSimpleSummaryProvider="true"/>
 
 
