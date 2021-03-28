@@ -222,6 +222,10 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
         bindService()
         binder!!.stopPassive()
     }
+
+    override fun isConnected(): Boolean {
+        return binder != null
+    }
     
     init {
         Log.v(TAG, "init called")

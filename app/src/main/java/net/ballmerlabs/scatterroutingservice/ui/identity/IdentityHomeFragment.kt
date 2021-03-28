@@ -56,10 +56,12 @@ class IdentityHomeFragment : Fragment() {
         adapter = IdentityListAdapter(requireActivity().supportFragmentManager)
         bind.recyclerView.adapter = adapter
         bind.recyclerView.layoutManager = LinearLayoutManager(context)
-        model.observeIdentities()
-                .observe(viewLifecycleOwner) { newList ->
-                    adapter.setItems(newList)
-                }
+        if (repository.isConnected()) {
+            model.observeIdentities()
+                    .observe(viewLifecycleOwner) { newList ->
+                        adapter.setItems(newList)
+                    }
+        }
         return bind.root
     }
 

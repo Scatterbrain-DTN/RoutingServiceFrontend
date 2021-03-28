@@ -24,6 +24,7 @@ interface ServiceConnectionRepository {
     suspend fun stopDiscover()
     suspend fun startPassive()
     suspend fun stopPassive()
+    fun isConnected(): Boolean
     companion object {
         val TAG = "ServiceConnectionRepository"
     }
