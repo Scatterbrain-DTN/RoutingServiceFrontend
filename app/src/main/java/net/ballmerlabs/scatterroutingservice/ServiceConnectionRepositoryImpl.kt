@@ -1,5 +1,6 @@
 package net.ballmerlabs.scatterroutingservice
 
+import android.app.ActivityManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -9,24 +10,26 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import net.ballmerlabs.scatterroutingservice.ServiceConnectionRepository.Companion.TAG
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import net.ballmerlabs.scatterbrainsdk.HandshakeResult
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainAPI
+import net.ballmerlabs.scatterroutingservice.ServiceConnectionRepository.Companion.TAG
 import net.ballmerlabs.uscatterbrain.ScatterRoutingService
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+
+@ExperimentalCoroutinesApi
 @Singleton
 class ServiceConnectionRepositoryImpl @Inject constructor(
         @ApplicationContext val context: Context,
@@ -37,22 +40,15 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
     private val bindCallbackSet: MutableSet<(Boolean?) -> Unit> = mutableSetOf()
     private val pm = context.packageManager
 
-    private lateinit var callback: ServiceConnection
-
-    @ExperimentalCoroutinesApi
-    override val serviceConnections = callbackFlow {
-        offer(false)
-        callback  = object: ServiceConnection {
+    private val callback = object: ServiceConnection {
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
                 binder = ScatterbrainAPI.Stub.asInterface(service)
                 Log.v(TAG, "connected to ScatterRoutingService binder")
                 try {
                     bindCallbackSet.forEach { c ->  c(true)}
-                    offer(true)
                 } catch (e: RemoteException) {
                     Log.e(TAG, "RemoteException: $e")
                     bindCallbackSet.forEach { c -> c(null) }
-                    offer(false)
                 } finally {
                     bindCallbackSet.clear()
                 }
@@ -63,12 +59,8 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
                 binder = null
                 bindCallbackSet.forEach { c -> c(false) }
                 bindCallbackSet.clear()
-                offer(false)
             }
         }
-
-        awaitClose {  }
-    }
 
     private fun registerCallback(c: (Boolean?) -> Unit) {
         bindCallbackSet.add(c)
@@ -224,7 +216,13 @@ class ServiceConnectionRepositoryImpl @Inject constructor(
     }
 
     override fun isConnected(): Boolean {
-        return binder != null
+        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(1)) {
+            if ("net.ballmerlabs.uscatterbrain.ScatterRoutingService" == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
     
     init {

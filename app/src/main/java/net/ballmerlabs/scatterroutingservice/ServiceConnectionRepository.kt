@@ -6,7 +6,6 @@ import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 
 interface ServiceConnectionRepository {
-    val serviceConnections: Flow<Boolean>
     suspend fun startService()
     suspend fun stopService()
     suspend fun bindService()

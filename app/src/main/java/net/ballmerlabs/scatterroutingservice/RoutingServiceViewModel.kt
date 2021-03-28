@@ -14,17 +14,9 @@ import kotlin.coroutines.cancellation.CancellationException
 class RoutingServiceViewModel @Inject constructor(
         val repository: ServiceConnectionRepository
 ) : ViewModel() {
-    val serviceConnections = MutableLiveData<Boolean>()
     private val identityLiveData = MediatorLiveData<List<Identity>>()
 
     init {
-        viewModelScope.softCancelLaunch {
-            repository.serviceConnections.collect {
-                yield()
-                serviceConnections.postValue(it)
-            }
-        }
-
         viewModelScope.softCancelLaunch {
             repository.observeIdentities().collect {
                 yield()

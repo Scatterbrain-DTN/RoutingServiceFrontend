@@ -64,6 +64,7 @@ class PowerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
+        binding.toggleButton.isChecked = serviceConnectionRepository.isConnected()
     }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -72,6 +73,7 @@ class PowerFragment : Fragment() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
         binding.statusText.text = getStatusText()
+        binding.toggleButton.isChecked = serviceConnectionRepository.isConnected()
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             lifecycleScope.softCancelLaunch {
                 if (isActive) {
@@ -103,11 +105,6 @@ class PowerFragment : Fragment() {
                 }
             }
         }
-        model.serviceConnections
-                .observe(viewLifecycleOwner) {b ->
-                    binding.toggleButton.isChecked = b
-                    binding.statusText.text = getStatusText()
-                }
         return binding.root
     }
 
