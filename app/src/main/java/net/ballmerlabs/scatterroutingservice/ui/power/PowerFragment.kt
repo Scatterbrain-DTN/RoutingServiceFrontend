@@ -46,7 +46,7 @@ class PowerFragment : Fragment() {
 
     private fun getStatusText(sharedPreferences: SharedPreferences): String {
         return if (binding.toggleButton.isChecked) {
-            sharedPreferences.getString(requireContext().getString(R.string.pref_powersave), DISABLED)!!
+            sharedPreferences.getString(requireContext().getString(R.string.pref_powersave), getString(R.string.powersave_active))!!
         } else {
             DISABLED
         }
