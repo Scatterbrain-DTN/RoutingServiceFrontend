@@ -55,7 +55,8 @@
 
 
     <!-- location -->
-    <string name="grant_location_text">Scatterbrain needs location permission in order to scan for bluetooth and wifi.</string>
+    <string name="grant_location_text">Scatterbrain needs location permission in order to scan for bluetooth and wifi when the app is closed.
+    this is used to discover other scatterbrain devices to communicate with.</string>
     <string name="failed_location_text">If location permission is not granted, scatterbrain will only function in passive mode</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
