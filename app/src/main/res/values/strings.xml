@@ -17,6 +17,8 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="menu_power">Router status</string>
+    <string name="menu_about">About</string>
+
     <!-- Preference Titles -->
     <string name="power_header">Power Management</string>
     <string name="general_header">General</string>
@@ -60,6 +62,23 @@
     <string name="failed_location_text">If location permission is not granted, scatterbrain will only function in passive mode</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <string name="privacy_link">
+        Scatterbrain Router is free software! You too can contribute at <a href="https://github.com/Scatterbrain-DTN/">https://github.com/Scatterbrain-DTN/</a>\n\n
+
+        While we try not to collect any data, in the unlikely event that we accidentally do your data is protected by our <a href="https://scatterbrain-dtn.github.io/privacy">Privacy policy</a>\n\n
+
+        THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS\'\' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+        INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+        PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+        INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+        PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+        HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+        OF THE POSSIBILITY OF SUCH DAMAGE.
+    </string>
+
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

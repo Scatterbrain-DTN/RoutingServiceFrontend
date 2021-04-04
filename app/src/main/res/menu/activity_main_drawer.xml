@@ -17,5 +17,11 @@
             android:title="@string/title_identity"
             />
 
+        <item
+            android:id="@+id/navigation_about"
+            android:icon="@drawable/ic_baseline_info_24"
+            android:title="@string/menu_about"
+            />
+
     </group>
 </menu>

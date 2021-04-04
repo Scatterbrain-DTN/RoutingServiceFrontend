@@ -32,4 +32,10 @@
         android:name="net.ballmerlabs.scatterroutingservice.ui.SettingsFragment"
         android:label="@string/action_settings"
         />
+
+    <fragment
+        android:id="@id/navigation_about"
+        android:name="net.ballmerlabs.scatterroutingservice.AboutFragment"
+        android:label="@string/menu_about"
+        />
 </navigation>
