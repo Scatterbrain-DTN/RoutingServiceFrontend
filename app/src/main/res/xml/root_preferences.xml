@@ -18,6 +18,12 @@
             app:key="incognito"
             app:title="@string/incognito_title"/>
 
+        <SwitchPreference
+            app:key="@string/pref_enable_crashlytics"
+            android:title="@string/pref_enable_crashlytics_title"
+            android:summary="@string/pref_enable_crashlyting_desc"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/power_header">

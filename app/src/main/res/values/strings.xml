@@ -64,6 +64,19 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
+    <!-- google play shitware api -->
+    <string name="default_web_client_id" translatable="false">913979738892-6pmfrf29ba5ha2lg6kjioh5tic16s990.apps.googleusercontent.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">913979738892</string>
+    <string name="google_api_key" translatable="false">AIzaSyBFXq0uLhrDUatXZ1BtsfKoG_PDm4-eEHk</string>
+    <string name="google_app_id" translatable="false">1:913979738892:android:4b93892f3921e1b2f95729</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBFXq0uLhrDUatXZ1BtsfKoG_PDm4-eEHk</string>
+    <string name="google_storage_bucket" translatable="false">scatterroutingservice.appspot.com</string>
+    <string name="project_id" translatable="false">scatterroutingservice</string>
+
+    <string name="pref_enable_crashlytics">enableCrashlytics</string>
+    <string name="pref_enable_crashlytics_title">Opt-in to crash reporting spyware</string>
+    <string name="pref_enable_crashlyting_desc">Crashlytics helps me debug issues with scatterbrain, but requires sending data to google. A restart is required to disable after enabling.</string>
+
     <string name="privacy_link">
         Scatterbrain Router is free software! You too can contribute at <a href="https://github.com/Scatterbrain-DTN/">https://github.com/Scatterbrain-DTN/</a>\n\n
 

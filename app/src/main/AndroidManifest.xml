@@ -18,6 +18,21 @@
         android:supportsRtl="true"
         android:name="net.ballmerlabs.scatterroutingservice.ScatterbrainApp"
         android:theme="@style/Theme.RoutingServiceFrontend">
+        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+        <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
+        <meta-data android:name="google_analytics_ssaid_collection_enabled" android:value="false" />
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false">
+            <meta-data  android:name="net.ballmerlabs.scatterroutingservice.FirebaseInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
         <activity
             android:name="net.ballmerlabs.scatterroutingservice.DrawerActivity"
             android:label="@string/app_name">

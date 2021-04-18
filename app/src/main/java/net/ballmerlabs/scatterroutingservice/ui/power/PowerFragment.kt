@@ -11,13 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
+import androidx.startup.InitializationProvider
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.isActive
-import net.ballmerlabs.scatterroutingservice.R
-import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
-import net.ballmerlabs.scatterroutingservice.ServiceConnectionRepository
+import net.ballmerlabs.scatterroutingservice.*
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
-import net.ballmerlabs.scatterroutingservice.softCancelLaunch
 import javax.inject.Inject
 
 @AndroidEntryPoint
