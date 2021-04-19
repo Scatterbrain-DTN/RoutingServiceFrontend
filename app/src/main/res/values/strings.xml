@@ -63,6 +63,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string name="disable_doze_text">Scatterbrain needs permission to disable battery optimizations. This allows scatterbrain to forward and receive messages in the background.</string>
 
     <!-- google play shitware api -->
     <string name="default_web_client_id" translatable="false">913979738892-6pmfrf29ba5ha2lg6kjioh5tic16s990.apps.googleusercontent.com</string>

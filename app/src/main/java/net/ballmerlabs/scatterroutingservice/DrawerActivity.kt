@@ -1,8 +1,14 @@
 package net.ballmerlabs.scatterroutingservice
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -38,6 +44,8 @@ class DrawerActivity : AppCompatActivity() {
 
     val model: RoutingServiceViewModel by viewModels()
 
+    val requestCodeBattery = 1
+
 
     private var mAppBarConfiguration: AppBarConfiguration? = null
     private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult (RequestPermission()) { isGranted: Boolean ->
@@ -48,13 +56,24 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestForegroundLocation() {}
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == requestCodeBattery) {
+            if (resultCode == RESULT_OK) {
+                binding.appbar.maincontent.batteryOptimizationBanner.dismiss()
+            } else {
+                binding.appbar.maincontent.batteryOptimizationBanner.dismiss()
+                //TODO: chastise user
+            }
+        }
+    }
+
+    @SuppressLint("BatteryLife") //am really sowwy google. Pls fowgive me ;(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDrawerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val fab = binding.appbar.fab
-        val collapsingToolbarLayout = findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar)
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
             binding.appbar.maincontent.grantlocationbanner.show()
         }
@@ -64,6 +83,25 @@ class DrawerActivity : AppCompatActivity() {
         binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
             binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
         }
+        
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            binding.appbar.maincontent.batteryOptimizationBanner.show()
+        }
+
+        binding.appbar.maincontent.batteryOptimizationBanner.setRightButtonListener {
+            val intent = Intent()
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+            intent.data = Uri.parse("package:$packageName")
+            startActivityForResult(intent, requestCodeBattery)
+        }
+
+        binding.appbar.maincontent.batteryOptimizationBanner.setLeftButtonListener {
+            binding.appbar.maincontent.batteryOptimizationBanner.dismiss()
+        }
+
+        
         val versionView = binding.navView.getHeaderView(0).findViewById<TextView>(R.id.textView) //Viewbinding doesn't work with the nav header
         versionView.append(BuildConfig.VERSION_NAME)
         val fabParams = fab.layoutParams as CoordinatorLayout.LayoutParams
