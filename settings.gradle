@@ -1,5 +1,6 @@
 include ':rxandroidble'
 include ':app'
 include ':ScatterRoutingService:app'
-include ':ScatterRoutingService:scatterbrainSDK'
+include ':scatterbrainSDK'
+project(':scatterbrainSDK').projectDir = new File('ScatterRoutingService/scatterbrainSDK')
 rootProject.name = "RoutingServiceFrontend"

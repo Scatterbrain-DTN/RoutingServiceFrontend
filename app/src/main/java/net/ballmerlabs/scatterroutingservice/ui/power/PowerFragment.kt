@@ -2,7 +2,6 @@ package net.ballmerlabs.scatterroutingservice.ui.power
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,18 +10,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import androidx.startup.InitializationProvider
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.isActive
-import net.ballmerlabs.scatterroutingservice.*
+import net.ballmerlabs.scatterbrainsdk.BinderWrapper
+import net.ballmerlabs.scatterroutingservice.R
+import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
+import net.ballmerlabs.scatterroutingservice.softCancelLaunch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class PowerFragment : Fragment() {
 
-    @Inject lateinit var serviceConnectionRepository: ServiceConnectionRepository
+    @Inject lateinit var serviceConnectionRepository: BinderWrapper
 
     private var _binding:  FragmentPowerBinding? = null
     // This property is only valid between onCreateView and

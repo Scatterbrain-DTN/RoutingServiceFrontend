@@ -15,12 +15,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
-import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
-import net.ballmerlabs.scatterroutingservice.databinding.FragmentIdentityHomeBinding
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.scatterroutingservice.R
-import net.ballmerlabs.scatterroutingservice.ServiceConnectionRepository
+import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
+import net.ballmerlabs.scatterroutingservice.databinding.FragmentIdentityHomeBinding
 import net.ballmerlabs.scatterroutingservice.softCancelLaunch
 import net.ballmerlabs.uscatterbrain.db.entities.ApiIdentity
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class IdentityHomeFragment : Fragment() {
     lateinit var bind: FragmentIdentityHomeBinding
     private lateinit var adapter: IdentityListAdapter
     val model: RoutingServiceViewModel by viewModels()
-    @Inject lateinit var repository: ServiceConnectionRepository
+    @Inject lateinit var repository: BinderWrapper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }

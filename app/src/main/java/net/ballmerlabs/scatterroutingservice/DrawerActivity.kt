@@ -26,11 +26,12 @@ import androidx.navigation.NavDestination
 import androidx.navigation.Navigation
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import net.ballmerlabs.scatterbrainsdk.BinderWrapper
+import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.databinding.ActivityDrawerBinding
 import javax.inject.Inject
 
@@ -38,7 +39,7 @@ import javax.inject.Inject
 class DrawerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDrawerBinding
 
-    @Inject lateinit var repository: ServiceConnectionRepository
+    @Inject lateinit var repository: BinderWrapper
     
     @Inject lateinit var broadcastReceiver: ScatterbrainBroadcastReceiver
 

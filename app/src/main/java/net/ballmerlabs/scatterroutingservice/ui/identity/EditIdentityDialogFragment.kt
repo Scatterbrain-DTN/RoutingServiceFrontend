@@ -17,9 +17,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterroutingservice.*
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentEditIdentityDialogListDialogBinding
 import net.ballmerlabs.scatterbrainsdk.Identity
+import net.ballmerlabs.scatterbrainsdk.NamePackage
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -44,7 +46,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
     private lateinit var adapter: AppPackageArrayAdapter<ApplicationInfo>
     private val model: RoutingServiceViewModel by viewModels()
 
-    @Inject lateinit var repository: ServiceConnectionRepository
+    @Inject lateinit var repository: BinderWrapper
     
     private fun createPermissionChip(info: NamePackage) {
         val chip = Chip(requireContext())

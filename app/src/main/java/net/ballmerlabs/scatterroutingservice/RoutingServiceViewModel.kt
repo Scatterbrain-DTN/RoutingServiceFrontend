@@ -5,14 +5,16 @@ import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
+import net.ballmerlabs.scatterbrainsdk.NamePackage
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class RoutingServiceViewModel @Inject constructor(
-        val repository: ServiceConnectionRepository
+        val repository: BinderWrapper
 ) : ViewModel() {
     private val identityLiveData = MediatorLiveData<List<Identity>>()
 
