@@ -51,6 +51,7 @@ class DrawerActivity : AppCompatActivity() {
     private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult (RequestPermission()) { isGranted: Boolean ->
         if (isGranted) {
             binding.appbar.maincontent.grantlocationbanner.dismiss()
+            checkBatteryOptimization()
         } else {
             binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
         }
@@ -68,27 +69,24 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("BatteryLife") //am really sowwy google. Pls fowgive me ;(
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityDrawerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        val fab = binding.appbar.fab
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
-            binding.appbar.maincontent.grantlocationbanner.show()
-        }
+    private fun checkLocationPermission(): Boolean {
         binding.appbar.maincontent.grantlocationbanner.setRightButtonListener {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
         binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
             binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
         }
-        
-        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-            binding.appbar.maincontent.batteryOptimizationBanner.show()
-        }
 
+        return if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
+            binding.appbar.maincontent.grantlocationbanner.show()
+            false
+        } else {
+            true
+        }
+    }
+
+    @SuppressLint("BatteryLife") //am really sowwy google. Pls fowgive me ;(
+    private fun checkBatteryOptimization() : Boolean {
         binding.appbar.maincontent.batteryOptimizationBanner.setRightButtonListener {
             val intent = Intent()
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -101,7 +99,25 @@ class DrawerActivity : AppCompatActivity() {
             binding.appbar.maincontent.batteryOptimizationBanner.dismiss()
         }
 
-        
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        return if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            binding.appbar.maincontent.batteryOptimizationBanner.show()
+            false
+        } else {
+            true
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityDrawerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        val fab = binding.appbar.fab
+
+        if (checkLocationPermission()) {
+            checkBatteryOptimization()
+        }
+
         val versionView = binding.navView.getHeaderView(0).findViewById<TextView>(R.id.textView) //Viewbinding doesn't work with the nav header
         versionView.append(BuildConfig.VERSION_NAME)
         val fabParams = fab.layoutParams as CoordinatorLayout.LayoutParams
