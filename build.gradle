@@ -4,6 +4,7 @@ buildscript {
     ext.kotlin_version = '1.4.31'
     ext.hilt_version = '2.33-beta'
     repositories {
+        mavenLocal()
         google()
         jcenter()
     }
@@ -22,6 +23,7 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenLocal()
         google()
         jcenter()
         maven { url  "https://dl.bintray.com/terl/lazysodium-maven"}
