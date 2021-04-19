@@ -22,6 +22,7 @@ pipeline {
         stage('Build Scatterbrain') {
             steps {
                 withGradle {
+									  sh 'cp RxAndroidBle/rxandroidble/build/outputs/aar/rxandroidble-release.aar ./rxandroidble/'
                     sh './gradlew assembleRelease'
                 }
                 signAndroidApks (
