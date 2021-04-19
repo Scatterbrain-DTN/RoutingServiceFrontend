@@ -1,3 +1,4 @@
+include ':rxandroidble'
 include ':app'
 include ':ScatterRoutingService:app'
 include ':ScatterRoutingService:scatterbrainSDK'
