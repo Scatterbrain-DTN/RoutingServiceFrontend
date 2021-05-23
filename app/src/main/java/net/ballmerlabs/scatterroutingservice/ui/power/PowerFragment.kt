@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.isActive
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterroutingservice.R
@@ -29,6 +30,7 @@ class PowerFragment : Fragment() {
 // onDestroyView.
     private val binding get() = _binding!!
 
+    @InternalCoroutinesApi
     private val model: RoutingServiceViewModel by viewModels()
 
     private val DISABLED = "Disabled"

@@ -5,23 +5,26 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
-import net.ballmerlabs.scatterroutingservice.*
-import net.ballmerlabs.scatterroutingservice.databinding.FragmentEditIdentityDialogListDialogBinding
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
+import net.ballmerlabs.scatterroutingservice.R
+import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
+import net.ballmerlabs.scatterroutingservice.databinding.FragmentEditIdentityDialogListDialogBinding
+import net.ballmerlabs.scatterroutingservice.softCancelLaunch
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -44,6 +47,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentEditIdentityDialogListDialogBinding
     private lateinit var identity: Identity
     private lateinit var adapter: AppPackageArrayAdapter<ApplicationInfo>
+    @InternalCoroutinesApi
     private val model: RoutingServiceViewModel by viewModels()
 
     @Inject lateinit var repository: BinderWrapper
@@ -81,6 +85,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         return infoList
     }
     
+    @InternalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentEditIdentityDialogListDialogBinding.inflate(inflater)

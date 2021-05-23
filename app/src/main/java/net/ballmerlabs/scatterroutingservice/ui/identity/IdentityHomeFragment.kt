@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.InternalCoroutinesApi
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
@@ -34,6 +35,7 @@ import javax.inject.Inject
 class IdentityHomeFragment : Fragment() {
     lateinit var bind: FragmentIdentityHomeBinding
     private lateinit var adapter: IdentityListAdapter
+    @InternalCoroutinesApi
     val model: RoutingServiceViewModel by viewModels()
     @Inject lateinit var repository: BinderWrapper
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,6 +71,7 @@ class IdentityHomeFragment : Fragment() {
         checkConnected()
     }
 
+    @InternalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         bind = FragmentIdentityHomeBinding.inflate(inflater)
@@ -87,6 +90,7 @@ class IdentityHomeFragment : Fragment() {
         return bind.root
     }
 
+    @InternalCoroutinesApi
     fun removeIdentity(identity: Identity) {
         lifecycleScope.softCancelLaunch { 
             if (repository.removeIdentity(identity)) {
@@ -114,6 +118,7 @@ class IdentityHomeFragment : Fragment() {
             notifyDataSetChanged()
         }
 
+        @InternalCoroutinesApi
         override fun onBindViewHolder(holder: IdentityListEntry, position: Int) {
             val id = viewlist[position]
             holder.fingerintText.text = id.fingerprint

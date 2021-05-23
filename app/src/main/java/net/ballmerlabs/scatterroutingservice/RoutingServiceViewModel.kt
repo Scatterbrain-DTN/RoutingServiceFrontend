@@ -12,6 +12,7 @@ import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
+@InternalCoroutinesApi
 @HiltViewModel
 class RoutingServiceViewModel @Inject constructor(
         val repository: BinderWrapper

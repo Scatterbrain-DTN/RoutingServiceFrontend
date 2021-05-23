@@ -30,6 +30,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.InternalCoroutinesApi
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.databinding.ActivityDrawerBinding
@@ -43,6 +44,7 @@ class DrawerActivity : AppCompatActivity() {
     
     @Inject lateinit var broadcastReceiver: ScatterbrainBroadcastReceiver
 
+    @InternalCoroutinesApi
     val model: RoutingServiceViewModel by viewModels()
 
     val requestCodeBattery = 1

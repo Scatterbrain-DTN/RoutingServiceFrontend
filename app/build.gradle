@@ -15,7 +15,7 @@ android {
         applicationId "net.ballmerlabs.scatterroutingservice"
         minSdkVersion 29
         targetSdkVersion 30
-        versionCode 14
+        versionCode 15
         versionName "0.0029-alpha1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

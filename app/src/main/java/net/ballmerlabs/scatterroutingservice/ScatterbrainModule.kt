@@ -7,9 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
-import net.ballmerlabs.scatterbrainsdk.DaggerSdkComponent
+import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
-import net.ballmerlabs.scatterbrainsdk.SdkComponent
 import javax.inject.Singleton
 
 @Module
@@ -18,20 +17,19 @@ object ScatterbrainModule {
 
     @Provides
     @Singleton
-    fun providesComponent(@ApplicationContext context: Context): SdkComponent {
-        return DaggerSdkComponent.builder()
-                .applicationContext(context)!!.build()!!
+    fun providesComponent(@ApplicationContext context: Context): ScatterbrainApi {
+        return ScatterbrainApi(context)
     }
 
     @Provides
     @Singleton
-    fun provideSdk(component: SdkComponent): BinderWrapper {
-        return component.sdk()
+    fun provideSdk(component: ScatterbrainApi): BinderWrapper {
+        return component.binderWrapper
     }
 
     @Provides
     @Singleton
-    fun providesBroadcastReceiver(component: SdkComponent): ScatterbrainBroadcastReceiver {
-        return component.broadcastReceiver()
+    fun providesBroadcastReceiver(component: ScatterbrainApi): ScatterbrainBroadcastReceiver {
+        return component.broadcastReceiver
     }
 }
