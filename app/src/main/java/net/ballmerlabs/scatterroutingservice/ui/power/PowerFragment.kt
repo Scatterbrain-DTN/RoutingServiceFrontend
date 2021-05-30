@@ -14,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.isActive
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
+import net.ballmerlabs.scatterbrainsdk.internal.BinderProvider
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
@@ -82,7 +83,6 @@ class PowerFragment : Fragment() {
                     try {
                         if (b) {
                             serviceConnectionRepository.startService()
-                            serviceConnectionRepository.bindService()
                             if (powersave == getString(R.string.powersave_active)) {
                                 serviceConnectionRepository.startDiscover()
                             } else {
