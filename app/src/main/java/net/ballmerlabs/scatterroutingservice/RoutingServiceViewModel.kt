@@ -44,6 +44,13 @@ class RoutingServiceViewModel @Inject constructor(
         }
     }
 
+    fun getPackages(): LiveData<List<String>> = liveData {
+        viewModelScope.softCancelLaunch {
+            val packages = repository.getPackages()
+            emit(packages)
+        }
+    }
+
     fun getApplicationInfo(identity: Identity): LiveData<List<NamePackage>> = liveData {
         repository.getPermissions(identity).collect {
             emit(it)

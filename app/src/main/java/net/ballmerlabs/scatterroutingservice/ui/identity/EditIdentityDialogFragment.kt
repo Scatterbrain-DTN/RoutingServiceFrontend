@@ -2,6 +2,7 @@ package net.ballmerlabs.scatterroutingservice.ui.identity
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.Log
@@ -16,11 +17,16 @@ import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
+import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentEditIdentityDialogListDialogBinding
@@ -67,22 +73,20 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
     }
 
     @SuppressLint("QueryPermissionsNeeded") //we declare the queries element
-    private suspend fun composeInfoList() : List<NamePackage> {
-        val apps = requireContext().packageManager.getInstalledApplications(0)
-        val infoList = ArrayList<NamePackage>()
-        for (info in apps) {
-            yield()
-            if (info.name != null) {
-                Log.v(TAG, "loading package: ${info.name}")
-                infoList.add(
-                        NamePackage(
-                                requireContext().packageManager.getApplicationLabel(info).toString(),
-                                info
-                        )
-                )
-            }
+    private fun composeInfoList() : Flow<NamePackage> = flow {
+        val intent = Intent(requireContext().getString(net.ballmerlabs.uscatterbrain.R.string.broadcast_message))
+
+        val pm = requireContext().packageManager
+        val resolve = pm.queryBroadcastReceivers(intent, 0)
+        resolve.forEach { r ->
+            val info = pm.getApplicationInfo(r.activityInfo.packageName, 0)
+            Log.v(TAG, "loading package: ${info.name}")
+            val p = NamePackage(
+                    requireContext().packageManager.getApplicationLabel(info).toString(),
+                    info
+            )
+            emit(p)
         }
-        return infoList
     }
     
     @InternalCoroutinesApi
@@ -107,20 +111,23 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         }
         
         lifecycleScope.softCancelLaunch {
-            val infoList = withContext(Dispatchers.IO) { composeInfoList() }
-
-            withContext(Dispatchers.Main) {
-                adapter = AppPackageArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, infoList)
-                adapter.notifyDataSetChanged()
-                model.getApplicationInfo(identity)
-                        .observe(viewLifecycleOwner, { list ->
-                            list.forEach {
-                                createPermissionChip(it)
-                            }
-                            binding.autocompleteAppSelector.setAdapter(adapter)
-                        })
+            withContext(Dispatchers.Default) {
+                val infoList = composeInfoList().fold(ArrayList<NamePackage>()) { accumulator, value ->
+                    accumulator.add(value)
+                    accumulator
+                }
+                withContext(Dispatchers.Main) {
+                    adapter = AppPackageArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, infoList)
+                    adapter.notifyDataSetChanged()
+                    model.getApplicationInfo(identity)
+                            .observe(viewLifecycleOwner, { list ->
+                                list.forEach {
+                                    createPermissionChip(it)
+                                }
+                                binding.autocompleteAppSelector.setAdapter(adapter)
+                            })
+                }
             }
-
         }
         return binding.root
     }
