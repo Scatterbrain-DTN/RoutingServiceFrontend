@@ -6,10 +6,11 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
+import androidx.core.view.WindowCompat
+import androidx.core.view.doOnLayout
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -20,13 +21,11 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
-import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
+import net.ballmerlabs.scatterroutingservice.BuildConfig
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentEditIdentityDialogListDialogBinding
@@ -52,7 +51,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
 
     private lateinit var binding: FragmentEditIdentityDialogListDialogBinding
     private lateinit var identity: Identity
-    private lateinit var adapter: AppPackageArrayAdapter<ApplicationInfo>
+    private lateinit var adapter: AppPackageArrayAdapter<NamePackage>
     @InternalCoroutinesApi
     private val model: RoutingServiceViewModel by viewModels()
 
@@ -88,12 +87,18 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
             emit(p)
         }
     }
-    
+
+    override fun getTheme(): Int {
+        return R.style.AppBottomSheetDialogTheme
+    }
+
     @InternalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.AppBottomSheetDialogTheme)
         binding = FragmentEditIdentityDialogListDialogBinding.inflate(inflater)
         identity = requireArguments().getParcelable(ARG_IDENTITY)!!
+        WindowCompat.setDecorFitsSystemWindows(dialog!!.window!!, false)
         binding.editname.text = identity.givenname
         binding.autocompleteAppSelector.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
         binding.autocompleteAppSelector.threshold = 1
@@ -101,10 +106,12 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         { adapterView: AdapterView<*>, _: View, i: Int, _: Long ->
             val info = adapterView.getItemAtPosition(i) as NamePackage?
             if (info != null) {
+                Log.e(TAG, "authorizing identity: ${info.info.packageName}")
                 lifecycleScope.softCancelLaunch {
                     repository.authorizeIdentity(identity, info.info.packageName)
                 }
                 createPermissionChip(info)
+                binding.autocompleteAppSelector.setText("")
             } else {
                 Log.w(TAG, "attempted to create chip for null string at $i")
             }
@@ -116,11 +123,14 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                     accumulator.add(value)
                     accumulator
                 }
+                Log.e(TAG, "setting adapter ${infoList.size}")
                 withContext(Dispatchers.Main) {
                     adapter = AppPackageArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, infoList)
+                    binding.autocompleteAppSelector.setAdapter(adapter)
                     adapter.notifyDataSetChanged()
                     model.getApplicationInfo(identity)
                             .observe(viewLifecycleOwner, { list ->
+                                Log.e(TAG, "restored identity list ${list.size}")
                                 list.forEach {
                                     createPermissionChip(it)
                                 }
@@ -172,7 +182,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                     items = (p1!!.values as List<NamePackage>)
                     notifyDataSetChanged()
                 }
-            }   
+            }
         }
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

@@ -2,7 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/editlayout"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent">
 
     <com.lelloman.identicon.view.ClassicIdenticonView
@@ -51,6 +53,8 @@
                 android:layout_height="wrap_content"
                 android:minHeight="64dp"
                 app:layout_flexGrow="1"
+                android:dropDownAnchor="@id/editlayout"
+                android:gravity="top"
                 android:id="@+id/autocomplete_app_selector"
                 android:hint="@string/permission_hint" />
     </com.google.android.flexbox.FlexboxLayout>

@@ -12,6 +12,8 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -36,6 +38,7 @@ import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.databinding.ActivityDrawerBinding
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
 class DrawerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDrawerBinding
@@ -51,7 +54,7 @@ class DrawerActivity : AppCompatActivity() {
 
 
     private var mAppBarConfiguration: AppBarConfiguration? = null
-    private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult (RequestPermission()) { isGranted: Boolean ->
+    private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
         if (isGranted) {
             binding.appbar.maincontent.grantlocationbanner.dismiss()
             checkBatteryOptimization()
@@ -120,7 +123,9 @@ class DrawerActivity : AppCompatActivity() {
         if (checkLocationPermission()) {
             checkBatteryOptimization()
         }
-
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            window!!.setDecorFitsSystemWindows(true)
+        }
         val versionView = binding.navView.getHeaderView(0).findViewById<TextView>(R.id.textView) //Viewbinding doesn't work with the nav header
         versionView.append(BuildConfig.VERSION_NAME)
         val fabParams = fab.layoutParams as CoordinatorLayout.LayoutParams
