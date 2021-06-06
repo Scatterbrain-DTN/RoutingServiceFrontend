@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
+import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.scatterroutingservice.BuildConfig
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
@@ -73,7 +74,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
 
     @SuppressLint("QueryPermissionsNeeded") //we declare the queries element
     private fun composeInfoList() : Flow<NamePackage> = flow {
-        val intent = Intent(requireContext().getString(net.ballmerlabs.uscatterbrain.R.string.broadcast_message))
+        val intent = Intent(ScatterbrainApi.BROADCAST_EVENT)
 
         val pm = requireContext().packageManager
         val resolve = pm.queryBroadcastReceivers(intent, 0)
