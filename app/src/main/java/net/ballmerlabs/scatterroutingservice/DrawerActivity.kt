@@ -153,12 +153,8 @@ class DrawerActivity : AppCompatActivity() {
                                 Log.v(TAG, "got text val ${editText!!.text}")
                                 lifecycleScope.softCancelLaunch {
                                     val respose = repository.generateIdentity(editText.text.toString())
-                                    
-                                    if (respose == null) {
-                                        dialog.dismiss()
-                                    } else {
-                                        dialog.setTitle("Failed to generate identity: $respose")
-                                    }
+
+                                    dialog.setTitle("Failed to generate identity: $respose")
 
                                 }
                             }
