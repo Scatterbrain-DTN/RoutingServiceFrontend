@@ -21,6 +21,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -83,7 +84,7 @@ class DrawerActivity : AppCompatActivity() {
             binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
         }
 
-        return if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
+        return if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
             binding.appbar.maincontent.grantlocationbanner.show()
             false
         } else {
@@ -93,24 +94,27 @@ class DrawerActivity : AppCompatActivity() {
 
     @SuppressLint("BatteryLife") //am really sowwy google. Pls fowgive me ;(
     private fun checkBatteryOptimization() : Boolean {
-        binding.appbar.maincontent.batteryOptimizationBanner.setRightButtonListener {
-            val intent = Intent()
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-            intent.data = Uri.parse("package:$packageName")
-            startActivityForResult(intent, requestCodeBattery)
-        }
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            binding.appbar.maincontent.batteryOptimizationBanner.setRightButtonListener {
+                val intent = Intent()
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                intent.data = Uri.parse("package:$packageName")
+                startActivityForResult(intent, requestCodeBattery)
+            }
 
-        binding.appbar.maincontent.batteryOptimizationBanner.setLeftButtonListener {
-            binding.appbar.maincontent.batteryOptimizationBanner.dismiss()
-        }
-
-        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-        return if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-            binding.appbar.maincontent.batteryOptimizationBanner.show()
-            false
+            binding.appbar.maincontent.batteryOptimizationBanner.setLeftButtonListener {
+                binding.appbar.maincontent.batteryOptimizationBanner.dismiss()
+            }
+            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                binding.appbar.maincontent.batteryOptimizationBanner.show()
+                false
+            } else {
+                true
+            }
         } else {
-            true
+            true //older devices don't have doze mode
         }
     }
 
@@ -149,12 +153,8 @@ class DrawerActivity : AppCompatActivity() {
                                 Log.v(TAG, "got text val ${editText!!.text}")
                                 lifecycleScope.softCancelLaunch {
                                     val respose = repository.generateIdentity(editText.text.toString())
-                                    
-                                    if (respose == null) {
-                                        dialog.dismiss()
-                                    } else {
-                                        dialog.setTitle("Failed to generate identity: $respose")
-                                    }
+
+                                    dialog.setTitle("Failed to generate identity: $respose")
 
                                 }
                             }
