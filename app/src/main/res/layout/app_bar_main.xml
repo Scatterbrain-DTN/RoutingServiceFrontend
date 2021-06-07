@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:id="@+id/coordinatorlayout"
     tools:context=".DrawerActivity">
-2
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_layout"
         android:layout_width="match_parent"
