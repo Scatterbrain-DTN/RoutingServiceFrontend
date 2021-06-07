@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId "net.ballmerlabs.scatterroutingservice"
-        minSdkVersion 29
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 18
         versionName "0.0032-alpha1"
@@ -53,15 +53,13 @@ dependencies {
     implementation project(':scatterbrainSDK')
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.2.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'com.sergivonavi:materialbanner:1.2.0'
-    implementation 'androidx.activity:activity-ktx:1.3.0-alpha08'
-    implementation 'androidx.fragment:fragment-ktx:1.3.4'
-    implementation 'androidx.activity:activity-ktx:1.3.0-alpha08'
+    implementation 'androidx.activity:activity-ktx:1.3.0-beta01'
     implementation 'androidx.fragment:fragment-ktx:1.3.4'
     implementation "androidx.core:core-ktx:1.5.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
