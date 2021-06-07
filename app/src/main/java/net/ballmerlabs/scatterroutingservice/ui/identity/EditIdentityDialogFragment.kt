@@ -201,7 +201,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
     }
 
     companion object {
-        const val TAG = "EditIdentityDialogFragment"
+        const val TAG = "EditIdentity"
         fun newInstance(identity: Identity): EditIdentityDialogFragment =
                 EditIdentityDialogFragment().apply {
                     arguments = Bundle().apply {
