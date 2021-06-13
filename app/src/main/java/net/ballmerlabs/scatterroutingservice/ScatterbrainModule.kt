@@ -1,6 +1,10 @@
 package net.ballmerlabs.scatterroutingservice
 
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.net.wifi.WifiManager
+import androidx.core.content.getSystemService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,5 +35,24 @@ object ScatterbrainModule {
     @Singleton
     fun providesBroadcastReceiver(component: ScatterbrainApi): ScatterbrainBroadcastReceiver {
         return component.broadcastReceiver
+    }
+
+
+    @Provides
+    @Singleton
+    fun providesBluetoothManager(@ApplicationContext context: Context): BluetoothManager {
+        return context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    }
+
+    @Provides
+    @Singleton
+    fun providesBluetoothAdapter(manager: BluetoothManager): BluetoothAdapter {
+        return manager.adapter
+    }
+
+    @Provides
+    @Singleton
+    fun providesWifiManager(@ApplicationContext context: Context): WifiManager {
+        return context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
     }
 }
