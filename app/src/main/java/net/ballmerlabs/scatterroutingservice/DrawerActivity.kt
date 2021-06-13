@@ -12,8 +12,6 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -48,10 +46,12 @@ class DrawerActivity : AppCompatActivity() {
     
     @Inject lateinit var broadcastReceiver: ScatterbrainBroadcastReceiver
 
+    @Inject lateinit var bluetoothBroadcastReceiver: BluetoothBroadcastReceiver
+
     @InternalCoroutinesApi
     val model: RoutingServiceViewModel by viewModels()
 
-    val requestCodeBattery = 1
+    private val requestCodeBattery = 1
 
 
     private var mAppBarConfiguration: AppBarConfiguration? = null
@@ -118,11 +118,24 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDrawerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val fab = binding.appbar.fab
+
+        binding.appbar.maincontent.enableBluetoothBanner.setLeftButtonListener {
+            binding.appbar.maincontent.enableBluetoothBanner.dismiss()
+        }
+
+        model.observeAdapterState().observe(this, { state ->
+            if (state != BluetoothState.STATE_ON) {
+                binding.appbar.maincontent.enableBluetoothBanner.show()
+            } else {
+                binding.appbar.maincontent.enableBluetoothBanner.dismiss()
+            }
+        })
 
         if (checkLocationPermission()) {
             checkBatteryOptimization()
@@ -192,11 +205,13 @@ class DrawerActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         broadcastReceiver.unregister()
+        bluetoothBroadcastReceiver.unregister()
     }
 
     override fun onResume() {
         super.onResume()
         broadcastReceiver.register()
+        bluetoothBroadcastReceiver.register()
     }
     
     companion object {

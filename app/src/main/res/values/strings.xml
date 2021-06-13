@@ -19,6 +19,9 @@
     <string name="menu_power">Router status</string>
     <string name="menu_about">About</string>
 
+    <string name="bluetooth_disabled_snackbar">Bluetooth is disabled! Scatterbrain cannot run.</string>
+    <string name="wifi_disabled_snackbar">Wifi is disabled, Scatterbrain will be abnormally slow.</string>
+
     <!-- Preference Titles -->
     <string name="power_header">Power Management</string>
     <string name="general_header">General</string>
