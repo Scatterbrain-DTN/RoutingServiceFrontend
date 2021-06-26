@@ -30,6 +30,7 @@
     <string name="identity_share_title">Identity share cap</string>
     <string name="message_share_title">Message share cap</string>
     <string name="incognito_title">Incognito mode</string>
+    <string name="sizecap_title">Datastore max size (MB)</string>
     <string name="incognito_summary_on">Takes actions to protoct your privacy that may limit performance</string>
     <string name="incognito_summary_off">Takes actions to maximize performance at the expenese of privacy</string>
 
