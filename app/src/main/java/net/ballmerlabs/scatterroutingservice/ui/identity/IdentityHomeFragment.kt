@@ -121,7 +121,7 @@ class IdentityHomeFragment : Fragment() {
         @InternalCoroutinesApi
         override fun onBindViewHolder(holder: IdentityListEntry, position: Int) {
             val id = viewlist[position]
-            holder.fingerintText.text = id.fingerprint
+            holder.fingerintText.text = id.fingerprint.toString()
             holder.nameText.text = id.givenname
             holder.identicon.hash = id.fingerprint.hashCode()
             holder.deleteButton.setOnClickListener { removeIdentity(id) }
