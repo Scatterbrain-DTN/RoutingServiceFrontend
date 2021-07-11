@@ -14,8 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.internal.BinderProvider
 import net.ballmerlabs.scatterroutingservice.BluetoothState
@@ -72,7 +74,7 @@ class PowerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        binding.toggleButton.isChecked = serviceConnectionRepository.isConnected()
+        lifecycleScope.launch(Dispatchers.Main) {  binding.toggleButton.isChecked = serviceConnectionRepository.isConnected() }
     }
 
     fun showWifiSnackBar() {
@@ -87,7 +89,7 @@ class PowerFragment : Fragment() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
         binding.statusText.text = getStatusText()
-        binding.toggleButton.isChecked = serviceConnectionRepository.isConnected()
+        lifecycleScope.launch(Dispatchers.Main) { binding.toggleButton.isChecked = serviceConnectionRepository.isConnected() }
         model.observeAdapterState().observe(viewLifecycleOwner, { state ->
             binding.toggleButton.isEnabled = state == BluetoothState.STATE_ON
         })

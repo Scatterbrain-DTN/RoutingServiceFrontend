@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
@@ -51,7 +52,7 @@ class IdentityHomeFragment : Fragment() {
                 .build()))
     }
 
-    private fun checkConnected() {
+    private suspend fun checkConnected() {
         if (repository.isConnected()) {
             if (adapter.itemCount == 0) {
                 bind.serviceNotConnected.text = requireContext().getString(R.string.noid)
@@ -68,7 +69,7 @@ class IdentityHomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        checkConnected()
+        lifecycleScope.launch { checkConnected() }
     }
 
     @InternalCoroutinesApi
@@ -79,14 +80,16 @@ class IdentityHomeFragment : Fragment() {
         adapter = IdentityListAdapter(requireActivity().supportFragmentManager)
         bind.recyclerView.adapter = adapter
         bind.recyclerView.layoutManager = LinearLayoutManager(context)
-        if (repository.isConnected()) {
-            model.observeIdentities()
-                    .observe(viewLifecycleOwner) { newList ->
-                        adapter.setItems(newList)
-                        checkConnected()
-                    }
+        lifecycleScope.launch {
+            if (repository.isConnected()) {
+                model.observeIdentities()
+                        .observe(viewLifecycleOwner) { newList ->
+                            adapter.setItems(newList)
+                            lifecycleScope.launch {  checkConnected() }
+                        }
+            }
+            checkConnected()
         }
-        checkConnected()
         return bind.root
     }
 
