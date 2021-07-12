@@ -60,9 +60,7 @@ class RoutingServiceViewModel @Inject constructor(
     }
 
     fun getApplicationInfo(identity: Identity): LiveData<List<NamePackage>> = liveData {
-        repository.getPermissions(identity).collect {
-            emit(it)
-        }
+        emit(repository.getPermissions(identity))
     }
 }
 const val TAG = "RoutingServiceViewModel"
