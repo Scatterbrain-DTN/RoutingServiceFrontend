@@ -10,15 +10,6 @@ pipeline {
     }
 
     stages {
-        stage('Build RxAndroidBle') {
-            steps {
-                dir('RxAndroidBle') {
-                    withGradle {
-                        sh './gradlew assembleRelease test uploadArchives'
-                    }
-                }
-            }
-        }
         stage('Build Scatterbrain') {
             steps {
                 withGradle {
