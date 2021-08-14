@@ -125,11 +125,11 @@ class IdentityHomeFragment : Fragment() {
         override fun onBindViewHolder(holder: IdentityListEntry, position: Int) {
             val id = viewlist[position]
             holder.fingerintText.text = id.fingerprint.toString()
-            holder.nameText.text = id.givenname
+            holder.nameText.text = id.name
             holder.identicon.hash = id.fingerprint.hashCode()
             holder.deleteButton.setOnClickListener { removeIdentity(id) }
             val deleteparams = holder.deleteButton.layoutParams as ConstraintLayout.LayoutParams
-            if (id.hasPrivateKey()) {
+            if (id.hasPrivateKey) {
                 holder.editButton.visibility = View.VISIBLE
                 holder.editButton.setOnClickListener {
                     EditIdentityDialogFragment.newInstance(id).show(fragmentManager, "edit identity")
