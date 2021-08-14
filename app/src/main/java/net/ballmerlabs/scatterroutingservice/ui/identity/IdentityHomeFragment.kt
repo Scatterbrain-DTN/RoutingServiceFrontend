@@ -129,7 +129,7 @@ class IdentityHomeFragment : Fragment() {
             holder.identicon.hash = id.fingerprint.hashCode()
             holder.deleteButton.setOnClickListener { removeIdentity(id) }
             val deleteparams = holder.deleteButton.layoutParams as ConstraintLayout.LayoutParams
-            if (id.hasPrivateKey) {
+            if (id.isOwned) {
                 holder.editButton.visibility = View.VISIBLE
                 holder.editButton.setOnClickListener {
                     EditIdentityDialogFragment.newInstance(id).show(fragmentManager, "edit identity")
