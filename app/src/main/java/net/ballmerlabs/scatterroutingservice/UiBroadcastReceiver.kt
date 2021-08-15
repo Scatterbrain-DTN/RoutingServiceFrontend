@@ -24,7 +24,7 @@ enum class BluetoothState {
 
 @AndroidEntryPoint
 @Singleton
-class BluetoothBroadcastReceiver @Inject constructor(
+class UiBroadcastReceiver @Inject constructor(
         @ApplicationContext val context: Context,
         private val adapter: BluetoothAdapter
 ) : BroadcastReceiver() {
