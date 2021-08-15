@@ -15,4 +15,8 @@ class ScatterbrainApp : Application() {
 
         return EntryPoints.get(this, ScatterbrainModule::class.java)
     }
+
+    companion object {
+        const val UI_PREFS = "ui-prefs"
+    }
 }
