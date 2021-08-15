@@ -7,7 +7,7 @@ include ':dagger-library-shadow'
 include ':app'
 include ':ScatterRoutingService:app'
 include ':scatterbrainSDK'
-project(':scatterbrainSDK').projectDir = new File('ScatterRoutingService/scatterbrainSDK')
+project(':scatterbrainSDK').projectDir = new File('ScatterRoutingService/scatterbrainSDK/scatterbrainSDK/')
 project(':dagger-library-shadow').projectDir = new File(rootDir, 'ScatterRoutingService/RxAndroidBle/dagger-library-shadow/')
 project(':sample').projectDir = new File(rootDir, 'ScatterRoutingService/RxAndroidBle/sample/')
 project(':dagger-compiler-shadow').projectDir = new File(rootDir, 'ScatterRoutingService/RxAndroidBle/dagger-compiler-shadow/')

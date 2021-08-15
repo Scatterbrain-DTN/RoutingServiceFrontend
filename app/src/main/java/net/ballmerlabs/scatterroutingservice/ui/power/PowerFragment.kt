@@ -3,7 +3,6 @@ package net.ballmerlabs.scatterroutingservice.ui.power
 import android.content.SharedPreferences
 import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,6 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
-import net.ballmerlabs.scatterbrainsdk.internal.BinderProvider
 import net.ballmerlabs.scatterroutingservice.BluetoothState
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
