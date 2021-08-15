@@ -1,11 +1,12 @@
 plugins {
     id 'com.android.application'
+    id "androidx.navigation.safeargs"
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'com.google.firebase.crashlytics'
+    id 'checkstyle'
 }
-apply plugin: "androidx.navigation.safeargs"
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'dagger.hilt.android.plugin'
-apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion 30
@@ -15,8 +16,8 @@ android {
         applicationId "net.ballmerlabs.scatterroutingservice"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 27
-        versionName "0.0039-alpha1"
+        versionCode 28
+        versionName "0.0040-alpha1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

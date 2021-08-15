@@ -3,13 +3,11 @@ package net.ballmerlabs.scatterroutingservice.ui.identity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.core.view.WindowCompat
-import androidx.core.view.doOnLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -26,7 +24,6 @@ import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
-import net.ballmerlabs.scatterroutingservice.BuildConfig
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentEditIdentityDialogListDialogBinding
@@ -100,7 +97,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         binding = FragmentEditIdentityDialogListDialogBinding.inflate(inflater)
         identity = requireArguments().getParcelable(ARG_IDENTITY)!!
         WindowCompat.setDecorFitsSystemWindows(dialog!!.window!!, false)
-        binding.editname.text = identity.givenname
+        binding.editname.text = identity.name
         binding.autocompleteAppSelector.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
         binding.autocompleteAppSelector.threshold = 1
         binding.autocompleteAppSelector.onItemClickListener = AdapterView.OnItemClickListener()

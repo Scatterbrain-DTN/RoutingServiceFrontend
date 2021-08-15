@@ -1,12 +1,15 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply from: 'ScatterRoutingService/RxAndroidBle/dependencies.gradle'
 buildscript {
-    ext.kotlin_version = '1.5.0-RC'
     ext.kotlin_version = '1.4.32'
+    ext.kotlinVersion = kotlin_version
     ext.hilt_version = '2.35'
     repositories {
-        mavenLocal()
         google()
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         def nav_version = "2.3.3"
@@ -15,7 +18,9 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.6.1'
-
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
+        classpath 'gradle.plugin.org.codehaus.groovy:groovy-android-gradle-plugin:3.0.0'
+        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:1.4.32'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -23,7 +28,6 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenLocal()
         google()
         jcenter()
         maven { url  "https://dl.bintray.com/terl/lazysodium-maven"}
@@ -36,4 +40,23 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+subprojects { project ->
+
+    apply plugin: 'checkstyle'
+
+    checkstyle {
+        toolVersion = '8.20'
+    }
+
+    task checkstyle(type: Checkstyle) {
+        configFile rootProject.file('ScatterRoutingService/RxAndroidBle/checkstyle.xml')
+        source 'src/main/java'
+        ignoreFailures false
+        showViolations true
+        include '**/*.java'
+
+        classpath = files()
+    }
 }
