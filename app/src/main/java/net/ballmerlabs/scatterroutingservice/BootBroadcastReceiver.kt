@@ -4,11 +4,18 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class BootBroadcastReceiver : BroadcastReceiver() {
+@AndroidEntryPoint
+@Singleton
+class BootBroadcastReceiver @Inject constructor() : BroadcastReceiver() {
+
+    @Inject lateinit var binderWrapper: BinderWrapper
 
 
     private fun isPowersave(context: Context): Boolean {
@@ -20,18 +27,22 @@ class BootBroadcastReceiver : BroadcastReceiver() {
 
     }
 
-    private fun startService(context: Context) {
-       val startIntent = Intent(BinderWrapper.BIND_ACTION)
-        startIntent.`package` = BinderWrapper.BIND_PACKAGE
-        ContextCompat.startForegroundService(context, startIntent)
+    private suspend fun startService(context: Context) {
+        binderWrapper.register()
+        binderWrapper.startService()
+        if (isPowersave(context)) {
+            binderWrapper.startDiscover()
+        } else {
+            binderWrapper.startPassive()
+        }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         val start = prefs.getBoolean(context.getString(R.string.pref_enabled), false)
-        Log.e("debug", "starting scatterbrain router on boot $start")
+        Log.v("boot", "attempting to start scatterbrain router ")
         if (start) {
-            startService(context)
+            runBlocking { startService(context) }
         }
     }
 
