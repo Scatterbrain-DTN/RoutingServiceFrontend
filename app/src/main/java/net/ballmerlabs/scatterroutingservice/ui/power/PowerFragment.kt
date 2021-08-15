@@ -45,9 +45,16 @@ class PowerFragment : Fragment() {
     private lateinit var sharedPreferences: SharedPreferences
 
     private val sharedPreferencesListener = SharedPreferences.OnSharedPreferenceChangeListener {
-        _: SharedPreferences, s: String ->
+        prefs: SharedPreferences, s: String ->
         if (s == requireContext().getString(R.string.pref_powersave)) {
             binding.statusText.text = getStatusText()
+        } else if (s == requireContext().getString(R.string.pref_enabled)) {
+            if (getEnabled()) {
+                lifecycleScope.launch { startService() }
+            } else {
+                lifecycleScope.launch { stopService() }
+            }
+
         }
 
     }
@@ -80,14 +87,59 @@ class PowerFragment : Fragment() {
                 .show()
     }
 
+    private suspend fun startService() {
+        val powersave = getStatusText()
+        serviceConnectionRepository.startService()
+        if (powersave == getString(R.string.powersave_active)) {
+            serviceConnectionRepository.startDiscover()
+        } else {
+            serviceConnectionRepository.startPassive()
+        }
+        binding.toggleButton.isChecked = true
+    }
+
+    private suspend fun stopService() {
+        val powersave = getStatusText()
+        if (powersave == getString(R.string.powersave_active)) {
+            serviceConnectionRepository.stopPassive()
+        } else {
+            serviceConnectionRepository.stopPassive()
+        }
+        serviceConnectionRepository.unbindService()
+        serviceConnectionRepository.stopService()
+        binding.toggleButton.isChecked = false
+    }
+
+    private fun setEnabled(boolean: Boolean) {
+        sharedPreferences.edit().apply {
+            putBoolean(requireContext().getString(R.string.pref_enabled), boolean)
+            apply()
+        }
+    }
+
+    private fun getEnabled(): Boolean {
+        return sharedPreferences.getBoolean(
+                requireContext().getString(R.string.pref_enabled),
+                false
+        )
+    }
+
     @InternalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?, savedInstanceState: Bundle?): View? {
+                              container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentPowerBinding.inflate(layoutInflater)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
         binding.statusText.text = getStatusText()
-        lifecycleScope.launch(Dispatchers.Main) { binding.toggleButton.isChecked = serviceConnectionRepository.isConnected() }
+        lifecycleScope.launch(Dispatchers.Main) {
+            binding.toggleButton.isChecked = serviceConnectionRepository.isConnected()
+            if(getEnabled()) {
+                startService()
+            } else {
+                stopService()
+            }
+
+        }
         model.observeAdapterState().observe(viewLifecycleOwner, { state ->
             binding.toggleButton.isEnabled = state == BluetoothState.STATE_ON
         })
@@ -103,29 +155,18 @@ class PowerFragment : Fragment() {
                             showWifiSnackBar()
                         }
                         binding.toggleButton.isEnabled = true
-                        val powersave = getStatusText()
                         try {
                             if (b) {
-                                serviceConnectionRepository.startService()
-                                if (powersave == getString(R.string.powersave_active)) {
-                                    serviceConnectionRepository.startDiscover()
-                                } else {
-                                    serviceConnectionRepository.startPassive()
-                                }
+                                startService()
                             } else {
-                                if (powersave == getString(R.string.powersave_active)) {
-                                    serviceConnectionRepository.stopPassive()
-                                } else {
-                                    serviceConnectionRepository.stopPassive()
-                                }
-                                serviceConnectionRepository.unbindService()
-                                serviceConnectionRepository.stopService()
+                                stopService()
                             }
+                            setEnabled(b)
                         } catch (e: IllegalStateException) {
                             compoundButton.isChecked = false
                             e.printStackTrace()
                         } finally {
-                            binding.statusText.text = powersave
+                            binding.statusText.text = getStatusText()
                         }
                     }
                 }
