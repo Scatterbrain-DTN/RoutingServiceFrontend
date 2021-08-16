@@ -12,6 +12,7 @@ pipeline {
     stages {
         stage('Build Scatterbrain') {
             steps {
+								sh 'git submodule update --init --recursive'	
                 withGradle {
                     sh './gradlew assembleRelease'
                 }
