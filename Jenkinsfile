@@ -26,7 +26,7 @@ pipeline {
                     skipZipalign: true,
                     archiveSignedApks: true
                 )
-								stash name: 'signed', includes: 'SignApksBuilder-out/android-dev/piracy/app-release-unsigned.apk/app-release.apk'
+								stash name: 'signed', includes: 'app/build/outputs/apk/release/app-release.apk'
 						}
 
 				}
@@ -35,7 +35,7 @@ pipeline {
 								unstash 'signed'
                 telegramUploader(
                     chatId: '-1001163314914',
-                    filter: 'SignApksBuilder-out/android-dev/piracy/app-release-unsigned.apk/app-release.apk',
+                    filter: 'app/build/outputs/apk/release/app-release.apk',
                     caption: "Scatterbrain frontend ${env.BUILD_TAG}",
                     silent: true,
                     failBuildIfUploadFailed: true
