@@ -27,6 +27,7 @@ pipeline {
                     archiveSignedApks: true
                 )
 								stash name: 'signed', includes: 'app/build/outputs/apk/release/app-release.apk'
+								archiveArtifacts artifacts: 'app/build/outputs/apk/release/app-release.apk'
 						}
 
 				}
