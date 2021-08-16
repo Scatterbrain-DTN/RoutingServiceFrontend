@@ -1,9 +1,5 @@
 pipeline {
     agent { label 'droid' }
-    environment {
-        ANDROID_SDK_ROOT = "$HOME/Android/Sdk"
-        ANDROID_HOME = "$ANDROID_SDK_ROOT"
-    }
 
     options {
         skipStagesAfterUnstable()
