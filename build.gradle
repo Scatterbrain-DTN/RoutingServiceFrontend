@@ -5,9 +5,11 @@ buildscript {
     ext.kotlin_version = '1.5.10'
     ext.kotlinVersion = kotlin_version
     ext.hilt_version = '2.35'
+    rootProject.ext.set("publishable", true)
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        gradlePluginPortal()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
@@ -21,7 +23,6 @@ buildscript {
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.6.1'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
         classpath 'gradle.plugin.org.codehaus.groovy:groovy-android-gradle-plugin:3.0.0'
-        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:1.4.32'
         classpath 'org.jacoco:org.jacoco.core:0.8.4'
         classpath 'io.github.gradle-nexus:publish-plugin:1.1.0'
         // NOTE: Do not place your application dependencies here; they belong
@@ -34,12 +35,13 @@ apply plugin: 'io.github.gradle-nexus.publish-plugin'
 allprojects {
     repositories {
         google()
-        jcenter()
+        gradlePluginPortal()
         maven { url  "https://dl.bintray.com/terl/lazysodium-maven"}
         maven { url "https://jitpack.io" }
         flatDir {
             dirs 'src/main/libs'
         }
+        mavenCentral()
     }
 }
 
