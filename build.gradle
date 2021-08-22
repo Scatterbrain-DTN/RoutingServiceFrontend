@@ -8,7 +8,8 @@ buildscript {
     rootProject.ext.set("publishable", true)
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        gradlePluginPortal()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
@@ -34,12 +35,13 @@ apply plugin: 'io.github.gradle-nexus.publish-plugin'
 allprojects {
     repositories {
         google()
-        jcenter()
+        gradlePluginPortal()
         maven { url  "https://dl.bintray.com/terl/lazysodium-maven"}
         maven { url "https://jitpack.io" }
         flatDir {
             dirs 'src/main/libs'
         }
+        mavenCentral()
     }
 }
 

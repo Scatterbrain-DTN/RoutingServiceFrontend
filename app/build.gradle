@@ -25,6 +25,10 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    packagingOptions {
+        pickFirst 'META-INF/com.google.dagger_dagger.version'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
