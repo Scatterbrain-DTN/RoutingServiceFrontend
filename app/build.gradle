@@ -9,6 +9,8 @@ plugins {
     id 'jacoco'
 }
 
+apply from: "${rootDir}/ScatterRoutingService/scatterbrainSDK/scripts/version.gradle"
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -18,7 +20,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 28
-        versionName "0.0040-alpha1"
+        versionName projectVersionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
