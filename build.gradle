@@ -5,6 +5,7 @@ buildscript {
     ext.kotlin_version = '1.5.10'
     ext.kotlinVersion = kotlin_version
     ext.hilt_version = '2.35'
+    rootProject.ext.set("publishable", true)
     repositories {
         google()
         jcenter()
