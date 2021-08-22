@@ -48,6 +48,8 @@
         <item>@string/powersave_passive</item>
     </string-array>
 
+    <string name="pref_enabled">power_enabled</string>
+
     <!-- identity -->
     <string name="create_hint">Display Name</string>
     <string name="create_dialog_title">Generate new identity</string>

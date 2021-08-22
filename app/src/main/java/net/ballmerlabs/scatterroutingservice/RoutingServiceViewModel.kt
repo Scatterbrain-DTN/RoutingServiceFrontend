@@ -16,7 +16,7 @@ import kotlin.coroutines.cancellation.CancellationException
 @HiltViewModel
 class RoutingServiceViewModel @Inject constructor(
         private val repository: BinderWrapper,
-        private val bluetoothBroadcastReceiver: BluetoothBroadcastReceiver
+        private val uiBroadcastReceiver: UiBroadcastReceiver
 ) : ViewModel() {
     private val identityLiveData = MediatorLiveData<List<Identity>>()
 
@@ -36,11 +36,11 @@ class RoutingServiceViewModel @Inject constructor(
     }
 
     fun observeAdapterState(): LiveData<BluetoothState> {
-        return bluetoothBroadcastReceiver.liveData
+        return uiBroadcastReceiver.liveData
     }
 
     val adapterState: BluetoothState
-        get() = bluetoothBroadcastReceiver.state
+        get() = uiBroadcastReceiver.state
 
     fun observeIdentities() : LiveData<List<Identity>> {
         return identityLiveData

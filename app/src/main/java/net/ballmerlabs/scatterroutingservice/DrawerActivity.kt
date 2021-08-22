@@ -46,7 +46,7 @@ class DrawerActivity : AppCompatActivity() {
     
     @Inject lateinit var broadcastReceiver: ScatterbrainBroadcastReceiver
 
-    @Inject lateinit var bluetoothBroadcastReceiver: BluetoothBroadcastReceiver
+    @Inject lateinit var uiBroadcastReceiver: UiBroadcastReceiver
 
     @InternalCoroutinesApi
     val model: RoutingServiceViewModel by viewModels()
@@ -205,13 +205,13 @@ class DrawerActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         broadcastReceiver.unregister()
-        bluetoothBroadcastReceiver.unregister()
+        uiBroadcastReceiver.unregister()
     }
 
     override fun onResume() {
         super.onResume()
         broadcastReceiver.register()
-        bluetoothBroadcastReceiver.register()
+        uiBroadcastReceiver.register()
     }
     
     companion object {
