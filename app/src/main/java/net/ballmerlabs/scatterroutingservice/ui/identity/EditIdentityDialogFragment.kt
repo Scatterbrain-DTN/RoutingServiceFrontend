@@ -65,12 +65,14 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         resolve.forEach { r ->
             val info = pm.getApplicationInfo(r.activityInfo.packageName, 0)
             Log.v(TAG, "loading package: ${info.name}")
-            val p = NamePackage(
-                    requireContext().packageManager.getApplicationLabel(info).toString(),
-                    info,
-                    pm
-            )
-            emit(p)
+            if (info.packageName != BinderWrapper.BIND_PACKAGE) {
+                val p = NamePackage(
+                        requireContext().packageManager.getApplicationLabel(info).toString(),
+                        info,
+                        pm
+                )
+                emit(p)
+            }
         }
     }
 
