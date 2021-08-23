@@ -114,15 +114,15 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                     .contains(namePackage.info.packageName)
         }
         lifecycleScope.softCancelLaunch {
-            withContext(Dispatchers.IO) {
+            withContext(Dispatchers.Default) {
                 val infoList = composeInfoList().fold(ArrayList<NamePackage>()) { accumulator, value ->
                     value.loadIcon()
                     accumulator.add(value)
                     accumulator
                 }
 
-                withContext(Dispatchers.Main) {
                     adapter.items.addAll(infoList)
+                withContext(Dispatchers.Main) {
                     toggleVisibility()
                     binding.appListRecyclerview.adapter = adapter
                 }
@@ -132,12 +132,12 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                     model.getPackages()
                             .observe(viewLifecycleOwner, { list ->
                                 Log.e(TAG, "restored identity list ${list.size}")
-                                lifecycleScope.launch(Dispatchers.IO) {
+                                lifecycleScope.launch(Dispatchers.Default) {
                                     list.forEach { i -> i.loadIcon() }
-                                    withContext(Dispatchers.Main) {
                                         adapter.items.addAll(list)
-                                        toggleVisibility()
-                                    }
+                                        withContext(Dispatchers.Main) {
+                                            toggleVisibility()
+                                        }
                                 }
                             })
                 }
