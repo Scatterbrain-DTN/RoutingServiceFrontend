@@ -74,6 +74,16 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
+    private fun toggleVisibility() {
+        if (adapter.items.isNotEmpty()) {
+            binding.appScrollview.visibility = View.VISIBLE
+            binding.noAppsText.visibility = View.GONE
+        } else {
+            binding.appScrollview.visibility = View.GONE
+            binding.noAppsText.visibility = View.VISIBLE
+        }
+    }
+
     override fun getTheme(): Int {
         return R.style.AppBottomSheetDialogTheme
     }
@@ -111,6 +121,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
 
                 withContext(Dispatchers.Main) {
                     adapter.items.addAll(infoList)
+                    toggleVisibility()
                     binding.appListRecyclerview.adapter = adapter
                 }
 
@@ -123,6 +134,7 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                                     list.forEach { i -> i.loadIcon() }
                                     withContext(Dispatchers.Main) {
                                         adapter.items.addAll(list)
+                                        toggleVisibility()
                                     }
                                 }
                             })
