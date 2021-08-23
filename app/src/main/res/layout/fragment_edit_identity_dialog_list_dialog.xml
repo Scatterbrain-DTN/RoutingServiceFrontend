@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/editlayout"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -9,8 +9,8 @@
 
     <com.lelloman.identicon.view.ClassicIdenticonView
         android:id="@+id/editidenticon"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         app:hash="1832742836"
         app:layout_constraintBottom_toBottomOf="@id/permission_description"
         app:layout_constraintDimensionRatio="H,1:1"
@@ -35,27 +35,31 @@
         android:text="@string/permission_subtext"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         app:layout_constraintTop_toBottomOf="@id/editname"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <com.google.android.flexbox.FlexboxLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/app_scrollview"/>
+
+
+    <TextView
+        android:id="@+id/no_apps_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_apps"
         app:layout_constraintTop_toBottomOf="@id/editidenticon"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:flexWrap="wrap"
-        app:alignItems="stretch"
-        app:alignContent="space_around"
-        android:id="@+id/flexbox">
-            <MultiAutoCompleteTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="64dp"
-                app:layout_flexGrow="1"
-                android:dropDownAnchor="@id/editlayout"
-                android:gravity="top"
-                android:id="@+id/autocomplete_app_selector"
-                android:hint="@string/permission_hint" />
-    </com.google.android.flexbox.FlexboxLayout>
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/app_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="256dp"
+        app:layout_constraintTop_toBottomOf="@id/editidenticon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:id="@+id/app_list_recyclerview"
+            tools:listitem="@layout/app_list_item"/>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

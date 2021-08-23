@@ -11,6 +11,8 @@
     <string name="action_settings">Settings</string>
     <string name="powersave_table">Router status:</string>
 
+    <string name="no_apps">No Scatterbrain enabled apps found.</string>
+
     <string name="title_identity">Identity Management</string>
 
     <string name="menu_home">Home</string>
