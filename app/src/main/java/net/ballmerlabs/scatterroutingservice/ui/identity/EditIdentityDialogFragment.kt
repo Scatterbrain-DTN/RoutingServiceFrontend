@@ -86,7 +86,21 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         identity = requireArguments().getParcelable(ARG_IDENTITY)!!
         WindowCompat.setDecorFitsSystemWindows(dialog!!.window!!, false)
         binding.editname.text = identity.name
-        adapter = AppListAdapter(requireContext())
+        adapter = AppListAdapter(requireContext(), lifecycleScope)
+        adapter.onClickListener = { namePackage, enabled ->
+                if (enabled) {
+                    repository.authorizeIdentity(identity, namePackage.info.packageName)
+                } else {
+                    repository.deauthorizeIdentity(identity, namePackage.info.packageName)
+                }
+            enabled
+        }
+
+        adapter.isEnabledListener = { namePackage ->
+            repository.getPermissions(identity)
+                    .map { v -> v.info.packageName }
+                    .contains(namePackage.info.packageName)
+        }
         lifecycleScope.softCancelLaunch {
             withContext(Dispatchers.IO) {
                 val infoList = composeInfoList().fold(ArrayList<NamePackage>()) { accumulator, value ->
