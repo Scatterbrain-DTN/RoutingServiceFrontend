@@ -19,6 +19,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
@@ -87,20 +88,29 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         binding.editname.text = identity.name
         adapter = AppListAdapter(requireContext())
         lifecycleScope.softCancelLaunch {
-            withContext(Dispatchers.Default) {
+            withContext(Dispatchers.IO) {
                 val infoList = composeInfoList().fold(ArrayList<NamePackage>()) { accumulator, value ->
+                    value.loadIcon()
                     accumulator.add(value)
                     accumulator
                 }
 
-                adapter.items.addAll(infoList)
-                binding.appListRecyclerview.adapter = adapter
+                withContext(Dispatchers.Main) {
+                    adapter.items.addAll(infoList)
+                    binding.appListRecyclerview.adapter = adapter
+                }
+
                 Log.e(TAG, "setting adapter ${infoList.size}")
                 withContext(Dispatchers.Main) {
                     model.getPackages()
                             .observe(viewLifecycleOwner, { list ->
                                 Log.e(TAG, "restored identity list ${list.size}")
-                                adapter.items.addAll(list)
+                                lifecycleScope.launch(Dispatchers.IO) {
+                                    list.forEach { i -> i.loadIcon() }
+                                    withContext(Dispatchers.Main) {
+                                        adapter.items.addAll(list)
+                                    }
+                                }
                             })
                 }
             }
