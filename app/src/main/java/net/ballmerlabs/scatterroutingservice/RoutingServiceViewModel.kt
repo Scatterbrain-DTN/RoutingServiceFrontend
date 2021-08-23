@@ -52,7 +52,7 @@ class RoutingServiceViewModel @Inject constructor(
         }
     }
 
-    fun getPackages(): LiveData<List<String>> = liveData {
+    fun getPackages(): LiveData<List<NamePackage>> = liveData {
         viewModelScope.softCancelLaunch {
             val packages = repository.getPackages()
             emit(packages)
