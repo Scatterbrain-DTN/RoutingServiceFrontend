@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
@@ -76,15 +77,19 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkLocationPermission(): Boolean {
+    private fun requestPermission(permission: String, request: Int, fail: Int): Boolean {
+        binding.appbar.maincontent.grantlocationbanner.setMessage(request)
         binding.appbar.maincontent.grantlocationbanner.setRightButtonListener {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            requestPermissionLauncher.launch(permission)
         }
         binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
-            binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
+            binding.appbar.maincontent.grantlocationbanner.setMessage(fail)
         }
-
-        return if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
+        return if (ContextCompat.checkSelfPermission(
+                applicationContext,
+                permission
+            ) == PackageManager.PERMISSION_DENIED
+        ) {
             binding.appbar.maincontent.grantlocationbanner.show()
             false
         } else {
@@ -92,9 +97,22 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkLocationPermission(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            for (perm in arrayOf(Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN)) {
+                if (!requestPermission(perm, R.string.strongly_assert, R.string.failed_strongly_assert)) {
+                    return false
+                }
+            }
+        } else {
+            requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION, R.string.grant_location_text, R.string.failed_location_text)
+        }
+        return true
+    }
+
     @SuppressLint("BatteryLife") //am really sowwy google. Pls fowgive me ;(
     private fun checkBatteryOptimization() : Boolean {
-        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        return if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             binding.appbar.maincontent.batteryOptimizationBanner.setRightButtonListener {
                 val intent = Intent()
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -140,7 +158,7 @@ class DrawerActivity : AppCompatActivity() {
         if (checkLocationPermission()) {
             checkBatteryOptimization()
         }
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window!!.setDecorFitsSystemWindows(true)
         }
         val versionView = binding.navView.getHeaderView(0).findViewById<TextView>(R.id.textView) //Viewbinding doesn't work with the nav header
