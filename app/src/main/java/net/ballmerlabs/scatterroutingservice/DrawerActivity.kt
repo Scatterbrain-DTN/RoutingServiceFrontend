@@ -32,7 +32,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.databinding.ActivityDrawerBinding
@@ -54,16 +58,24 @@ class DrawerActivity : AppCompatActivity() {
 
     private val requestCodeBattery = 1
 
+    private val permissionCallbacks = HashSet<(b: Boolean, g: Boolean) -> Unit>()
 
-    private var mAppBarConfiguration: AppBarConfiguration? = null
+    private var requestingPermission = false
+
     private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
+        permissionCallbacks.forEach { v ->
+            v(false, isGranted)
+        }
+        requestingPermission = false
+
         if (isGranted) {
             binding.appbar.maincontent.grantlocationbanner.dismiss()
-            checkBatteryOptimization()
         } else {
             binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
         }
     }
+
+    private var mAppBarConfiguration: AppBarConfiguration? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -77,37 +89,62 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestPermission(permission: String, request: Int, fail: Int): Boolean {
-        binding.appbar.maincontent.grantlocationbanner.setMessage(request)
-        binding.appbar.maincontent.grantlocationbanner.setRightButtonListener {
-            requestPermissionLauncher.launch(permission)
+    private suspend fun requestPermission(permission: String, request: Int, fail: Int): Unit = suspendCancellableCoroutine { c ->
+        val callback = { requesting: Boolean, granted: Boolean ->
+            if (!requesting) {
+                binding.appbar.maincontent.grantlocationbanner.setMessage(request)
+
+                binding.appbar.maincontent.grantlocationbanner.setRightButtonListener {
+                    requestPermissionLauncher.launch(permission)
+                }
+                binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
+                    binding.appbar.maincontent.grantlocationbanner.setMessage(fail)
+                }
+                binding.appbar.maincontent.grantlocationbanner.show()
+            }
+            if (granted) {
+                c.resumeWith(Result.success(Unit))
+            }
+
         }
-        binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
-            binding.appbar.maincontent.grantlocationbanner.setMessage(fail)
-        }
-        return if (ContextCompat.checkSelfPermission(
-                applicationContext,
-                permission
-            ) == PackageManager.PERMISSION_DENIED
+
+
+
+        if (ContextCompat.checkSelfPermission(
+            applicationContext,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
         ) {
-            binding.appbar.maincontent.grantlocationbanner.show()
-            false
+            permissionCallbacks.remove(callback)
+            c.resumeWith(Result.success(Unit))
         } else {
-            true
+            Log.e("debug" , "failed permission check $permission")
+            val currentlyRequesting = requestingPermission
+            requestingPermission = true
+            if (!currentlyRequesting) {
+                callback(currentlyRequesting, false)
+            }
+            else {
+                permissionCallbacks.add(callback)
+            }
         }
+
     }
 
-    private fun checkLocationPermission(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            for (perm in arrayOf(Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN)) {
-                if (!requestPermission(perm, R.string.strongly_assert, R.string.failed_strongly_assert)) {
-                    return false
+    private fun checkLocationPermission() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                for (perm in arrayOf(
+                    Manifest.permission.BLUETOOTH_ADVERTISE,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN)
+                ) {
+                    requestPermission(perm, R.string.strongly_assert, R.string.failed_strongly_assert)
                 }
             }
-        } else {
             requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION, R.string.grant_location_text, R.string.failed_location_text)
+            checkBatteryOptimization()
         }
-        return true
     }
 
     @SuppressLint("BatteryLife") //am really sowwy google. Pls fowgive me ;(
@@ -155,9 +192,7 @@ class DrawerActivity : AppCompatActivity() {
             }
         })
 
-        if (checkLocationPermission()) {
-            checkBatteryOptimization()
-        }
+        checkLocationPermission()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window!!.setDecorFitsSystemWindows(true)
         }
