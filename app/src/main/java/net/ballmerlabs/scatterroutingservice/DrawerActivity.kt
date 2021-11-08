@@ -34,7 +34,6 @@ import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
@@ -58,16 +57,7 @@ class DrawerActivity : AppCompatActivity() {
 
     private val requestCodeBattery = 1
 
-    private val permissionCallbacks = HashSet<(b: Boolean, g: Boolean) -> Unit>()
-
-    private var requestingPermission = false
-
     private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
-        permissionCallbacks.forEach { v ->
-            v(false, isGranted)
-        }
-        requestingPermission = false
-
         if (isGranted) {
             binding.appbar.maincontent.grantlocationbanner.dismiss()
         } else {
@@ -90,24 +80,6 @@ class DrawerActivity : AppCompatActivity() {
     }
 
     private suspend fun requestPermission(permission: String, request: Int, fail: Int): Unit = suspendCancellableCoroutine { c ->
-        val callback = { requesting: Boolean, granted: Boolean ->
-            if (!requesting) {
-                binding.appbar.maincontent.grantlocationbanner.setMessage(request)
-
-                binding.appbar.maincontent.grantlocationbanner.setRightButtonListener {
-                    requestPermissionLauncher.launch(permission)
-                }
-                binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
-                    binding.appbar.maincontent.grantlocationbanner.setMessage(fail)
-                }
-                binding.appbar.maincontent.grantlocationbanner.show()
-            }
-            if (granted) {
-                c.resumeWith(Result.success(Unit))
-            }
-
-        }
-
 
 
         if (ContextCompat.checkSelfPermission(
@@ -115,18 +87,21 @@ class DrawerActivity : AppCompatActivity() {
             permission
         ) == PackageManager.PERMISSION_GRANTED
         ) {
-            permissionCallbacks.remove(callback)
             c.resumeWith(Result.success(Unit))
         } else {
-            Log.e("debug" , "failed permission check $permission")
-            val currentlyRequesting = requestingPermission
-            requestingPermission = true
-            if (!currentlyRequesting) {
-                callback(currentlyRequesting, false)
+            binding.appbar.maincontent.grantlocationbanner.setMessage(request)
+
+            binding.appbar.maincontent.grantlocationbanner.setRightButtonListener {
+                requestPermissionLauncher.launch(permission)
             }
-            else {
-                permissionCallbacks.add(callback)
+            binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
+                binding.appbar.maincontent.grantlocationbanner.setMessage(fail)
             }
+            binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {
+                binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {  }
+                c.resumeWith(Result.success(Unit))
+            }
+            binding.appbar.maincontent.grantlocationbanner.show()
         }
 
     }
