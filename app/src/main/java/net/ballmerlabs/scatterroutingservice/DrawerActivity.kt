@@ -117,7 +117,7 @@ class DrawerActivity : AppCompatActivity() {
                     requestPermission(perm, R.string.strongly_assert, R.string.failed_strongly_assert)
                 }
             }
-            requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION, R.string.grant_location_text, R.string.failed_location_text)
+            requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, R.string.grant_location_text, R.string.failed_location_text)
             checkBatteryOptimization()
         }
     }
