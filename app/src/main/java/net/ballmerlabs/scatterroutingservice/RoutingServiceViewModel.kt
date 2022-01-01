@@ -48,7 +48,7 @@ class RoutingServiceViewModel @Inject constructor(
 
     fun refreshIdentities() {
         viewModelScope.launch {
-            identityLiveData.postValue(repository.getIdentities())
+            identityLiveData.postValue(repository.getIdentities()!!)
         }
     }
 
