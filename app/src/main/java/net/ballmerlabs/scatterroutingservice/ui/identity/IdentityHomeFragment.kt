@@ -33,6 +33,7 @@ import javax.inject.Inject
  * create an instance of this fragment.
  */
 @AndroidEntryPoint
+@InternalCoroutinesApi
 class IdentityHomeFragment : Fragment() {
     lateinit var bind: FragmentIdentityHomeBinding
     private lateinit var adapter: IdentityListAdapter
@@ -72,7 +73,6 @@ class IdentityHomeFragment : Fragment() {
         lifecycleScope.launch { checkConnected() }
     }
 
-    @InternalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         bind = FragmentIdentityHomeBinding.inflate(inflater)

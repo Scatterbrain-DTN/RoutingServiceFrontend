@@ -46,6 +46,7 @@ const val ARG_IDENTITY = "identity"
  * </pre>
  */
 @AndroidEntryPoint
+@InternalCoroutinesApi
 class EditIdentityDialogFragment : BottomSheetDialogFragment() {
 
     private lateinit var binding: FragmentEditIdentityDialogListDialogBinding
@@ -90,7 +91,6 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
         return R.style.AppBottomSheetDialogTheme
     }
 
-    @InternalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AppBottomSheetDialogTheme)

@@ -43,6 +43,7 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
+@InternalCoroutinesApi
 class DrawerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDrawerBinding
 
@@ -148,7 +149,6 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
-    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDrawerBinding.inflate(layoutInflater)
