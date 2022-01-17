@@ -8,9 +8,9 @@
     tools:showIn="@layout/app_bar_main">
 
     <com.sergivonavi.materialbanner.Banner
-        android:id="@+id/grantlocationbanner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/grantlocationbanner"
         android:visibility="gone"
         app:buttonLeftText="Ignore"
         app:buttonRightText="Grant permission"
@@ -22,10 +22,10 @@
         app:messageText="@string/grant_location_text" />
 
     <com.sergivonavi.materialbanner.Banner
-        android:id="@+id/battery_optimization_banner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:id="@+id/battery_optimization_banner"
         app:buttonLeftText="Ignore"
         app:buttonRightText="Grant permission"
         app:icon="@drawable/ic_baseline_track_changes_24"
@@ -36,10 +36,10 @@
         app:messageText="@string/disable_doze_text" />
 
     <com.sergivonavi.materialbanner.Banner
-        android:id="@+id/enable_bluetooth_banner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:id="@+id/enable_bluetooth_banner"
         app:buttonLeftText="Ignore"
         app:icon="@drawable/ic_baseline_bluetooth_disabled_24"
         android:elevation="5dp"

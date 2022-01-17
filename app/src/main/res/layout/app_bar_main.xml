@@ -14,7 +14,6 @@
         android:theme="@style/Theme.RoutingServiceFrontend.AppBarOverlay">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:contentScrim="@color/colorPrimary"
@@ -26,8 +25,8 @@
                 android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
+                android:id="@+id/toolbar"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:layout_collapseMode="pin"
@@ -40,11 +39,12 @@
 
     <include
         android:id="@+id/maincontent"
-        layout="@layout/content_main" />
+        layout="@layout/content_main"
+        />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
         android:layout_width="wrap_content"
+        android:id="@+id/fab"
         android:layout_height="wrap_content"
         app:layout_anchor="@id/appbar_layout"
         app:layout_anchorGravity="bottom|end"

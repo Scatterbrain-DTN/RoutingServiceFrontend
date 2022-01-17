@@ -6,10 +6,10 @@
     tools:context=".AboutFragment">
 
     <TextView
+        android:id="@+id/tos_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/privacy_link"
-        android:id="@+id/tos_text"
         android:singleLine="false"
         android:ellipsize="end"
         />

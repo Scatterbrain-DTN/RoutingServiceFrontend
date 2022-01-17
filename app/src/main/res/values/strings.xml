@@ -2,12 +2,8 @@
     <string name="app_name">Scatterbrain Router</string>
     <string name="title_power">Router status</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_activity_drawer">DrawerActivity</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Scatterbrain Router</string>
     <string name="nav_header_subtitle">reference implementation version: </string>
-    <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="powersave_table">Router status:</string>
 
@@ -15,9 +11,6 @@
 
     <string name="title_identity">Identity Management</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
     <string name="menu_power">Router status</string>
     <string name="menu_about">About</string>
 
@@ -33,8 +26,6 @@
     <string name="message_share_title">Message share cap</string>
     <string name="incognito_title">Incognito mode</string>
     <string name="sizecap_title">Datastore max size (MB)</string>
-    <string name="incognito_summary_on">Takes actions to protoct your privacy that may limit performance</string>
-    <string name="incognito_summary_off">Takes actions to maximize performance at the expenese of privacy</string>
 
     <!-- Power Preferences -->
     <string name="power_mode_title">Power saving mode</string>
@@ -58,7 +49,6 @@
     <string name="create_cancel">Cancel</string>
     <string name="create_create">Generate</string>
     <string name="chip_owned">Owned!</string>
-    <string name="permission_hint">Select apps…</string>
     <string name="permission_subtext">Edit app permissions for this identity</string>
     <string name="service_not_connected">Service not connected…</string>
     <string name="noid">No identities in datastore</string>
@@ -72,7 +62,6 @@
     <string name="failed_location_text">If location permission is not granted, scatterbrain will only function in passive mode</string>
     <string name="failed_strongly_assert">If bluetooth permission is not granted scatterbrain will not function correctly.</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="disable_doze_text">Scatterbrain needs permission to disable battery optimizations. This allows scatterbrain to forward and receive messages in the background.</string>
 
@@ -83,7 +72,6 @@
     <string name="google_app_id" translatable="false">1:913979738892:android:4b93892f3921e1b2f95729</string>
     <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBFXq0uLhrDUatXZ1BtsfKoG_PDm4-eEHk</string>
     <string name="google_storage_bucket" translatable="false">scatterroutingservice.appspot.com</string>
-    <string name="project_id" translatable="false">scatterroutingservice</string>
 
     <string name="pref_enable_crashlytics">enableCrashlytics</string>
     <string name="pref_enable_crashlytics_title">Opt-in to crash reporting spyware</string>
