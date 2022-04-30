@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId "net.ballmerlabs.scatterroutingservice"
-        minSdkVersion 26
+        minSdkVersion 27
         targetSdkVersion 32
         versionCode 35
         compileSdkVersion 31
