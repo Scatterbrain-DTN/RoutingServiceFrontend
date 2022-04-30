@@ -19,7 +19,7 @@ android {
         applicationId "net.ballmerlabs.scatterroutingservice"
         minSdkVersion 26
         targetSdkVersion 32
-        versionCode 34
+        versionCode 35
         compileSdkVersion 31
 
         versionName projectVersionName
@@ -39,6 +39,10 @@ android {
         debug {
             testCoverageEnabled true
         }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
     }
 
     testOptions {
