@@ -4,20 +4,18 @@ import android.content.Context
 import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.startup.Initializer
+import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import net.ballmerlabs.uscatterbrain.RoutingServiceComponent
 
 class FirebaseInitializer : Initializer<FirebaseCrashlytics> {
     override fun create(context: Context): FirebaseCrashlytics {
-        Log.e("debug", "initializing firebase")
-        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-                        context.getString(R.string.pref_enable_crashlytics),
+        Log.e("debug", "initializing crashlytics")
+        val optOut = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+                        context.getString(R.string.pref_optout_crashlytics),
                         false
-                )) {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
-        } else {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
-        }
+                )
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!optOut)
+
         return FirebaseCrashlytics.getInstance()
     }
 

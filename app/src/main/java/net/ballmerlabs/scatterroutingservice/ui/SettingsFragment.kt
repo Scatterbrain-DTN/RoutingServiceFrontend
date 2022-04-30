@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.widget.EditText
 import androidx.preference.*
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -39,9 +38,9 @@ class SettingsFragment @Inject constructor() : PreferenceFragmentCompat(), Share
     }
 
     override fun onSharedPreferenceChanged(pref: SharedPreferences, key: String) {
-        if (key == getString(R.string.pref_enable_crashlytics)) {
+        if (key == getString(R.string.pref_optout_crashlytics)) {
             val b = pref.getBoolean(key, false)
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(b)
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!b)
         }
     }
 

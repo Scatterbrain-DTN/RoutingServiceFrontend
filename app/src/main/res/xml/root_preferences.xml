@@ -25,7 +25,8 @@
             app:title="@string/incognito_title"/>
 
         <SwitchPreference
-            app:key="@string/pref_enable_crashlytics"
+            app:key="@string/pref_optout_crashlytics"
+            android:defaultValue="false"
             android:title="@string/pref_enable_crashlytics_title"
             android:summary="@string/pref_enable_crashlyting_desc"
             />
