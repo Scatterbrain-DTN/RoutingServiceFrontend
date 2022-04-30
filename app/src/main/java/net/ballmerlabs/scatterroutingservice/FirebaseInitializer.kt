@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.startup.Initializer
-import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class FirebaseInitializer : Initializer<FirebaseCrashlytics> {

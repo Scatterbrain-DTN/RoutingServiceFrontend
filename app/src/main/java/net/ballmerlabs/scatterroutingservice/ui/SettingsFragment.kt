@@ -14,7 +14,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class SettingsFragment @Inject constructor() : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
-    @ApplicationContext lateinit var ctx: Context
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         for (key in arrayOf(

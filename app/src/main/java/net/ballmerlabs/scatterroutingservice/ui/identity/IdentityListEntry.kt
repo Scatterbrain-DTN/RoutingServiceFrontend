@@ -10,7 +10,7 @@ import com.lelloman.identicon.view.IdenticonView
 import net.ballmerlabs.scatterroutingservice.databinding.IdentityListItemBinding
 
 class IdentityListEntry(view: View) : RecyclerView.ViewHolder(view) {
-    val bind:  IdentityListItemBinding = IdentityListItemBinding.bind(view)
+    private val bind:  IdentityListItemBinding = IdentityListItemBinding.bind(view)
     val identicon: IdenticonView = bind.identicon
     val nameText: TextView = bind.name
     val fingerintText: TextView = bind.fingerprint

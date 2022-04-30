@@ -39,9 +39,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.databinding.ActivityDrawerBinding
-import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 
 @AndroidEntryPoint
@@ -127,27 +125,23 @@ class DrawerActivity : AppCompatActivity() {
 
     @SuppressLint("BatteryLife") //am really sowwy google. Pls fowgive me ;(
     private fun checkBatteryOptimization() : Boolean {
-        return if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            binding.appbar.maincontent.batteryOptimizationBanner.setRightButtonListener {
-                val intent = Intent()
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                intent.data = Uri.parse("package:$packageName")
-                startActivityForResult(intent, requestCodeBattery)
-            }
+        binding.appbar.maincontent.batteryOptimizationBanner.setRightButtonListener {
+            val intent = Intent()
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+            intent.data = Uri.parse("package:$packageName")
+            startActivityForResult(intent, requestCodeBattery)
+        }
 
-            binding.appbar.maincontent.batteryOptimizationBanner.setLeftButtonListener {
-                binding.appbar.maincontent.batteryOptimizationBanner.dismiss()
-            }
-            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                binding.appbar.maincontent.batteryOptimizationBanner.show()
-                false
-            } else {
-                true
-            }
+        binding.appbar.maincontent.batteryOptimizationBanner.setLeftButtonListener {
+            binding.appbar.maincontent.batteryOptimizationBanner.dismiss()
+        }
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        return if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            binding.appbar.maincontent.batteryOptimizationBanner.show()
+            false
         } else {
-            true //older devices don't have doze mode
+            true
         }
     }
 
@@ -161,13 +155,13 @@ class DrawerActivity : AppCompatActivity() {
             binding.appbar.maincontent.enableBluetoothBanner.dismiss()
         }
 
-        model.observeAdapterState().observe(this, { state ->
+        model.observeAdapterState().observe(this) { state ->
             if (state != BluetoothState.STATE_ON) {
                 binding.appbar.maincontent.enableBluetoothBanner.show()
             } else {
                 binding.appbar.maincontent.enableBluetoothBanner.dismiss()
             }
-        })
+        }
 
         checkLocationPermission()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -245,6 +239,6 @@ class DrawerActivity : AppCompatActivity() {
     }
     
     companion object {
-        val TAG = "DrawerActivity"
+        const val TAG = "DrawerActivity"
     }
 }

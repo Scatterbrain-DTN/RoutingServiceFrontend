@@ -1,18 +1,17 @@
 package net.ballmerlabs.scatterroutingservice.ui.identity
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -29,9 +28,7 @@ import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentEditIdentityDialogListDialogBinding
 import net.ballmerlabs.scatterroutingservice.softCancelLaunch
-import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 // TODO: Customize parameter argument names
 const val ARG_IDENTITY = "identity"
@@ -130,16 +127,16 @@ class EditIdentityDialogFragment : BottomSheetDialogFragment() {
                 Log.e(TAG, "setting adapter ${infoList.size}")
                 withContext(Dispatchers.Main) {
                     model.getPackages()
-                            .observe(viewLifecycleOwner, { list ->
+                            .observe(viewLifecycleOwner) { list ->
                                 Log.e(TAG, "restored identity list ${list.size}")
                                 lifecycleScope.launch(Dispatchers.Default) {
                                     list.forEach { i -> i.loadIcon() }
-                                        adapter.items.addAll(list)
-                                        withContext(Dispatchers.Main) {
-                                            toggleVisibility()
-                                        }
+                                    adapter.items.addAll(list)
+                                    withContext(Dispatchers.Main) {
+                                        toggleVisibility()
+                                    }
                                 }
-                            })
+                            }
                 }
             }
         }

@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.net.wifi.WifiManager
-import androidx.core.content.getSystemService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

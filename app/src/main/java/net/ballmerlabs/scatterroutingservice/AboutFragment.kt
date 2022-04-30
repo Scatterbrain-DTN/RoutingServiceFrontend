@@ -13,7 +13,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class AboutFragment @Inject constructor() : Fragment() {
 
-    lateinit var bind: FragmentAboutBinding
+    private lateinit var bind: FragmentAboutBinding
 
     override fun onCreateView(
             inflater: LayoutInflater,

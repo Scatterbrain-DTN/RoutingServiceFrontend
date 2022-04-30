@@ -8,11 +8,10 @@ import kotlinx.coroutines.flow.collect
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
-import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-@InternalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class RoutingServiceViewModel @Inject constructor(
         private val repository: BinderWrapper,
@@ -26,12 +25,6 @@ class RoutingServiceViewModel @Inject constructor(
                 yield()
                 identityLiveData.postValue(it)
             }
-        }
-    }
-    
-    fun observeMessages(application: String): LiveData<List<ScatterMessage>> = liveData {
-        repository.observeMessages(application).collect {
-            emit(it)
         }
     }
 
@@ -48,7 +41,7 @@ class RoutingServiceViewModel @Inject constructor(
 
     fun refreshIdentities() {
         viewModelScope.launch {
-            identityLiveData.postValue(repository.getIdentities()!!)
+            identityLiveData.postValue(repository.getIdentities())
         }
     }
 
@@ -57,10 +50,6 @@ class RoutingServiceViewModel @Inject constructor(
             val packages = repository.getPackages()
             emit(packages)
         }
-    }
-
-    fun getApplicationInfo(identity: Identity): LiveData<List<NamePackage>> = liveData {
-        emit(repository.getPermissions(identity))
     }
 }
 const val TAG = "RoutingServiceViewModel"

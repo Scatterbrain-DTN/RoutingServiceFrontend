@@ -38,11 +38,13 @@ class BootBroadcastReceiver @Inject constructor() : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val start = prefs.getBoolean(context.getString(R.string.pref_enabled), false)
-        Log.v("boot", "attempting to start scatterbrain router ")
-        if (start) {
-            runBlocking { startService(context) }
+        if (intent.action == "android.intent.action.BOOT_COMPLETED") {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            val start = prefs.getBoolean(context.getString(R.string.pref_enabled), false)
+            Log.v("boot", "attempting to start scatterbrain router ")
+            if (start) {
+                runBlocking { startService(context) }
+            }
         }
     }
 

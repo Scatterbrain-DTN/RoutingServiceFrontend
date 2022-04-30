@@ -14,7 +14,6 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
@@ -37,10 +36,9 @@ class PowerFragment : Fragment() {
 // onDestroyView.
     private val binding get() = _binding!!
 
-    @InternalCoroutinesApi
     private val model: RoutingServiceViewModel by viewModels()
 
-    private val DISABLED = "Disabled"
+    private val disabled = "Disabled"
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -63,7 +61,7 @@ class PowerFragment : Fragment() {
         return if (binding.toggleButton.isChecked) {
             sharedPreferences.getString(requireContext().getString(R.string.pref_powersave), getString(R.string.powersave_active))!!
         } else {
-            DISABLED
+            disabled
         }
     }
 
@@ -82,7 +80,7 @@ class PowerFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.Main) {  binding.toggleButton.isChecked = serviceConnectionRepository.isConnected() }
     }
 
-    fun showWifiSnackBar() {
+    private fun showWifiSnackBar() {
         Snackbar.make(binding.root, R.string.wifi_disabled_snackbar, Snackbar.LENGTH_LONG)
                 .show()
     }
@@ -124,7 +122,7 @@ class PowerFragment : Fragment() {
         )
     }
 
-    @InternalCoroutinesApi
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentPowerBinding.inflate(layoutInflater)
@@ -140,9 +138,9 @@ class PowerFragment : Fragment() {
             }
 
         }
-        model.observeAdapterState().observe(viewLifecycleOwner, { state ->
+        model.observeAdapterState().observe(viewLifecycleOwner) { state ->
             binding.toggleButton.isEnabled = state == BluetoothState.STATE_ON
-        })
+        }
 
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             lifecycleScope.softCancelLaunch {
@@ -173,9 +171,5 @@ class PowerFragment : Fragment() {
             }
         }
         return binding.root
-    }
-
-    companion object {
-        private const val TAG = "PowerFragment"
     }
 }
