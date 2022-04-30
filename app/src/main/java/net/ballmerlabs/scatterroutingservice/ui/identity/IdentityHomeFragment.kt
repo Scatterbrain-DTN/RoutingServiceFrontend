@@ -1,5 +1,6 @@
 package net.ballmerlabs.scatterroutingservice.ui.identity
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.TypedValue
@@ -19,12 +20,10 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
-import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentIdentityHomeBinding
 import net.ballmerlabs.scatterroutingservice.softCancelLaunch
-import net.ballmerlabs.uscatterbrain.db.entities.ApiIdentity
 import javax.inject.Inject
 
 /**
@@ -35,23 +34,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 @InternalCoroutinesApi
 class IdentityHomeFragment : Fragment() {
-    lateinit var bind: FragmentIdentityHomeBinding
+    private lateinit var bind: FragmentIdentityHomeBinding
     private lateinit var adapter: IdentityListAdapter
     @InternalCoroutinesApi
     val model: RoutingServiceViewModel by viewModels()
     @Inject lateinit var repository: BinderWrapper
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-    private fun addTestData() {
-        adapter.setItems(listOf(ApiIdentity
-                .newBuilder()
-                .setName("fmef")
-                .setSig("fmef".encodeToByteArray())
-                .addKeys(mapOf(Pair(ScatterbrainApi.PROTOBUF_PRIVKEY_KEY, "fmef".encodeToByteArray())))
-                .build()))
-    }
 
     private suspend fun checkConnected() {
         if (repository.isConnected()) {
@@ -93,9 +80,8 @@ class IdentityHomeFragment : Fragment() {
         return bind.root
     }
 
-    @InternalCoroutinesApi
     fun removeIdentity(identity: Identity) {
-        lifecycleScope.softCancelLaunch { 
+        lifecycleScope.softCancelLaunch {
             if (repository.removeIdentity(identity)) {
                 model.refreshIdentities()
             }
@@ -115,13 +101,13 @@ class IdentityHomeFragment : Fragment() {
             return viewlist.size
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         fun setItems(items: List<Identity>) {
             viewlist.clear()
             viewlist.addAll(items)
             notifyDataSetChanged()
         }
 
-        @InternalCoroutinesApi
         override fun onBindViewHolder(holder: IdentityListEntry, position: Int) {
             val id = viewlist[position]
             holder.fingerintText.text = id.fingerprint.toString()
