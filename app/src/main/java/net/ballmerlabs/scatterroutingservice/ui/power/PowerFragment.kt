@@ -99,7 +99,7 @@ class PowerFragment : Fragment() {
     private suspend fun startService() {
 
         serviceConnectionRepository.startService()
-        serviceConnectionRepository.bindService(timeout = 10000L)
+        serviceConnectionRepository.bindService(timeout = 500000L)
         binding.toggleButton.isChecked = true
     }
 
@@ -138,7 +138,9 @@ class PowerFragment : Fragment() {
             if (!wifiManager.isWifiEnabled) {
                 showWifiSnackBar()
             }
-            binding.toggleButton.isEnabled = true
+            val connected = serviceConnectionRepository.isConnected()
+            compoundButton.isChecked = connected
+            binding.toggleButton.isEnabled = connected
             try {
                 if (enable) {
                     startService()
@@ -191,6 +193,10 @@ class PowerFragment : Fragment() {
                         serviceConnectionRepository.startPassive()
                     }
                 }
+                binding.toggleButton.isChecked = true
+            }
+            else {
+                binding.toggleButton.isChecked = false
             }
 
         }
