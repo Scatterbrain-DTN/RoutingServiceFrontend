@@ -8,6 +8,7 @@ import androidx.preference.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
+import net.ballmerlabs.uscatterbrain.util.scatterLog
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,8 +18,10 @@ class BootBroadcastReceiver @Inject constructor() : BroadcastReceiver() {
 
     @Inject lateinit var binderWrapper: BinderWrapper
 
+    private val log by scatterLog()
 
-    private fun isPowersave(context: Context): Boolean {
+
+    private fun isActive(context: Context): Boolean {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         return sharedPreferences.getString(
                 context.getString(R.string.pref_powersave),
@@ -30,7 +33,9 @@ class BootBroadcastReceiver @Inject constructor() : BroadcastReceiver() {
     private suspend fun startService(context: Context) {
         binderWrapper.register()
         binderWrapper.startService()
-        if (isPowersave(context)) {
+        val active = isActive(context)
+        log.v("starting service at boot, active: $active")
+        if (active) {
             binderWrapper.startDiscover()
         } else {
             binderWrapper.startPassive()
