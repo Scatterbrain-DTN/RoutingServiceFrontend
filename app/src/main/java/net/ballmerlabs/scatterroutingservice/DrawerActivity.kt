@@ -80,7 +80,7 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun requestPermission(permission: String, request: Int, fail: Int): Unit = suspendCancellableCoroutine { c ->
+    private suspend fun requestPermission(permission: String, request: Int, fail: Int): Boolean = suspendCancellableCoroutine { c ->
 
 
         if (ContextCompat.checkSelfPermission(
@@ -88,7 +88,7 @@ class DrawerActivity : AppCompatActivity() {
             permission
         ) == PackageManager.PERMISSION_GRANTED
         ) {
-            c.resumeWith(Result.success(Unit))
+            c.resumeWith(Result.success(true))
         } else {
             binding.appbar.maincontent.grantlocationbanner.setMessage(request)
 
@@ -98,11 +98,9 @@ class DrawerActivity : AppCompatActivity() {
             binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
                 binding.appbar.maincontent.grantlocationbanner.setMessage(fail)
             }
-            binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {
-                binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {  }
-                c.resumeWith(Result.success(Unit))
-            }
+            binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {}
             binding.appbar.maincontent.grantlocationbanner.show()
+            c.resumeWith(Result.success(false))
         }
 
     }
