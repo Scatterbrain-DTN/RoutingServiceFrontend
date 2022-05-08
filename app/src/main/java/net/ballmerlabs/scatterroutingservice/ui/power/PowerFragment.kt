@@ -30,6 +30,7 @@ import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
 import net.ballmerlabs.scatterroutingservice.softCancelLaunch
 import net.ballmerlabs.scatterroutingservice.ui.Utils
+import net.ballmerlabs.uscatterbrain.util.scatterLog
 import java.util.*
 import javax.inject.Inject
 
@@ -48,6 +49,8 @@ class PowerFragment : Fragment() {
     private val model: RoutingServiceViewModel by viewModels()
 
     private val disabled = "Disabled"
+
+    private val log by scatterLog()
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -94,13 +97,9 @@ class PowerFragment : Fragment() {
     }
 
     private suspend fun startService() {
-        val powersave = getStatusText()
+
         serviceConnectionRepository.startService()
-        if (powersave == getString(R.string.powersave_active)) {
-            serviceConnectionRepository.startDiscover()
-        } else {
-            serviceConnectionRepository.startPassive()
-        }
+        serviceConnectionRepository.bindService(timeout = 10000L)
         binding.toggleButton.isChecked = true
     }
 
@@ -179,6 +178,21 @@ class PowerFragment : Fragment() {
         }
         model.observeAdapterState().observe(viewLifecycleOwner) { state ->
             binding.toggleButton.isEnabled = state == BluetoothState.STATE_ON
+        }
+
+        serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
+            if (state == BinderWrapper.Companion.BinderState.STATE_CONNECTED) {
+                lifecycleScope.launch {
+                    val powersave = getStatusText()
+                    log.v("starting discovery: $powersave")
+                    if (powersave == getString(R.string.powersave_active)) {
+                        serviceConnectionRepository.startDiscover()
+                    } else {
+                        serviceConnectionRepository.startPassive()
+                    }
+                }
+            }
+
         }
 
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
