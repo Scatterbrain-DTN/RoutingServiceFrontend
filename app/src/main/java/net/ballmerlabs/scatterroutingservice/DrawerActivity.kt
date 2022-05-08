@@ -102,6 +102,7 @@ class DrawerActivity : AppCompatActivity() {
             binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {
                 lifecycleScope.launch {
                     if(Utils.checkPermission(applicationContext).isPresent) {
+                        repository.stopService()
                         checkLocationPermission()
                     }
                 }
