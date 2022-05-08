@@ -224,7 +224,7 @@ class PowerFragment : Fragment() {
                         binding.toggleButton.isChecked = false
                         val toast = Toast(requireContext())
                         toast.duration = Toast.LENGTH_LONG
-                        toast.setText("Failed to start, missing permission ${perm.get()}")
+                        toast.setText(getString(R.string.missing_permission, perm.get()))
                         toast.show()
                     } else {
                         toggleOn(compoundButton, b)
