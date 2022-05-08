@@ -39,6 +39,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.databinding.ActivityDrawerBinding
+import net.ballmerlabs.scatterroutingservice.ui.Utils
 import javax.inject.Inject
 
 
@@ -98,15 +99,20 @@ class DrawerActivity : AppCompatActivity() {
             binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
                 binding.appbar.maincontent.grantlocationbanner.setMessage(fail)
             }
-            binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {}
+            binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {
+                lifecycleScope.launch {
+                    if(Utils.checkPermission(applicationContext).isPresent) {
+                        checkLocationPermission()
+                    }
+                }
+            }
             binding.appbar.maincontent.grantlocationbanner.show()
             c.resumeWith(Result.success(false))
         }
 
     }
 
-    private fun checkLocationPermission() {
-        lifecycleScope.launch(Dispatchers.Main) {
+    private suspend fun checkLocationPermission() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 for (perm in arrayOf(
                     Manifest.permission.BLUETOOTH_ADVERTISE,
@@ -118,7 +124,6 @@ class DrawerActivity : AppCompatActivity() {
             }
             requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, R.string.grant_location_text, R.string.failed_location_text)
             checkBatteryOptimization()
-        }
     }
 
     @SuppressLint("BatteryLife") //am really sowwy google. Pls fowgive me ;(
@@ -161,7 +166,7 @@ class DrawerActivity : AppCompatActivity() {
             }
         }
 
-        checkLocationPermission()
+        lifecycleScope.launch { checkLocationPermission() }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window!!.setDecorFitsSystemWindows(true)
         }

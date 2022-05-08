@@ -1,6 +1,7 @@
 package net.ballmerlabs.scatterroutingservice.ui.power
 
 import android.Manifest
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
@@ -28,6 +29,7 @@ import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
 import net.ballmerlabs.scatterroutingservice.softCancelLaunch
+import net.ballmerlabs.scatterroutingservice.ui.Utils
 import java.util.*
 import javax.inject.Inject
 
@@ -62,43 +64,6 @@ class PowerFragment : Fragment() {
 
         }
 
-    }
-
-    private suspend fun checkPermission(permission: String): Boolean = suspendCancellableCoroutine { c ->
-        if (ContextCompat.checkSelfPermission(
-                        requireContext(),
-                        permission
-                ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            c.resumeWith(Result.success(true))
-        } else {
-
-            c.resumeWith(Result.success(false))
-        }
-
-    }
-
-    private suspend fun checkPermission(): Optional<String> = suspendCancellableCoroutine { c ->
-        lifecycleScope.launch(Dispatchers.Main) {
-            var res: Optional<String> = Optional.empty()
-            if(!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                res = Optional.of(Manifest.permission.ACCESS_FINE_LOCATION)
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    for (perm in arrayOf(
-                            Manifest.permission.BLUETOOTH_ADVERTISE,
-                            Manifest.permission.BLUETOOTH_CONNECT,
-                            Manifest.permission.BLUETOOTH_SCAN)
-                    ) {
-                        if (!checkPermission(perm)) {
-                            res = Optional.of(perm)
-                            break
-                        }
-                    }
-                }
-            }
-            c.resumeWith(Result.success(res))
-        }
     }
 
     private fun getStatusText(sharedPreferences: SharedPreferences): String {
@@ -219,7 +184,7 @@ class PowerFragment : Fragment() {
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             lifecycleScope.softCancelLaunch {
                 if (isActive) {
-                    val perm = checkPermission()
+                    val perm = Utils.checkPermission(requireContext())
                     if (perm.isPresent) {
                         binding.toggleButton.isChecked = false
                         val toast = Toast(requireContext())
