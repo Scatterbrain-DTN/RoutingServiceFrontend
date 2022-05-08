@@ -77,7 +77,6 @@ class PowerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        lifecycleScope.launch(Dispatchers.Main) {  binding.toggleButton.isChecked = serviceConnectionRepository.isConnected() }
     }
 
     private fun showWifiSnackBar() {
@@ -129,14 +128,20 @@ class PowerFragment : Fragment() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
         binding.statusText.text = getStatusText()
-        lifecycleScope.launch(Dispatchers.Main) {
-            binding.toggleButton.isChecked = serviceConnectionRepository.isConnected()
-            if(getEnabled()) {
+        serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
+            if (state == BinderWrapper.Companion.BinderState.STATE_CONNECTED) {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    binding.toggleButton.isChecked = serviceConnectionRepository.isConnected()
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            if (getEnabled()) {
                 startService()
             } else {
                 stopService()
             }
-
         }
         model.observeAdapterState().observe(viewLifecycleOwner) { state ->
             binding.toggleButton.isEnabled = state == BluetoothState.STATE_ON
