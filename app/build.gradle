@@ -47,11 +47,11 @@ android {
 
     testOptions {
         unitTests.all {
+            includeAndroidResources = true
             jacoco {
                 includeNoLocationClasses = true
             }
         }
-        unitTests.returnDefaultValues = true
     }
 
     buildFeatures {
@@ -96,6 +96,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:18.2.10'
     implementation "androidx.startup:startup-runtime:1.1.1"
     implementation 'androidx.preference:preference-ktx:1.2.0'
+
 }
 repositories {
     mavenCentral()
