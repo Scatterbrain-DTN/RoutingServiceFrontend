@@ -2,7 +2,7 @@
 buildscript {
     ext.kotlin_version = '1.5.10'
     ext.kotlinVersion = kotlin_version
-    ext.hilt_version = '2.40'
+    ext.hilt_version = '2.40.1'
     rootProject.ext.set("publishable", true)
     repositories {
         google()
@@ -13,8 +13,8 @@ buildscript {
         }
     }
     dependencies {
-        def nav_version = "2.3.3"
-        classpath 'com.android.tools.build:gradle:4.2.2'
+        def nav_version = '2.4.1'
+        classpath 'com.android.tools.build:gradle:7.2.0'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"

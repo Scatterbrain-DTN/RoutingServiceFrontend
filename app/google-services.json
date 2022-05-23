@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "913979738892",
+    "project_id": "scatterroutingservice",
+    "storage_bucket": "scatterroutingservice.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913979738892:android:4b93892f3921e1b2f95729",
+        "android_client_info": {
+          "package_name": "net.ballmerlabs.scatterroutingservice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "913979738892-6pmfrf29ba5ha2lg6kjioh5tic16s990.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFXq0uLhrDUatXZ1BtsfKoG_PDm4-eEHk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "913979738892-6pmfrf29ba5ha2lg6kjioh5tic16s990.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
