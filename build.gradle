@@ -20,7 +20,6 @@ buildscript {
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.6.1'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
-        classpath 'org.jacoco:org.jacoco.core:0.8.4'
         classpath 'io.github.gradle-nexus:publish-plugin:1.1.0'
         classpath 'com.google.gms:google-services:4.3.10'  // Google Services plugin
         // NOTE: Do not place your application dependencies here; they belong
