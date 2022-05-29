@@ -2,24 +2,24 @@ package net.ballmerlabs.scatterroutingservice.ui.power
 
 import android.content.SharedPreferences
 import android.net.wifi.WifiManager
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withCreated
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterroutingservice.BluetoothState
 import net.ballmerlabs.scatterroutingservice.R
@@ -28,7 +28,6 @@ import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
 import net.ballmerlabs.scatterroutingservice.softCancelLaunch
 import net.ballmerlabs.scatterroutingservice.ui.Utils
 import net.ballmerlabs.uscatterbrain.util.scatterLog
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -52,16 +51,11 @@ class PowerFragment : Fragment() {
     private lateinit var sharedPreferences: SharedPreferences
 
     private val sharedPreferencesListener = SharedPreferences.OnSharedPreferenceChangeListener {
-        prefs: SharedPreferences, s: String ->
+        prefs, s ->
         if (s == requireContext().getString(R.string.pref_powersave)) {
             binding.statusText.text = getStatusText()
         } else if (s == requireContext().getString(R.string.pref_enabled)) {
-            if (getEnabled()) {
-                lifecycleScope.launch { startService() }
-            } else {
-                lifecycleScope.launch { stopService() }
-            }
-
+            startIfEnabled()
         }
 
     }
@@ -90,10 +84,21 @@ class PowerFragment : Fragment() {
     }
 
     private suspend fun startService() {
-
-        serviceConnectionRepository.startService()
-        serviceConnectionRepository.bindService(timeout = 500000L)
-        binding.toggleButton.isChecked = true
+        try {
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    serviceConnectionRepository.bindService(timeout = 500000L)
+                } catch (exc: Exception) {
+                    log.e("failed to bind service $exc")
+                    FirebaseCrashlytics.getInstance().recordException(exc)
+                }
+            }
+            serviceConnectionRepository.startService()
+            binding.toggleButton.isChecked = true
+        } catch (exc: Exception) {
+            log.e("failed to start service")
+            FirebaseCrashlytics.getInstance().recordException(exc)
+        }
     }
 
     private suspend fun stopService() {
@@ -124,28 +129,46 @@ class PowerFragment : Fragment() {
 
 
     private suspend fun toggleOn(compoundButton: CompoundButton, enable: Boolean) {
-        if (model.adapterState != BluetoothState.STATE_ON) {
-            binding.toggleButton.isChecked = false
-            binding.toggleButton.isEnabled = false
-        } else {
-            if (!wifiManager.isWifiEnabled) {
-                showWifiSnackBar()
-            }
-            val connected = serviceConnectionRepository.isConnected()
-            compoundButton.isChecked = connected
-            binding.toggleButton.isEnabled = connected
-            try {
-                if (enable) {
-                    startService()
-                } else {
-                    stopService()
+        withContext(Dispatchers.Main) {
+            if (model.adapterState != BluetoothState.STATE_ON) {
+                log.e("adapter disabled")
+                binding.toggleButton.isChecked = false
+                binding.toggleButton.isEnabled = false
+            } else {
+                if (!wifiManager.isWifiEnabled) {
+                    showWifiSnackBar()
                 }
-                setEnabled(enable)
-            } catch (e: IllegalStateException) {
-                compoundButton.isChecked = false
-                e.printStackTrace()
-            } finally {
-                binding.statusText.text = getStatusText()
+                val connected = serviceConnectionRepository.isConnected()
+                compoundButton.isChecked = connected
+                binding.toggleButton.isEnabled = connected
+                try {
+                    withContext(Dispatchers.IO) { startService() }
+                    setEnabled(enable)
+                } catch (e: IllegalStateException) {
+                    compoundButton.isChecked = false
+                    e.printStackTrace()
+                } finally {
+                    binding.statusText.text = getStatusText()
+                }
+            }
+        }
+    }
+
+    private fun startIfEnabled(button: Boolean? = null) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val enabled = getEnabled()
+            if (enabled) {
+                val perm = Utils.checkPermission(requireContext())
+                if (perm.isPresent) {
+                    binding.toggleButton.isChecked = false
+                    val toast = Toast(requireContext())
+                    toast.duration = Toast.LENGTH_LONG
+                    toast.setText(getString(R.string.missing_permission, perm.get()))
+                    toast.show()
+                } else {
+                    log.e("toggling")
+                    toggleOn(binding.toggleButton, button?:enabled)
+                }
             }
         }
     }
@@ -164,13 +187,6 @@ class PowerFragment : Fragment() {
             }
         }
 
-        lifecycleScope.launch {
-            if (getEnabled()) {
-                startService()
-            } else {
-                stopService()
-            }
-        }
         model.observeAdapterState().observe(viewLifecycleOwner) { state ->
             binding.toggleButton.isEnabled = state == BluetoothState.STATE_ON
         }
@@ -196,20 +212,10 @@ class PowerFragment : Fragment() {
 
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             lifecycleScope.softCancelLaunch {
-                if (isActive) {
-                    val perm = Utils.checkPermission(requireContext())
-                    if (perm.isPresent) {
-                        binding.toggleButton.isChecked = false
-                        val toast = Toast(requireContext())
-                        toast.duration = Toast.LENGTH_LONG
-                        toast.setText(getString(R.string.missing_permission, perm.get()))
-                        toast.show()
-                    } else {
-                        toggleOn(compoundButton, b)
-                    }
-                }
+                startIfEnabled(button = b)
             }
         }
+        startIfEnabled()
         return binding.root
     }
 }
