@@ -53,19 +53,21 @@ class PowerFragment : Fragment() {
     private val sharedPreferencesListener = SharedPreferences.OnSharedPreferenceChangeListener {
         prefs, s ->
         if (s == requireContext().getString(R.string.pref_powersave)) {
-            binding.statusText.text = getStatusText()
+            lifecycleScope.launch(Dispatchers.Main) {
+                binding.statusText.text = getStatusText()
+            }
         } else if (s == requireContext().getString(R.string.pref_enabled)) {
-            startIfEnabled()
+            //TODO:
         }
 
     }
 
-    private fun getStatusText(sharedPreferences: SharedPreferences): String {
-        return sharedPreferences.getString(requireContext().getString(R.string.pref_powersave), getString(R.string.powersave_active))!!
-    }
-
-    private fun getStatusText(): String {
-        return getStatusText(sharedPreferences)
+    private suspend fun getStatusText(): String {
+        return if (serviceConnectionRepository.isConnected()) {
+            "enabled"
+        } else {
+            "disabled"
+        }
     }
 
     override fun onPause() {
@@ -88,13 +90,19 @@ class PowerFragment : Fragment() {
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     serviceConnectionRepository.bindService(timeout = 500000L)
+                    val powersave = sharedPreferences.getString(getString(R.string.pref_powersave), getString(R.string.powersave_active))
+                    log.v("starting discovery: $powersave")
+                    if (powersave == getString(R.string.powersave_active)) {
+                        serviceConnectionRepository.startDiscover()
+                    } else {
+                        serviceConnectionRepository.startPassive()
+                    }
                 } catch (exc: Exception) {
                     log.e("failed to bind service $exc")
                     FirebaseCrashlytics.getInstance().recordException(exc)
                 }
             }
             serviceConnectionRepository.startService()
-            binding.toggleButton.isChecked = true
         } catch (exc: Exception) {
             log.e("failed to start service")
             FirebaseCrashlytics.getInstance().recordException(exc)
@@ -110,7 +118,6 @@ class PowerFragment : Fragment() {
         }
         serviceConnectionRepository.unbindService()
         serviceConnectionRepository.stopService()
-        binding.toggleButton.isChecked = false
     }
 
     private fun setEnabled(boolean: Boolean) {
@@ -138,12 +145,15 @@ class PowerFragment : Fragment() {
                 if (!wifiManager.isWifiEnabled) {
                     showWifiSnackBar()
                 }
-                val connected = serviceConnectionRepository.isConnected()
-                compoundButton.isChecked = connected
-                binding.toggleButton.isEnabled = connected
                 try {
-                    withContext(Dispatchers.IO) { startService() }
                     setEnabled(enable)
+                    withContext(Dispatchers.IO) {
+                        if (enable) {
+                            startService()
+                        } else {
+                            stopService()
+                        }
+                    }
                 } catch (e: IllegalStateException) {
                     compoundButton.isChecked = false
                     e.printStackTrace()
@@ -178,41 +188,22 @@ class PowerFragment : Fragment() {
         _binding = FragmentPowerBinding.inflate(layoutInflater)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        binding.statusText.text = getStatusText()
-        serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
-            if (state == BinderWrapper.Companion.BinderState.STATE_CONNECTED) {
-                lifecycleScope.launch(Dispatchers.Main) {
-                    binding.toggleButton.isChecked = serviceConnectionRepository.isConnected()
-                }
-            }
-        }
+        binding.statusText.text = "disabled"
 
         model.observeAdapterState().observe(viewLifecycleOwner) { state ->
             binding.toggleButton.isEnabled = state == BluetoothState.STATE_ON
         }
 
         serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
-            if (state == BinderWrapper.Companion.BinderState.STATE_CONNECTED) {
-                lifecycleScope.launch {
-                    val powersave = getStatusText()
-                    log.v("starting discovery: $powersave")
-                    if (powersave == getString(R.string.powersave_active)) {
-                        serviceConnectionRepository.startDiscover()
-                    } else {
-                        serviceConnectionRepository.startPassive()
-                    }
-                }
-                binding.toggleButton.isChecked = true
-            }
-            else {
-                binding.toggleButton.isChecked = false
-            }
+            log.e("observed state $state")
+
+            binding.toggleButton.isChecked = state == BinderWrapper.Companion.BinderState.STATE_CONNECTED
 
         }
 
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            lifecycleScope.softCancelLaunch {
-                startIfEnabled(button = b)
+            lifecycleScope.launch {
+                toggleOn(compoundButton, b)
             }
         }
         startIfEnabled()
