@@ -48,11 +48,14 @@ import javax.inject.Inject
 class DrawerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDrawerBinding
 
-    @Inject lateinit var repository: BinderWrapper
-    
-    @Inject lateinit var broadcastReceiver: ScatterbrainBroadcastReceiver
+    @Inject
+    lateinit var repository: BinderWrapper
 
-    @Inject lateinit var uiBroadcastReceiver: UiBroadcastReceiver
+    @Inject
+    lateinit var broadcastReceiver: ScatterbrainBroadcastReceiver
+
+    @Inject
+    lateinit var uiBroadcastReceiver: UiBroadcastReceiver
 
     @InternalCoroutinesApi
     val model: RoutingServiceViewModel by viewModels()
@@ -85,9 +88,9 @@ class DrawerActivity : AppCompatActivity() {
 
 
         if (ContextCompat.checkSelfPermission(
-            applicationContext,
-            permission
-        ) == PackageManager.PERMISSION_GRANTED
+                        applicationContext,
+                        permission
+                ) == PackageManager.PERMISSION_GRANTED
         ) {
             c.resumeWith(Result.success(true))
         } else {
@@ -101,7 +104,7 @@ class DrawerActivity : AppCompatActivity() {
             }
             binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {
                 lifecycleScope.launch {
-                    if(Utils.checkPermission(applicationContext).isPresent) {
+                    if (Utils.checkPermission(applicationContext).isPresent) {
                         repository.stopService()
                         checkLocationPermission()
                     }
@@ -113,22 +116,32 @@ class DrawerActivity : AppCompatActivity() {
 
     }
 
-    private suspend fun checkLocationPermission() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                for (perm in arrayOf(
+    private suspend fun checkLocationPermission(): Boolean {
+        var works = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            for (perm in arrayOf(
                     Manifest.permission.BLUETOOTH_ADVERTISE,
                     Manifest.permission.BLUETOOTH_CONNECT,
                     Manifest.permission.BLUETOOTH_SCAN)
-                ) {
-                    requestPermission(perm, R.string.strongly_assert, R.string.failed_strongly_assert)
+            ) {
+                val check = requestPermission(perm, R.string.strongly_assert, R.string.failed_strongly_assert)
+                if (!check) {
+                    works = false
                 }
             }
-            requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, R.string.grant_location_text, R.string.failed_location_text)
-            checkBatteryOptimization()
+        }
+        val check = requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, R.string.grant_location_text, R.string.failed_location_text)
+        if (!check) {
+            works = false
+        }
+        if (!checkBatteryOptimization()) {
+            works = false
+        }
+        return works
     }
 
     @SuppressLint("BatteryLife") //am really sowwy google. Pls fowgive me ;(
-    private fun checkBatteryOptimization() : Boolean {
+    private fun checkBatteryOptimization(): Boolean {
         binding.appbar.maincontent.batteryOptimizationBanner.setRightButtonListener {
             val intent = Intent()
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -167,7 +180,11 @@ class DrawerActivity : AppCompatActivity() {
             }
         }
 
-        lifecycleScope.launch { checkLocationPermission() }
+        lifecycleScope.launch {
+            if (checkLocationPermission()) {
+                repository.startService()
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window!!.setDecorFitsSystemWindows(true)
         }
@@ -241,7 +258,7 @@ class DrawerActivity : AppCompatActivity() {
         broadcastReceiver.register()
         uiBroadcastReceiver.register()
     }
-    
+
     companion object {
         const val TAG = "DrawerActivity"
     }
