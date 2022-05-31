@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
@@ -39,7 +40,7 @@ class PowerFragment : Fragment() {
 // onDestroyView.
     private val binding get() = _binding!!
 
-    private val model: RoutingServiceViewModel by viewModels()
+    private val model by activityViewModels<RoutingServiceViewModel>()
 
     private val disabled = "Disabled"
 
@@ -186,6 +187,10 @@ class PowerFragment : Fragment() {
 
         serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
             binding.toggleButton.isChecked = state == BinderWrapper.Companion.BinderState.STATE_CONNECTED
+        }
+
+        model.permissionGranted.observe(viewLifecycleOwner) { granted ->
+            binding.toggleButton.isEnabled = granted
         }
 
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->

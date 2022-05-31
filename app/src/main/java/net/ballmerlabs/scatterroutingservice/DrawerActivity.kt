@@ -143,6 +143,9 @@ class DrawerActivity : AppCompatActivity() {
         if (!checkBatteryOptimization()) {
             works = false
         }
+        if (works) {
+            model.permissionGranted.value = works
+        }
         return works
     }
 

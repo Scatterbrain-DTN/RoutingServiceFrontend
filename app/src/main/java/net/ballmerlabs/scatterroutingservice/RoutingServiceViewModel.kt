@@ -19,6 +19,8 @@ class RoutingServiceViewModel @Inject constructor(
 ) : ViewModel() {
     private val identityLiveData = MediatorLiveData<List<Identity>>()
 
+    val permissionGranted = MutableLiveData(false)
+
     init {
         viewModelScope.softCancelLaunch {
             repository.observeIdentities().collect {
