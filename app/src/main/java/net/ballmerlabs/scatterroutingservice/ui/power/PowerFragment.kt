@@ -48,34 +48,12 @@ class PowerFragment : Fragment() {
 
     private lateinit var sharedPreferences: SharedPreferences
 
-    private val sharedPreferencesListener = SharedPreferences.OnSharedPreferenceChangeListener {
-        prefs, s ->
-        if (s == requireContext().getString(R.string.pref_powersave)) {
-            lifecycleScope.launch(Dispatchers.Main) {
-                binding.statusText.text = getStatusText()
-            }
-        } else if (s == requireContext().getString(R.string.pref_enabled)) {
-            //TODO:
-        }
-
-    }
-
     private suspend fun getStatusText(): String {
         return if (serviceConnectionRepository.isDiscovering()) {
             "enabled"
         } else {
             "disabled"
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
     }
 
     private fun showWifiSnackBar() {
@@ -178,15 +156,17 @@ class PowerFragment : Fragment() {
                               container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentPowerBinding.inflate(layoutInflater)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        binding.statusText.text = "disabled"
 
         model.observeAdapterState().observe(viewLifecycleOwner) { state ->
             binding.toggleButton.isEnabled = state == BluetoothState.STATE_ON
         }
 
         serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
-            binding.toggleButton.isChecked = state == BinderWrapper.Companion.BinderState.STATE_CONNECTED
+            binding.toggleButton.isEnabled = state == BinderWrapper.Companion.BinderState.STATE_CONNECTED
+        }
+
+        serviceConnectionRepository.observeRouterState().observe(viewLifecycleOwner) { state ->
+            binding.statusText.text = state.state
         }
 
         model.permissionGranted.observe(viewLifecycleOwner) { granted ->
@@ -196,7 +176,6 @@ class PowerFragment : Fragment() {
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             lifecycleScope.launch {
                 toggleOn(compoundButton, b)
-                binding.statusText.text = getStatusText()
             }
         }
         startIfEnabled()
