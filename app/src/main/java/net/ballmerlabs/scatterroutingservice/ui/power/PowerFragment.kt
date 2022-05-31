@@ -59,10 +59,6 @@ class PowerFragment : Fragment() {
 
     }
 
-    private fun getStatusText(state: BinderWrapper.Companion.BinderState): String {
-        return state.message
-    }
-
     private suspend fun getStatusText(): String {
         return if (serviceConnectionRepository.isDiscovering()) {
             "enabled"
