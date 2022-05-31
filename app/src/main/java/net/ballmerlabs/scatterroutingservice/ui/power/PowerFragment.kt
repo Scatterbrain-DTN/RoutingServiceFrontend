@@ -87,7 +87,7 @@ class PowerFragment : Fragment() {
         try {
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    serviceConnectionRepository.bindService(timeout = 500000L)
+                    serviceConnectionRepository.bindService()
                     val powersave = sharedPreferences.getString(getString(R.string.pref_powersave), getString(R.string.powersave_active))
                     log.v("starting discovery: $powersave")
                     if (powersave == getString(R.string.powersave_active)) {
