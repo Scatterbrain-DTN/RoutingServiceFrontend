@@ -68,6 +68,8 @@ class DrawerActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 if (checkLocationPermission()) {
                     repository.startService()
+                    repository.bindService(timeout = 5000000L)
+
                 }
             }
 
@@ -192,6 +194,7 @@ class DrawerActivity : AppCompatActivity() {
         lifecycleScope.launch {
             if (checkLocationPermission()) {
                 repository.startService()
+                repository.bindService(timeout = 5000000L)
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

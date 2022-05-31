@@ -10,7 +10,6 @@ import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
@@ -20,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
+import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterroutingservice.BluetoothState
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
@@ -48,14 +48,6 @@ class PowerFragment : Fragment() {
 
     private lateinit var sharedPreferences: SharedPreferences
 
-    private suspend fun getStatusText(): String {
-        return if (serviceConnectionRepository.isDiscovering()) {
-            "enabled"
-        } else {
-            "disabled"
-        }
-    }
-
     private fun showWifiSnackBar() {
         Snackbar.make(binding.root, R.string.wifi_disabled_snackbar, Snackbar.LENGTH_LONG)
                 .show()
@@ -65,7 +57,6 @@ class PowerFragment : Fragment() {
         try {
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    serviceConnectionRepository.bindService()
                     val powersave = sharedPreferences.getString(getString(R.string.pref_powersave), getString(R.string.powersave_active))
                     log.v("starting discovery: $powersave")
                     if (powersave == getString(R.string.powersave_active)) {
@@ -126,8 +117,6 @@ class PowerFragment : Fragment() {
                 } catch (e: IllegalStateException) {
                     compoundButton.isChecked = false
                     e.printStackTrace()
-                } finally {
-                    binding.statusText.text = getStatusText()
                 }
             }
         }
@@ -135,11 +124,11 @@ class PowerFragment : Fragment() {
 
     private fun startIfEnabled(button: Boolean? = null) {
         lifecycleScope.launch(Dispatchers.IO) {
+
             val enabled = getEnabled()
             if (enabled) {
                 val perm = Utils.checkPermission(requireContext())
                 if (perm.isPresent) {
-                    binding.toggleButton.isChecked = false
                     val toast = Toast(requireContext())
                     toast.duration = Toast.LENGTH_LONG
                     toast.setText(getString(R.string.missing_permission, perm.get()))
@@ -162,23 +151,34 @@ class PowerFragment : Fragment() {
         }
 
         serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
-            binding.toggleButton.isEnabled = state == BinderWrapper.Companion.BinderState.STATE_CONNECTED
+            binding.toggleButton.isEnabled =
+                    state == BinderWrapper.Companion.BinderState.STATE_CONNECTED && model.permissionGranted.value?:false
+
+            if(state == BinderWrapper.Companion.BinderState.STATE_CONNECTED)
+                startIfEnabled()
         }
 
         serviceConnectionRepository.observeRouterState().observe(viewLifecycleOwner) { state ->
+            log.v("router state ${state.state}")
             binding.statusText.text = state.state
+            binding.toggleButton.isChecked = state == RouterState.DISCOVERING
         }
 
         model.permissionGranted.observe(viewLifecycleOwner) { granted ->
             binding.toggleButton.isEnabled = granted
+                    && serviceConnectionRepository.observeBinderState().value == BinderWrapper.Companion.BinderState.STATE_CONNECTED
         }
 
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             lifecycleScope.launch {
-                toggleOn(compoundButton, b)
+                if(serviceConnectionRepository.observeBinderState().value == BinderWrapper.Companion.BinderState.STATE_CONNECTED) {
+                    toggleOn(compoundButton, b)
+                } else {
+                    log.e("not connected, disabling button")
+                    compoundButton.isChecked = false
+                }
             }
         }
-        startIfEnabled()
         return binding.root
     }
 }
