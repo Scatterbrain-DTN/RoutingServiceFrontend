@@ -64,7 +64,7 @@ class PowerFragment : Fragment() {
     }
 
     private suspend fun getStatusText(): String {
-        return if (serviceConnectionRepository.isConnected()) {
+        return if (serviceConnectionRepository.isDiscovering()) {
             "enabled"
         } else {
             "disabled"
@@ -189,17 +189,13 @@ class PowerFragment : Fragment() {
         }
 
         serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
-            lifecycleScope.launch(Dispatchers.IO) {
-                log.e("observed state $state, ${serviceConnectionRepository.isConnected()}")
-            }
-            binding.statusText.text = getStatusText(state)
             binding.toggleButton.isChecked = state == BinderWrapper.Companion.BinderState.STATE_CONNECTED
-
         }
 
         binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             lifecycleScope.launch {
                 toggleOn(compoundButton, b)
+                binding.statusText.text = getStatusText()
             }
         }
         startIfEnabled()
