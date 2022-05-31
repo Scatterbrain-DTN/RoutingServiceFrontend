@@ -65,6 +65,12 @@ class DrawerActivity : AppCompatActivity() {
     private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
         if (isGranted) {
             binding.appbar.maincontent.grantlocationbanner.dismiss()
+            lifecycleScope.launch {
+                if (checkLocationPermission()) {
+                    repository.startService()
+                }
+            }
+
         } else {
             binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
         }
