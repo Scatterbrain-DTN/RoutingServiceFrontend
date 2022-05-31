@@ -62,6 +62,10 @@ class PowerFragment : Fragment() {
 
     }
 
+    private fun getStatusText(state: BinderWrapper.Companion.BinderState): String {
+        return state.message
+    }
+
     private suspend fun getStatusText(): String {
         return if (serviceConnectionRepository.isConnected()) {
             "enabled"
@@ -90,13 +94,6 @@ class PowerFragment : Fragment() {
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     serviceConnectionRepository.bindService(timeout = 500000L)
-                    val powersave = sharedPreferences.getString(getString(R.string.pref_powersave), getString(R.string.powersave_active))
-                    log.v("starting discovery: $powersave")
-                    if (powersave == getString(R.string.powersave_active)) {
-                        serviceConnectionRepository.startDiscover()
-                    } else {
-                        serviceConnectionRepository.startPassive()
-                    }
                 } catch (exc: Exception) {
                     log.e("failed to bind service $exc")
                     FirebaseCrashlytics.getInstance().recordException(exc)
@@ -110,9 +107,9 @@ class PowerFragment : Fragment() {
     }
 
     private suspend fun stopService() {
-        val powersave = getStatusText()
+        val powersave = sharedPreferences.getString(getString(R.string.pref_powersave), getString(R.string.powersave_active))
         if (powersave == getString(R.string.powersave_active)) {
-            serviceConnectionRepository.stopPassive()
+            serviceConnectionRepository.stopDiscover()
         } else {
             serviceConnectionRepository.stopPassive()
         }
@@ -197,6 +194,23 @@ class PowerFragment : Fragment() {
         serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
             log.e("observed state $state")
 
+            lifecycleScope.launch(Dispatchers.IO) {
+                if (serviceConnectionRepository.isConnected()) {
+                    try {
+                        val powersave = sharedPreferences.getString(getString(R.string.pref_powersave), getString(R.string.powersave_active))
+                        log.v("starting discovery: $powersave")
+                        if (powersave == getString(R.string.powersave_active)) {
+                            serviceConnectionRepository.startDiscover()
+                        } else {
+                            serviceConnectionRepository.startPassive()
+                        }
+                    } catch (exc: Exception) {
+                        FirebaseCrashlytics.getInstance().recordException(exc)
+                        binding.statusText.text = "failed ${exc.message}"
+                    }
+                }
+            }
+            binding.statusText.text = getStatusText(state)
             binding.toggleButton.isChecked = state == BinderWrapper.Companion.BinderState.STATE_CONNECTED
 
         }
