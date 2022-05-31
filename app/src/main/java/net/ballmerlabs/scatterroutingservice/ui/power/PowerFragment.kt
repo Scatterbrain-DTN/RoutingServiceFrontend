@@ -11,13 +11,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.withCreated
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
@@ -25,7 +23,6 @@ import net.ballmerlabs.scatterroutingservice.BluetoothState
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
-import net.ballmerlabs.scatterroutingservice.softCancelLaunch
 import net.ballmerlabs.scatterroutingservice.ui.Utils
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import javax.inject.Inject
@@ -113,7 +110,6 @@ class PowerFragment : Fragment() {
         } else {
             serviceConnectionRepository.stopPassive()
         }
-        serviceConnectionRepository.unbindService()
         serviceConnectionRepository.stopService()
     }
 
@@ -192,9 +188,8 @@ class PowerFragment : Fragment() {
         }
 
         serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
-            log.e("observed state $state")
-
             lifecycleScope.launch(Dispatchers.IO) {
+                log.e("observed state $state, ${serviceConnectionRepository.isConnected()}")
                 if (serviceConnectionRepository.isConnected()) {
                     try {
                         val powersave = sharedPreferences.getString(getString(R.string.pref_powersave), getString(R.string.powersave_active))
