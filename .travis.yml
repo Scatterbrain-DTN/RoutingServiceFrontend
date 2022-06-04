@@ -22,6 +22,6 @@ before_install:
   - yes | $ANDROID_HOME/cmdline-tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" --sdk_root=$ANDROID_HOME
 
 script:
-    - ./gradlew build test
+    - ./gradlew build testDebugUnitTest
 
 

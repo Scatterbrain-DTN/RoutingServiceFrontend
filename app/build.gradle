@@ -9,6 +9,8 @@ plugins {
     id 'com.google.gms.google-services'  // Google Services plugin
 }
 
+apply from: "$project.rootDir/ScatterRoutingService/scatterbrainSDK/gradle/jacoco.gradle"
+
 apply from: "${rootDir}/ScatterRoutingService/scatterbrainSDK/scripts/version.gradle"
 
 android {
