@@ -19,7 +19,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.6.1'
-        classpath "org.jacoco:org.jacoco.core:0.8.7"
+        classpath 'com.dicedmelon.gradle:jacoco-android:0.1.5'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
         classpath 'io.github.gradle-nexus:publish-plugin:1.1.0'
         classpath 'com.google.gms:google-services:4.3.10'  // Google Services plugin
@@ -31,7 +31,6 @@ buildscript {
 apply plugin: 'io.github.gradle-nexus.publish-plugin'
 
 allprojects {
-    apply plugin: 'jacoco'
     repositories {
         google()
         gradlePluginPortal()
