@@ -22,7 +22,7 @@ before_install:
   - yes | $ANDROID_HOME/cmdline-tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" --sdk_root=$ANDROID_HOME
 
 script:
-  - ./gradlew build testDebugUnitTest jacocoTestReport ScatterRoutingService:app:jacocoTestReport scatterbrainSDK:jacocoTestReport
+  - ./gradlew build testDebugUnitTest jacocoTestReport
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) 
