@@ -7,10 +7,31 @@ plugins {
     id 'com.google.firebase.crashlytics'
     id 'checkstyle'
     id 'com.google.gms.google-services'  // Google Services plugin
+    id 'com.dicedmelon.gradle.jacoco-android'
 }
 
 apply from: "${rootDir}/ScatterRoutingService/scatterbrainSDK/scripts/version.gradle"
-apply from: '../ScatterRoutingService/scatterbrainSDK/gradle/jacoco.gradle'
+
+
+jacoco {
+    toolVersion = "0.8.4"
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
+}
+
+configurations.all {
+    resolutionStrategy {
+        eachDependency {
+            if ("org.jacoco" == requested.group) {
+                useVersion("0.8.7")
+            }
+        }
+    }
+}
+
 
 android {
     buildToolsVersion "30.0.3"
