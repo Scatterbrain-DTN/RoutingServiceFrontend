@@ -10,19 +10,20 @@ import java.util.*
 
 class Utils {
     companion object {
-        suspend fun checkPermission(permission: String, context: Context): Boolean = suspendCancellableCoroutine { c ->
-            if (ContextCompat.checkSelfPermission(
-                            context,
-                            permission
+        suspend fun checkPermission(permission: String, context: Context): Boolean =
+            suspendCancellableCoroutine { c ->
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        permission
                     ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                c.resumeWith(Result.success(true))
-            } else {
+                ) {
+                    c.resumeWith(Result.success(true))
+                } else {
 
-                c.resumeWith(Result.success(false))
+                    c.resumeWith(Result.success(false))
+                }
+
             }
-
-        }
 
         suspend fun checkPermission(context: Context): Optional<String> {
             var res: Optional<String> = Optional.empty()
@@ -31,14 +32,27 @@ class Utils {
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     for (perm in arrayOf(
-                            Manifest.permission.BLUETOOTH_ADVERTISE,
-                            Manifest.permission.BLUETOOTH_CONNECT,
-                            Manifest.permission.BLUETOOTH_SCAN)
+                        Manifest.permission.BLUETOOTH_ADVERTISE,
+                        Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.BLUETOOTH_SCAN
+                    )
                     ) {
                         if (!checkPermission(perm, context)) {
                             res = Optional.of(perm)
                             break
                         }
+                    }
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val perm = Manifest.permission.NEARBY_WIFI_DEVICES
+                    val check = checkPermission(
+                        perm,
+                        context
+                    )
+
+                    if (!check) {
+                        res = Optional.of(perm)
                     }
                 }
             }

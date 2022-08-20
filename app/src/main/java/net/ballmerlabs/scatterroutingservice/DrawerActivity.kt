@@ -32,7 +32,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -62,21 +61,22 @@ class DrawerActivity : AppCompatActivity() {
 
     private val requestCodeBattery = 1
 
-    private val requestPermissionLauncher = (this as ComponentActivity).registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
-        if (isGranted) {
-            binding.appbar.maincontent.grantlocationbanner.dismiss()
-            lifecycleScope.launch {
-                if (checkLocationPermission()) {
-                    repository.startService()
-                    repository.bindService(timeout = 5000000L)
+    private val requestPermissionLauncher =
+        (this as ComponentActivity).registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                binding.appbar.maincontent.grantlocationbanner.dismiss()
+                lifecycleScope.launch {
+                    if (checkLocationPermission()) {
+                        repository.startService()
+                        repository.bindService(timeout = 5000000L)
 
+                    }
                 }
-            }
 
-        } else {
-            binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
+            } else {
+                binding.appbar.maincontent.grantlocationbanner.setMessage(R.string.failed_location_text)
+            }
         }
-    }
 
     private var mAppBarConfiguration: AppBarConfiguration? = null
 
@@ -92,53 +92,75 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun requestPermission(permission: String, request: Int, fail: Int): Boolean = suspendCancellableCoroutine { c ->
+    private suspend fun requestPermission(permission: String, request: Int, fail: Int): Boolean =
+        suspendCancellableCoroutine { c ->
 
 
-        if (ContextCompat.checkSelfPermission(
-                        applicationContext,
-                        permission
+            if (ContextCompat.checkSelfPermission(
+                    applicationContext,
+                    permission
                 ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            c.resumeWith(Result.success(true))
-        } else {
-            binding.appbar.maincontent.grantlocationbanner.setMessage(request)
+            ) {
+                c.resumeWith(Result.success(true))
+            } else {
+                binding.appbar.maincontent.grantlocationbanner.setMessage(request)
 
-            binding.appbar.maincontent.grantlocationbanner.setRightButtonListener {
-                requestPermissionLauncher.launch(permission)
-            }
-            binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
-                binding.appbar.maincontent.grantlocationbanner.setMessage(fail)
-            }
-            binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {
-                lifecycleScope.launch {
-                    if (Utils.checkPermission(applicationContext).isPresent) {
-                        repository.stopService()
-                        checkLocationPermission()
+                binding.appbar.maincontent.grantlocationbanner.setRightButtonListener {
+                    requestPermissionLauncher.launch(permission)
+                }
+                binding.appbar.maincontent.grantlocationbanner.setLeftButtonListener {
+                    binding.appbar.maincontent.grantlocationbanner.setMessage(fail)
+                }
+                binding.appbar.maincontent.grantlocationbanner.setOnDismissListener {
+                    lifecycleScope.launch {
+                        if (Utils.checkPermission(applicationContext).isPresent) {
+                            repository.stopService()
+                            checkLocationPermission()
+                        }
                     }
                 }
+                binding.appbar.maincontent.grantlocationbanner.show()
+                c.resumeWith(Result.success(false))
             }
-            binding.appbar.maincontent.grantlocationbanner.show()
-            c.resumeWith(Result.success(false))
-        }
 
-    }
+        }
 
     private suspend fun checkLocationPermission(): Boolean {
         var works = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             for (perm in arrayOf(
-                    Manifest.permission.BLUETOOTH_ADVERTISE,
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_SCAN)
+                Manifest.permission.BLUETOOTH_ADVERTISE,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_SCAN,
+            )
             ) {
-                val check = requestPermission(perm, R.string.strongly_assert, R.string.failed_strongly_assert)
+                val check = requestPermission(
+                    perm,
+                    R.string.strongly_assert,
+                    R.string.failed_strongly_assert
+                )
                 if (!check) {
                     works = false
                 }
             }
         }
-        val check = requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, R.string.grant_location_text, R.string.failed_location_text)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val check = requestPermission(
+                Manifest.permission.NEARBY_WIFI_DEVICES,
+                R.string.grant_wifi_text,
+                R.string.failed_strongly_assert
+            )
+
+            if(!check) {
+                works = false
+            }
+        }
+        val check = requestPermission(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            R.string.grant_location_text,
+            R.string.failed_location_text
+        )
         if (!check) {
             works = false
         }
@@ -200,7 +222,8 @@ class DrawerActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window!!.setDecorFitsSystemWindows(true)
         }
-        val versionView = binding.navView.getHeaderView(0).findViewById<TextView>(R.id.textView) //Viewbinding doesn't work with the nav header
+        val versionView = binding.navView.getHeaderView(0)
+            .findViewById<TextView>(R.id.textView) //Viewbinding doesn't work with the nav header
         versionView.append(BuildConfig.VERSION_NAME)
         val fabParams = fab.layoutParams as CoordinatorLayout.LayoutParams
         setSupportActionBar(binding.appbar.toolbar)
@@ -212,23 +235,24 @@ class DrawerActivity : AppCompatActivity() {
                 fabParams.anchorId = R.id.appbar_layout
                 fab.setOnClickListener {
                     MaterialAlertDialogBuilder(this)
-                            .setView(R.layout.create_identity_dialog_view)
-                            .setTitle(R.string.create_dialog_title)
-                            .setNeutralButton(R.string.create_cancel) { dialog, _ ->
-                                dialog.dismiss()
-                            }
-                            .setPositiveButton(R.string.create_create) { dialog, _ ->
-                                val dialogLayout = dialog as AlertDialog
-                                val editText = dialogLayout.findViewById<TextInputEditText>(R.id.identity_name_text)
-                                Log.v(TAG, "got text val ${editText!!.text}")
-                                lifecycleScope.softCancelLaunch {
-                                    val respose = repository.generateIdentity(editText.text.toString())
+                        .setView(R.layout.create_identity_dialog_view)
+                        .setTitle(R.string.create_dialog_title)
+                        .setNeutralButton(R.string.create_cancel) { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .setPositiveButton(R.string.create_create) { dialog, _ ->
+                            val dialogLayout = dialog as AlertDialog
+                            val editText =
+                                dialogLayout.findViewById<TextInputEditText>(R.id.identity_name_text)
+                            Log.v(TAG, "got text val ${editText!!.text}")
+                            lifecycleScope.softCancelLaunch {
+                                val respose = repository.generateIdentity(editText.text.toString())
 
-                                    dialog.setTitle("Failed to generate identity: $respose")
+                                dialog.setTitle("Failed to generate identity: $respose")
 
-                                }
                             }
-                            .show()
+                        }
+                        .show()
                 }
                 fab.show()
             } else {
@@ -241,8 +265,8 @@ class DrawerActivity : AppCompatActivity() {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = AppBarConfiguration.Builder(navController.graph)
-                .setDrawerLayout(drawer)
-                .build()
+            .setDrawerLayout(drawer)
+            .build()
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration!!)
         NavigationUI.setupWithNavController(navigationView, navController)
     }
