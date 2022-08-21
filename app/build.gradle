@@ -47,10 +47,12 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
     packagingOptions {
-        pickFirst 'META-INF/com.google.dagger_dagger.version'
+        resources {
+            pickFirsts += ['META-INF/com.google.dagger_dagger.version']
+        }
     }
+
 
     buildTypes {
         release {
@@ -62,11 +64,6 @@ android {
         }
     }
 
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
-        disable "JvmStaticProvidesInObjectDetector", "FieldSiteTargetOnQualifierAnnotation", "ModuleCompanionObjects", "ModuleCompanionObjectsNotInModuleParent"
-    }
 
     testOptions {
         unitTests {
@@ -84,6 +81,11 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        disable 'JvmStaticProvidesInObjectDetector', 'FieldSiteTargetOnQualifierAnnotation', 'ModuleCompanionObjects', 'ModuleCompanionObjectsNotInModuleParent'
     }
 }
 
