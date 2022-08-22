@@ -40,7 +40,7 @@ android {
         applicationId "net.ballmerlabs.scatterroutingservice"
         minSdkVersion 27
         targetSdkVersion 33
-        versionCode 40
+        versionCode 41
         compileSdkVersion 33
 
         versionName projectVersionName
