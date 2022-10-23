@@ -8,22 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.Toast
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
-import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterroutingservice.BluetoothState
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
-import net.ballmerlabs.scatterroutingservice.databinding.FragmentPowerBinding
 import net.ballmerlabs.scatterroutingservice.ui.Utils
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import javax.inject.Inject
@@ -31,14 +29,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class PowerFragment : Fragment() {
 
-    @Inject lateinit var serviceConnectionRepository: BinderWrapper
+    @Inject
+    lateinit var serviceConnectionRepository: BinderWrapper
 
-    @Inject lateinit var wifiManager: WifiManager
-
-    private var _binding:  FragmentPowerBinding? = null
-    // This property is only valid between onCreateView and
-// onDestroyView.
-    private val binding get() = _binding!!
+    @Inject
+    lateinit var wifiManager: WifiManager
 
     private val model by activityViewModels<RoutingServiceViewModel>()
 
@@ -48,16 +43,14 @@ class PowerFragment : Fragment() {
 
     private lateinit var sharedPreferences: SharedPreferences
 
-    private fun showWifiSnackBar() {
-        Snackbar.make(binding.root, R.string.wifi_disabled_snackbar, Snackbar.LENGTH_LONG)
-                .show()
-    }
-
     private suspend fun startService() {
         try {
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    val powersave = sharedPreferences.getString(getString(R.string.pref_powersave), getString(R.string.powersave_active))
+                    val powersave = sharedPreferences.getString(
+                        getString(R.string.pref_powersave),
+                        getString(R.string.powersave_active)
+                    )
                     log.v("starting discovery: $powersave")
                     if (powersave == getString(R.string.powersave_active)) {
                         serviceConnectionRepository.startDiscover()
@@ -89,8 +82,8 @@ class PowerFragment : Fragment() {
 
     private fun getEnabled(): Boolean {
         return sharedPreferences.getBoolean(
-                requireContext().getString(R.string.pref_enabled),
-                false
+            requireContext().getString(R.string.pref_enabled),
+            false
         )
     }
 
@@ -99,11 +92,10 @@ class PowerFragment : Fragment() {
         withContext(Dispatchers.Main) {
             if (model.adapterState != BluetoothState.STATE_ON) {
                 log.e("adapter disabled")
-                binding.toggleButton.isChecked = false
-                binding.toggleButton.isEnabled = false
+                //TODO
             } else {
                 if (!wifiManager.isWifiEnabled) {
-                    showWifiSnackBar()
+                    //TODO
                 }
                 try {
                     setEnabled(enable)
@@ -135,50 +127,20 @@ class PowerFragment : Fragment() {
                     toast.show()
                 } else {
                     log.e("toggling")
-                    toggleOn(binding.toggleButton, button?:enabled)
+                    //TODO
                 }
             }
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentPowerBinding.inflate(layoutInflater)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
-        model.observeAdapterState().observe(viewLifecycleOwner) { state ->
-            binding.toggleButton.isEnabled = state == BluetoothState.STATE_ON
+        return ComposeView(requireContext()).apply {
+            setContent { }
         }
-
-        serviceConnectionRepository.observeBinderState().observe(viewLifecycleOwner) { state ->
-            binding.toggleButton.isEnabled =
-                    state == BinderWrapper.Companion.BinderState.STATE_CONNECTED && model.permissionGranted.value?:false
-
-            if(state == BinderWrapper.Companion.BinderState.STATE_CONNECTED)
-                startIfEnabled()
-        }
-
-        serviceConnectionRepository.observeRouterState().observe(viewLifecycleOwner) { state ->
-            log.v("router state ${state.state}")
-            binding.statusText.text = state.state
-            binding.toggleButton.isChecked = state == RouterState.DISCOVERING
-        }
-
-        model.permissionGranted.observe(viewLifecycleOwner) { granted ->
-            binding.toggleButton.isEnabled = granted
-                    && serviceConnectionRepository.observeBinderState().value == BinderWrapper.Companion.BinderState.STATE_CONNECTED
-        }
-
-        binding.toggleButton.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            lifecycleScope.launch {
-                if(serviceConnectionRepository.observeBinderState().value == BinderWrapper.Companion.BinderState.STATE_CONNECTED) {
-                    toggleOn(compoundButton, b)
-                } else {
-                    log.e("not connected, disabling button")
-                    compoundButton.isChecked = false
-                }
-            }
-        }
-        return binding.root
     }
 }
