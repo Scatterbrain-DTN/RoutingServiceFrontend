@@ -79,7 +79,10 @@ fun IdentityList() {
             Text(text = "No identities yet")
         }
     } else {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(vertical = 8.dp, horizontal = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             identities.value.forEach { id ->
                 item {
                     IdentityView(id)
