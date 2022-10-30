@@ -141,7 +141,8 @@ class DrawerActivity : AppCompatActivity() {
     fun TabSwitcher(navController: NavController) {
         val indices = arrayOf(
             Pair(NAV_POWER, R.drawable.ic_baseline_power_settings_new_24),
-            Pair(NAV_IDENTITY, R.drawable.ic_baseline_perm_identity_24)
+            Pair(NAV_IDENTITY, R.drawable.ic_baseline_perm_identity_24),
+            Pair(NAV_ABOUT, R.drawable.ic_baseline_info_24)
         )
         val active = remember {
             mutableStateOf(0)
@@ -220,6 +221,7 @@ class DrawerActivity : AppCompatActivity() {
                                 }
                             }
                             composable(NAV_IDENTITY) { Text(text = "todo") }
+                            composable(NAV_ABOUT) { About(pad) }
                         }
                     },
                     topBar = { TopBar(controller) }
@@ -247,5 +249,6 @@ class DrawerActivity : AppCompatActivity() {
         const val TAG = "DrawerActivity"
         const val NAV_IDENTITY = "identity"
         const val NAV_POWER = "power"
+        const val NAV_ABOUT = "about"
     }
 }

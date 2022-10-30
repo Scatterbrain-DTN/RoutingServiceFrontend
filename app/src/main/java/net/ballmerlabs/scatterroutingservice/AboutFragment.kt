@@ -1,23 +1,16 @@
 package net.ballmerlabs.scatterroutingservice
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.compose.ui.platform.ComposeView
-import androidx.fragment.app.Fragment
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 
-@AndroidEntryPoint
-class AboutFragment @Inject constructor() : Fragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent { }
-        }
-    }
+@Composable
+fun About(paddingValues: PaddingValues) {
+    Text(
+        modifier = Modifier.padding(paddingValues),
+        text = stringResource(R.string.privacy_link)
+    )
 }
