@@ -4,10 +4,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
+import net.ballmerlabs.uscatterbrain.isActive
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,16 +23,6 @@ class BootBroadcastReceiver @Inject constructor() : BroadcastReceiver() {
     @Inject lateinit var binderWrapper: BinderWrapper
 
     private val log by scatterLog()
-
-
-    private fun isActive(context: Context): Boolean {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        return sharedPreferences.getString(
-                context.getString(R.string.pref_powersave),
-                context.getString(R.string.powersave_active)
-        )!! == context.getString(R.string.powersave_active)
-
-    }
 
     private suspend fun startService(context: Context) {
         binderWrapper.register()

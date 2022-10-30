@@ -1,146 +1,78 @@
 package net.ballmerlabs.scatterroutingservice.ui.power
 
-import android.content.SharedPreferences
-import android.net.wifi.WifiManager
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.CompoundButton
+import android.os.RemoteException
 import android.widget.Toast
-import androidx.compose.ui.platform.ComposeView
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ballmerlabs.scatterbrainsdk.BinderWrapper
-import net.ballmerlabs.scatterroutingservice.BluetoothState
+import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
-import net.ballmerlabs.scatterroutingservice.ui.Utils
-import net.ballmerlabs.uscatterbrain.util.scatterLog
-import javax.inject.Inject
+import net.ballmerlabs.uscatterbrain.setActive
+import net.ballmerlabs.uscatterbrain.setActiveBlocking
+import net.ballmerlabs.uscatterbrain.setPassive
+import net.ballmerlabs.uscatterbrain.setPassiveBlocking
 
-@AndroidEntryPoint
-class PowerFragment : Fragment() {
-
-    @Inject
-    lateinit var serviceConnectionRepository: BinderWrapper
-
-    @Inject
-    lateinit var wifiManager: WifiManager
-
-    private val model by activityViewModels<RoutingServiceViewModel>()
-
-    private val disabled = "Disabled"
-
-    private val log by scatterLog()
-
-    private lateinit var sharedPreferences: SharedPreferences
-
-    private suspend fun startService() {
-        try {
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val powersave = sharedPreferences.getString(
-                        getString(R.string.pref_powersave),
-                        getString(R.string.powersave_active)
-                    )
-                    log.v("starting discovery: $powersave")
-                    if (powersave == getString(R.string.powersave_active)) {
-                        serviceConnectionRepository.startDiscover()
-                    } else {
-                        serviceConnectionRepository.startPassive()
-                    }
-                } catch (exc: Exception) {
-                    log.e("failed to bind service $exc")
-                    FirebaseCrashlytics.getInstance().recordException(exc)
-                }
-            }
-        } catch (exc: Exception) {
-            log.e("failed to start service")
-            FirebaseCrashlytics.getInstance().recordException(exc)
-        }
+@Composable
+fun PowerFragment(paddingValues: PaddingValues) {
+    Button(
+        modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        onClick = { /*TODO*/ }
+    ) {
+        Image(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            painter = painterResource(id = R.drawable.ic_baseline_router_disabled),
+            contentDescription = stringResource(id = R.string.enable_disable))
     }
+}
 
-    private suspend fun stopService() {
-        serviceConnectionRepository.stopPassive()
-        serviceConnectionRepository.stopDiscover()
-    }
-
-    private fun setEnabled(boolean: Boolean) {
-        sharedPreferences.edit().apply {
-            putBoolean(requireContext().getString(R.string.pref_enabled), boolean)
-            apply()
-        }
-    }
-
-    private fun getEnabled(): Boolean {
-        return sharedPreferences.getBoolean(
-            requireContext().getString(R.string.pref_enabled),
-            false
-        )
-    }
-
-
-    private suspend fun toggleOn(compoundButton: CompoundButton, enable: Boolean) {
-        withContext(Dispatchers.Main) {
-            if (model.adapterState != BluetoothState.STATE_ON) {
-                log.e("adapter disabled")
-                //TODO
-            } else {
-                if (!wifiManager.isWifiEnabled) {
-                    //TODO
-                }
-                try {
-                    setEnabled(enable)
-                    withContext(Dispatchers.IO) {
-                        if (enable) {
-                            startService()
+@Composable
+fun PowerToggle(paddingValues: PaddingValues) {
+    val scope = rememberCoroutineScope()
+    val model: RoutingServiceViewModel = hiltViewModel()
+    val context = LocalContext.current
+    val state = model.repository.observeRouterState().observeAsState()
+    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start) {
+        Row(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Switch(checked = state.value == RouterState.DISCOVERING, onCheckedChange = { s ->
+                scope.launch {
+                    try {
+                        if (s) {
+                            setActive(context)
+                            model.repository.startDiscover()
                         } else {
-                            stopService()
+                            setPassive(context)
+                            model.repository.stopDiscover()
                         }
+                    } catch (exc: RemoteException) {
+                        Toast.makeText(context, "Failed to start discovery $exc", Toast.LENGTH_LONG)
+                            .show()
                     }
-                } catch (e: IllegalStateException) {
-                    compoundButton.isChecked = false
-                    e.printStackTrace()
                 }
-            }
-        }
-    }
-
-    private fun startIfEnabled(button: Boolean? = null) {
-        lifecycleScope.launch(Dispatchers.IO) {
-
-            val enabled = getEnabled()
-            if (enabled) {
-                val perm = Utils.checkPermission(requireContext())
-                if (perm.isPresent) {
-                    val toast = Toast(requireContext())
-                    toast.duration = Toast.LENGTH_LONG
-                    toast.setText(getString(R.string.missing_permission, perm.get()))
-                    toast.show()
-                } else {
-                    log.e("toggling")
-                    //TODO
-                }
-            }
-        }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-
-        return ComposeView(requireContext()).apply {
-            setContent { }
+            })
+            Text(text = "Toggle discovery")
         }
     }
 }

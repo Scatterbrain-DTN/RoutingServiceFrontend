@@ -11,24 +11,18 @@ import net.ballmerlabs.scatterbrainsdk.NamePackage
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class RoutingServiceViewModel @Inject constructor(
-        private val repository: BinderWrapper,
-        private val uiBroadcastReceiver: UiBroadcastReceiver
-) : ViewModel() {
+class RoutingServiceViewModel @Inject constructor() : ViewModel() {
+
+    @Inject
+    lateinit var repository: BinderWrapper
+
+    @Inject
+    lateinit var uiBroadcastReceiver: UiBroadcastReceiver
+
     private val identityLiveData = MediatorLiveData<List<Identity>>()
 
     val permissionGranted = MutableLiveData(false)
-
-    init {
-        viewModelScope.softCancelLaunch {
-            repository.observeIdentities().collect {
-                yield()
-                identityLiveData.postValue(it)
-            }
-        }
-    }
 
     fun observeAdapterState(): LiveData<BluetoothState> {
         return uiBroadcastReceiver.liveData

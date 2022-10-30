@@ -7,6 +7,7 @@
     <string name="nav_header_subtitle">reference implementation version: </string>
     <string name="action_settings">Settings</string>
     <string name="powersave_table">Router status:</string>
+    <string name="enable_disable">Toggle power state</string>
 
     <string name="no_apps">No Scatterbrain enabled apps found.</string>
 
