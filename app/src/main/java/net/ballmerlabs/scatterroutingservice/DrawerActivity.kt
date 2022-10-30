@@ -11,24 +11,31 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
@@ -45,8 +52,6 @@ import net.ballmerlabs.uscatterbrain.RouterPreferences
 import net.ballmerlabs.uscatterbrain.isActive
 import net.ballmerlabs.uscatterbrain.isPassive
 import javax.inject.Inject
-
-val Context.dataStore by preferencesDataStore(name = RouterPreferences.PREF_NAME)
 
 @AndroidEntryPoint
 @InternalCoroutinesApi
@@ -90,9 +95,7 @@ class DrawerActivity : AppCompatActivity() {
             for (x in listOf(
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT,
-                Manifest.permission.BLUETOOTH_ADVERTISE
-            )
-            ) {
+                Manifest.permission.BLUETOOTH_ADVERTISE)) {
                 val p = rememberPermissionState(permission = x)
                 permissions.add(p)
             }
@@ -205,12 +208,79 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
+    @Composable
+    fun CreateIdentityDialog(navController: NavController) {
+        val model: RoutingServiceViewModel = hiltViewModel()
+        val scope = rememberCoroutineScope()
+        val ctx = LocalContext.current
+        Surface(
+            modifier = Modifier
+                .background(
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.background
+                )
+                .padding(4.dp)
+        ) {
+            var name by remember {
+                mutableStateOf("")
+            }
+            Column() {
+                Text(text = "Create Identity")
+                TextField(
+                    value = name,
+                    onValueChange = { v -> name = v},
+                    placeholder = { Text(text = "Identity name") }
+                )
+                Row() {
+                    Button(onClick = { scope.launch {
+                        try {
+                            val id = model.repository.generateIdentity(name)
+                            Toast.makeText(ctx, "Created identity ${id.fingerprint}", Toast.LENGTH_LONG).show()
+                        } catch (exc: RemoteException) {
+                            Toast.makeText(ctx, "Failed to create identity: $exc", Toast.LENGTH_LONG).show()
+                        }
+                        navController.popBackStack()
+                    } }) {
+                        Text(text = "Create")
+                    }
+                    Button(onClick = { navController.popBackStack() }) {
+                        Text(text = "Cancel")
+                    }
+                }
+            }
+
+        }
+    }
+    
+    @OptIn(ExperimentalAnimationApi::class)
+    @Composable
+    fun Fab(navController: NavController) {
+        var hidefab by remember {
+            mutableStateOf(false)
+        }
+        navController.addOnDestinationChangedListener { controller, destination, args ->
+            val s = when(destination.route) {
+                NAV_IDENTITY -> true
+                else -> false
+            }
+            Log.v(TAG, "navigating to ${destination.route} $s")
+            hidefab = s
+        }
+
+        AnimatedVisibility(visible = hidefab, enter = scaleIn(), exit = scaleOut()) {
+            FloatingActionButton(onClick = { navController.navigate(NAV_CREATE_IDENTITY) }) {
+                Icon(painter = painterResource(id = R.drawable.ic_baseline_identity_add_24), contentDescription = "Add identity")
+            }
+        }
+    }
+
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             val controller = rememberNavController()
+
             ScatterbrainTheme {
                 Scaffold(
                     content = { pad ->
@@ -220,11 +290,13 @@ class DrawerActivity : AppCompatActivity() {
                                     PowerToggle(pad)
                                 }
                             }
-                            composable(NAV_IDENTITY) { Text(text = "todo") }
+                            composable(NAV_IDENTITY) { IdentityManagement(pad) }
                             composable(NAV_ABOUT) { About(pad) }
+                            dialog(NAV_CREATE_IDENTITY) { CreateIdentityDialog(controller) }
                         }
                     },
-                    topBar = { TopBar(controller) }
+                    topBar = { TopBar(controller) },
+                    floatingActionButton = { Fab(controller) }
 
                 )
             }
@@ -248,6 +320,7 @@ class DrawerActivity : AppCompatActivity() {
     companion object {
         const val TAG = "DrawerActivity"
         const val NAV_IDENTITY = "identity"
+        const val NAV_CREATE_IDENTITY = "create_identity"
         const val NAV_POWER = "power"
         const val NAV_ABOUT = "about"
     }
