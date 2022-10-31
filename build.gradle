@@ -16,7 +16,7 @@ buildscript {
     }
     dependencies {
         def nav_version = '2.4.1'
-        classpath 'com.android.tools.build:gradle:7.2.2'
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
@@ -31,18 +31,6 @@ buildscript {
 }
 
 apply plugin: 'io.github.gradle-nexus.publish-plugin'
-
-allprojects {
-    repositories {
-        google()
-        gradlePluginPortal()
-        maven { url "https://jitpack.io" }
-        flatDir {
-            dirs 'src/main/libs'
-        }
-        mavenCentral()
-    }
-}
 
 task clean(type: Delete) {
     delete rootProject.buildDir
@@ -65,6 +53,10 @@ subprojects { project ->
 
         classpath = files()
     }
+}
+
+repositories {
+    google()
 }
 
 apply from: 'ScatterRoutingService/scatterbrainSDK/scripts/publish-root.gradle'
