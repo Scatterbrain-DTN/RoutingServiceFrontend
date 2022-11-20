@@ -88,7 +88,8 @@ class DrawerActivity : AppCompatActivity() {
         content: @Composable () -> Unit
     ) {
         val permissions = mutableListOf(
-            rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
+            rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION),
+            rememberPermissionState(permission = Manifest.permission.ACCESS_COARSE_LOCATION)
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
