@@ -100,6 +100,14 @@ class DrawerActivity : AppCompatActivity() {
                 val p = rememberPermissionState(permission = x)
                 permissions.add(p)
             }
+        } else {
+            for (x in listOf(
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.BLUETOOTH,
+            )) {
+                val p = rememberPermissionState(permission = x)
+                permissions.add(p)
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
