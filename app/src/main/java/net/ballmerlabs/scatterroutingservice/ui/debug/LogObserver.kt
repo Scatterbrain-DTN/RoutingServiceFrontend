@@ -94,7 +94,7 @@ class LogObserver @Inject constructor() {
                             postValue(path)
                         }
                         DELETE -> {
-
+                            mappedLogs.remove(path)
                         }
                     }
                 }
