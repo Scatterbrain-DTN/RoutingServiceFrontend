@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
-import net.ballmerlabs.scatterroutingservice.R
 import javax.inject.Inject
 
 @AndroidEntryPoint

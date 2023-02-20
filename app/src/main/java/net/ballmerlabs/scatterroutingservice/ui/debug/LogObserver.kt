@@ -1,30 +1,17 @@
 package net.ballmerlabs.scatterroutingservice.ui.debug
 
-import android.content.Context
 import android.os.FileObserver
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.ballmerlabs.scatterroutingservice.ScatterbrainApp
-import net.ballmerlabs.uscatterbrain.util.LoggerImpl.Companion.LOGS_SIZE
 import net.ballmerlabs.uscatterbrain.util.logsDir
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import java.io.File
-import java.nio.ByteBuffer
-import java.nio.CharBuffer
-import java.nio.MappedByteBuffer
-import java.nio.channels.FileChannel
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
-import java.nio.file.StandardOpenOption
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -70,7 +57,6 @@ class LogObserver @Inject constructor(
                         if (file.exists()) {
                             if (buf == null) {
                                 val list = SnapshotStateList<String>()
-                                var pos = 0
                                 for (x in buffered.lines()) {
                                     list.add(x)
                                 }
@@ -84,7 +70,7 @@ class LogObserver @Inject constructor(
                                     buf.second.add(x)
                                 }
                                 Log.e("debug", "read old ${buf.second.size}")
-                                logLiveData.postValue(buf.second!!)
+                                logLiveData.postValue(buf.second)
                                 mappedLogs[path] = Pair(channel.position(), buf.second)
                             }
                             reader.close()

@@ -4,11 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.uscatterbrain.isActive

@@ -4,9 +4,12 @@ import android.os.RemoteException
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,9 +22,7 @@ import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.uscatterbrain.setActive
-import net.ballmerlabs.uscatterbrain.setActiveBlocking
 import net.ballmerlabs.uscatterbrain.setPassive
-import net.ballmerlabs.uscatterbrain.setPassiveBlocking
 
 @Composable
 fun PowerFragment(paddingValues: PaddingValues) {

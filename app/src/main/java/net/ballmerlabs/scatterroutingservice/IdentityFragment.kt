@@ -43,7 +43,7 @@ fun IdentityView(identity: Identity) {
                 modifier = Modifier.padding(end = 10.dp),
                 text = identity.name, style = MaterialTheme.typography.headlineMedium
             )
-            Box() {
+            Box {
                 Image(
                     modifier = Modifier.clickable { menuState = true },
                     painter = painterResource(id = R.drawable.ic_baseline_menu_24),

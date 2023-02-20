@@ -236,14 +236,14 @@ class DrawerActivity : AppCompatActivity() {
             var name by remember {
                 mutableStateOf("")
             }
-            Column() {
+            Column {
                 Text(text = "Create Identity")
                 TextField(
                     value = name,
                     onValueChange = { v -> name = v},
                     placeholder = { Text(text = "Identity name") }
                 )
-                Row() {
+                Row {
                     Button(onClick = { scope.launch {
                         try {
                             val id = model.repository.generateIdentity(name)
