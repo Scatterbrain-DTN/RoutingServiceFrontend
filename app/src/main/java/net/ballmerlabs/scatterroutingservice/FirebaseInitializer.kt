@@ -8,7 +8,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class FirebaseInitializer : Initializer<FirebaseCrashlytics> {
     override fun create(context: Context): FirebaseCrashlytics {
-        Log.e("debug", "initializing crashlytics")
         val optOut = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
                         context.getString(R.string.pref_optout_crashlytics),
                         false

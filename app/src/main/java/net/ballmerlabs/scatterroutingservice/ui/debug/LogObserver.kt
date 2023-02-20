@@ -17,11 +17,32 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
+data class LogStruct(
+    val scope: String,
+    val text: String
+) {
+    fun shortScope(): String {
+        return SHORT_HEAD_REGEX.find(scope)?.value?:"invalid"
+    }
+}
+const val HEAD_PATTERN = "^\\[.*\\]:"
+val SHORT_HEAD_REGEX = "\\w+$".toRegex()
+val HEAD_REGEX = HEAD_PATTERN.toRegex()
+val TAIL_REGEX = "]:.*".toRegex()
+
+fun getLogStruct(text: String): LogStruct {
+    val scope = HEAD_REGEX.find(text)?.value?:"invalid"
+    val tail = TAIL_REGEX.find(text)?.value?:"invalid"
+    return LogStruct(
+        scope = scope.slice(1..scope.length-3),
+        text = tail.slice(2 until tail.length)
+    )
+}
 @Singleton
 class LogObserver @Inject constructor(
 ) {
     val logScope = CoroutineScope(SupervisorJob())
-    val mappedLogs = ConcurrentHashMap<String, Pair<Long, SnapshotStateList<String>>>()
+    val mappedLogs = ConcurrentHashMap<String, Pair<Long, SnapshotStateList<LogStruct>>>()
     val logger by scatterLog()
     val refreshLock = AtomicBoolean()
     private val observer by lazy {
@@ -32,10 +53,9 @@ class LogObserver @Inject constructor(
         observer.startWatching()
     }
 
-    fun observeLogs(): LiveData<SnapshotStateList<String>> {
+    fun observeLogs(): LiveData<SnapshotStateList<LogStruct>> {
         val path = logger.getCurrentLog()
         return if (path != null) {
-            Log.e("debug", "force reload ${path.name}")
             postValue(path.name)
             logLiveData
         } else {
@@ -56,28 +76,27 @@ class LogObserver @Inject constructor(
                         val buffered = reader.bufferedReader()
                         if (file.exists()) {
                             if (buf == null) {
-                                val list = SnapshotStateList<String>()
+                                val list = SnapshotStateList<LogStruct>()
                                 for (x in buffered.lines()) {
-                                    list.add(x)
+                                    list.add(getLogStruct(x))
                                 }
-                                Log.e("debug", "read new ${list.size}")
                                 logLiveData.postValue(list)
                                 mappedLogs[path] = Pair(channel.position(), list)
 
                             } else {
                                 reader.skip(buf.first)
                                 for (x in buffered.lines()) {
-                                    buf.second.add(x)
+                                    buf.second.add(getLogStruct(x))
                                 }
-                                Log.e("debug", "read old ${buf.second.size}")
-                                logLiveData.postValue(buf.second)
+                                logLiveData.postValue(buf.second!!)
                                 mappedLogs[path] = Pair(channel.position(), buf.second)
                             }
                             reader.close()
+                            channel.close()
                         }
                     }
                 } catch (exc: Exception) {
-                    Log.e("debug", "exception $exc in refresh ")
+                    logger.e("exception in file logger refresh $exc")
                 } finally {
                     refreshLock.set(false)
                 }
@@ -89,7 +108,6 @@ class LogObserver @Inject constructor(
     private fun getLogObserver(): FileObserver? {
         val cache = logsDir
         if (cache != null) {
-            Log.e("debug", "observer initialized on ${cache.canonicalPath}")
             return object : FileObserver(cache) {
                 override fun onEvent(event: Int, path: String?) {
                     when (event) {
@@ -106,10 +124,9 @@ class LogObserver @Inject constructor(
                 }
             }
         } else {
-            Log.e("debug", "observer null")
             return null
         }
     }
 
-    val logLiveData = MutableLiveData<SnapshotStateList<String>>()
+    val logLiveData = MutableLiveData<SnapshotStateList<LogStruct>>()
 }

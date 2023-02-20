@@ -55,10 +55,6 @@ class RoutingServiceViewModel @Inject constructor(
             emit(packages)
         }
     }
-
-    init {
-        Log.e("debug", "init viewmodel")
-    }
 }
 const val TAG = "RoutingServiceViewModel"
 fun CoroutineScope.softCancelLaunch(f: suspend CoroutineScope.() -> Unit): Job {
