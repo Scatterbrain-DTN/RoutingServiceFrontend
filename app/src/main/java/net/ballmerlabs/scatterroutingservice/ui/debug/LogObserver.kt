@@ -1,12 +1,19 @@
 package net.ballmerlabs.scatterroutingservice.ui.debug
 
+import android.content.Context
 import android.os.FileObserver
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import net.ballmerlabs.scatterroutingservice.ScatterbrainApp
 import net.ballmerlabs.uscatterbrain.util.LoggerImpl.Companion.LOGS_SIZE
 import net.ballmerlabs.uscatterbrain.util.logsDir
 import net.ballmerlabs.uscatterbrain.util.scatterLog
@@ -15,16 +22,21 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class LogObserver @Inject constructor() {
+class LogObserver @Inject constructor(
+) {
+    val logScope = CoroutineScope(SupervisorJob())
     val mappedLogs = ConcurrentHashMap<String, Pair<Long, SnapshotStateList<String>>>()
     val logger by scatterLog()
+    val refreshLock = AtomicBoolean()
     private val observer by lazy {
         getLogObserver()!!
     }
@@ -34,8 +46,9 @@ class LogObserver @Inject constructor() {
     }
 
     fun observeLogs(): LiveData<SnapshotStateList<String>> {
-       val path = logger.getCurrentLog()
+        val path = logger.getCurrentLog()
         return if (path != null) {
+            Log.e("debug", "force reload ${path.name}")
             postValue(path.name)
             logLiveData
         } else {
@@ -44,42 +57,49 @@ class LogObserver @Inject constructor() {
     }
 
     private fun postValue(path: String?) {
-        if (path != null && path.isNotEmpty() && logLiveData.hasObservers() ) {
-            val buf = mappedLogs[path]
-            val file = File(logsDir, path)
-            if (file.exists()) {
-                val f = FileChannel.open(file.toPath(), StandardOpenOption.READ)
-                if (buf == null) {
-                    val readbuf = ByteBuffer.allocateDirect(f.size().toInt())
-                    val read = f.read(readbuf)
-                    readbuf.rewind()
-                    Log.e("debug", "read new $read")
-                    val s = StandardCharsets.UTF_8.decode(readbuf)
-                    val list = SnapshotStateList<String>()
-                    for(x in s.split("\n")) {
-                        list.add(x)
-                    }
-                    logLiveData.postValue(list)
-                    mappedLogs[path] = Pair(read.toLong(), list)
+        logScope.launch(Dispatchers.IO) {
+            val lock = refreshLock.getAndSet(true)
+            if (!lock) {
+                try {
+                    if (path != null && path.isNotEmpty() && logLiveData.hasObservers()) {
+                        val buf = mappedLogs.putIfAbsent(path, Pair(0, SnapshotStateList()))
+                        val file = File(logsDir, path)
+                        val reader = file.inputStream()
+                        val channel = reader.channel
+                        val buffered = reader.bufferedReader()
+                        if (file.exists()) {
+                            if (buf == null) {
+                                val list = SnapshotStateList<String>()
+                                var pos = 0
+                                for (x in buffered.lines()) {
+                                    list.add(x)
+                                }
+                                Log.e("debug", "read new ${list.size}")
+                                logLiveData.postValue(list)
+                                mappedLogs[path] = Pair(channel.position(), list)
 
-                } else {
-                    val size = f.size() - buf.first
-                    if (size > 0) {
-                        val readbuf = ByteBuffer.allocateDirect(size.toInt())
-                        val read = f.read(readbuf, buf.first)
-                        readbuf.rewind()
-                        Log.e("debug", "read old ${buf.first}")
-                        for (x in readbuf.asCharBuffer().split("\n")) {
-                            buf.second.add(x)
+                            } else {
+                                reader.skip(buf.first)
+                                for (x in buffered.lines()) {
+                                    buf.second.add(x)
+                                }
+                                Log.e("debug", "read old ${buf.second.size}")
+                                logLiveData.postValue(buf.second!!)
+                                mappedLogs[path] = Pair(channel.position(), buf.second)
+                            }
+                            reader.close()
                         }
-                        logLiveData.postValue(buf.second!!)
-                        mappedLogs[path] = Pair(buf.first + read, buf.second)
                     }
+                } catch (exc: Exception) {
+                    Log.e("debug", "exception $exc in refresh ")
+                } finally {
+                    refreshLock.set(false)
                 }
-                f.close()
             }
         }
+
     }
+
     private fun getLogObserver(): FileObserver? {
         val cache = logsDir
         if (cache != null) {
@@ -98,7 +118,8 @@ class LogObserver @Inject constructor() {
                         }
                     }
                 }
-            } } else {
+            }
+        } else {
             Log.e("debug", "observer null")
             return null
         }

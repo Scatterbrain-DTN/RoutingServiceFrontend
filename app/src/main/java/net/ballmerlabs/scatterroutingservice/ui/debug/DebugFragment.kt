@@ -24,23 +24,22 @@ import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 @Composable
 fun DebugView(padding: PaddingValues) {
     val model: RoutingServiceViewModel = hiltViewModel()
-    val scroll = rememberLazyListState()
-    val scope = rememberCoroutineScope()
     val livedata by model.logObserver.observeLogs().observeAsState(listOf())
-    LazyColumn(modifier = Modifier
-        .fillMaxSize()
-        .padding(padding), state = scroll) {
-        for (x in livedata) {
-            item {
-                Text(text = x)
+    if (livedata.isNotEmpty()) {
+        val scroll = rememberLazyListState(livedata.size-1)
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            state = scroll,
+            reverseLayout = false
+        ) {
+            for (x in livedata) {
+                item {
+                    Text(text = x)
+                }
             }
-        }
 
-    }
-
-    LaunchedEffect(livedata) {
-        scope.launch {
-            scroll.animateScrollToItem(livedata.size)
         }
     }
 
