@@ -91,9 +91,9 @@ class LogObserver @Inject constructor(
                                 logLiveData.postValue(buf.second!!)
                                 mappedLogs[path] = Pair(channel.position(), buf.second)
                             }
-                            reader.close()
-                            channel.close()
                         }
+                        reader.close()
+                        channel.close()
                     }
                 } catch (exc: Exception) {
                     logger.e("exception in file logger refresh $exc")
