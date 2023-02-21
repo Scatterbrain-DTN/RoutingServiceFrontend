@@ -41,10 +41,10 @@ fun getLogStruct(text: String): LogStruct {
 @Singleton
 class LogObserver @Inject constructor(
 ) {
-    val logScope = CoroutineScope(SupervisorJob())
+    private val logScope = CoroutineScope(SupervisorJob())
     val mappedLogs = ConcurrentHashMap<String, Pair<Long, SnapshotStateList<LogStruct>>>()
-    val logger by scatterLog()
-    val refreshLock = AtomicBoolean()
+    private val logger by scatterLog()
+    private val refreshLock = AtomicBoolean()
     private val observer by lazy {
         getLogObserver()!!
     }

@@ -8,7 +8,10 @@ import android.os.Bundle
 import android.os.RemoteException
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
@@ -28,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.net.toFile
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,9 +44,11 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
@@ -53,6 +59,13 @@ import net.ballmerlabs.uscatterbrain.RouterPreferences
 import net.ballmerlabs.uscatterbrain.isActive
 import net.ballmerlabs.uscatterbrain.isPassive
 import net.ballmerlabs.uscatterbrain.util.initDiskLogging
+import net.ballmerlabs.uscatterbrain.util.logsDir
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -270,18 +283,71 @@ class DrawerActivity : AppCompatActivity() {
         var hidefab by remember {
             mutableStateOf(false)
         }
+        var dest by remember {
+            mutableStateOf<String?>(null)
+        }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument(
+                "application/zip"
+            )
+        ) { uri ->
+            scope.launch(Dispatchers.IO) {
+                try {
+                    val dir = logsDir!!
+
+                    ZipOutputStream(BufferedOutputStream(context.contentResolver.openOutputStream(uri!!))).use { zip ->
+                        dir.walkTopDown().forEach { f ->
+                            val name = f.absolutePath.removePrefix(dir.absolutePath).removePrefix("/")
+                            val entry = ZipEntry("$name${( if(f.isDirectory) "/" else "" )}")
+                            zip.putNextEntry(entry)
+                            if(f.isFile) {
+                                f.inputStream().use { stream ->
+                                    stream.copyTo(zip)
+                                }
+                            }
+                        }
+                    }
+                } catch (exc: Exception) {
+                    exc.printStackTrace()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "failed to export logs: $exc", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                }
+            }
+        }
         navController.addOnDestinationChangedListener { controller, destination, args ->
             val s = when(destination.route) {
                 NAV_IDENTITY -> true
+                NAV_DEBUG -> true
                 else -> false
             }
+            dest = destination.route
             Log.v(TAG, "navigating to ${destination.route} $s")
             hidefab = s
         }
 
         AnimatedVisibility(visible = hidefab, enter = scaleIn(), exit = scaleOut()) {
-            FloatingActionButton(onClick = { navController.navigate(NAV_CREATE_IDENTITY) }) {
-                Icon(painter = painterResource(id = R.drawable.ic_baseline_identity_add_24), contentDescription = "Add identity")
+            FloatingActionButton(onClick = {
+                when(dest) {
+                    NAV_IDENTITY -> navController.navigate(NAV_CREATE_IDENTITY)
+                    NAV_DEBUG -> launcher.launch(
+                        "logs-${SimpleDateFormat("mm-dd-yyyy", Locale.ROOT).format(Date())}.zip"
+                    )
+                }
+            }) {
+                when(dest) {
+                    NAV_IDENTITY -> Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_identity_add_24),
+                        contentDescription = "Add identity"
+                    )
+                    NAV_DEBUG -> Icon(
+                        painter = painterResource(id = R.drawable.baseline_share_24),
+                        contentDescription = "Share logs"
+                    )
+                }
             }
         }
     }
