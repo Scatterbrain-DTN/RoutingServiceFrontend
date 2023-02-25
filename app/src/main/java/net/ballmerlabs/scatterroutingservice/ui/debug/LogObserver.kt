@@ -5,10 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.ballmerlabs.uscatterbrain.util.logsDir
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import java.io.File
@@ -85,9 +82,11 @@ class LogObserver @Inject constructor(
 
                             } else {
                                 reader.skip(buf.first)
+                                withContext(Dispatchers.Main) {
                                 for (x in buffered.lines()) {
                                     buf.second.add(getLogStruct(x))
                                 }
+                            }
                                 logLiveData.postValue(buf.second!!)
                                 mappedLogs[path] = Pair(channel.position(), buf.second)
                             }
