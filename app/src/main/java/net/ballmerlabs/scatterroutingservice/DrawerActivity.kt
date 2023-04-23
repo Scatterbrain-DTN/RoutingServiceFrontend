@@ -1,16 +1,19 @@
 package net.ballmerlabs.scatterroutingservice
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.os.RemoteException
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -31,9 +34,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.core.net.toFile
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -46,22 +46,18 @@ import com.google.accompanist.permissions.rememberPermissionState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
-import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.ui.debug.DebugView
 import net.ballmerlabs.scatterroutingservice.ui.power.PowerToggle
 import net.ballmerlabs.scatterroutingservice.ui.theme.ScatterbrainTheme
-import net.ballmerlabs.uscatterbrain.RouterPreferences
 import net.ballmerlabs.uscatterbrain.isActive
 import net.ballmerlabs.uscatterbrain.isPassive
 import net.ballmerlabs.uscatterbrain.util.initDiskLogging
 import net.ballmerlabs.uscatterbrain.util.logsDir
 import java.io.BufferedOutputStream
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.ZipEntry
@@ -93,6 +89,18 @@ class DrawerActivity : AppCompatActivity() {
             } else {
                 //TODO: chastise user
             }
+        }
+    }
+
+    @SuppressLint("BatteryLife")
+    private fun ignoreBatteryOptimizations() {
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        if(!pm.isIgnoringBatteryOptimizations(packageName)) {
+            val intent = Intent().apply {
+                action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
         }
     }
 
@@ -382,6 +390,7 @@ class DrawerActivity : AppCompatActivity() {
                 )
             }
         }
+        ignoreBatteryOptimizations()
     }
 
     override fun onPause() {
