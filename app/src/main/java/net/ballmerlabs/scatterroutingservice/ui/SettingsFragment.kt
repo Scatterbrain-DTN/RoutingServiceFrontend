@@ -36,9 +36,10 @@ class SettingsFragment @Inject constructor() : PreferenceFragmentCompat(), Share
         PreferenceManager.getDefaultSharedPreferences(requireContext()).unregisterOnSharedPreferenceChangeListener(this)
     }
 
-    override fun onSharedPreferenceChanged(pref: SharedPreferences, key: String) {
+
+    override fun onSharedPreferenceChanged(pref: SharedPreferences?, key: String?) {
         if (key == getString(R.string.pref_optout_crashlytics)) {
-            val b = pref.getBoolean(key, false)
+            val b = pref?.getBoolean(key, false)?:false
             FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!b)
         }
     }

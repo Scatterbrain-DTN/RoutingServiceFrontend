@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.startup.Initializer
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import net.ballmerlabs.scatterroutingservice.R
 
 class FirebaseInitializer : Initializer<FirebaseCrashlytics> {
     override fun create(context: Context): FirebaseCrashlytics {

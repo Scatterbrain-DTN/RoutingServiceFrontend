@@ -1,9 +1,11 @@
 package net.ballmerlabs.scatterroutingservice
 
 import android.Manifest
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -50,6 +52,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
+import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.ui.debug.DebugView
 import net.ballmerlabs.scatterroutingservice.ui.power.PowerToggle
 import net.ballmerlabs.scatterroutingservice.ui.theme.ScatterbrainTheme
@@ -115,6 +118,8 @@ class DrawerActivity : AppCompatActivity() {
             rememberPermissionState(permission = Manifest.permission.ACCESS_COARSE_LOCATION)
         )
 
+        val scope = rememberCoroutineScope()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             for (x in listOf(
                 Manifest.permission.BLUETOOTH_SCAN,
@@ -141,7 +146,11 @@ class DrawerActivity : AppCompatActivity() {
         val granted = permissions.all { s ->
             s.status == com.google.accompanist.permissions.PermissionStatus.Granted
         }
+        LaunchedEffect(granted) {
+            scope.launch { tryStart() }
+        }
         if (granted) {
+
             Box(modifier = modifier) {
                 content()
             }
@@ -211,19 +220,21 @@ class DrawerActivity : AppCompatActivity() {
 
     private suspend fun tryStart() {
         try {
-            Log.v(TAG, "tryStart")
-            model.repository.startService()
-            model.repository.bindService(timeout = 6000L)
-            Log.v(TAG, "bound service")
-            if (isActive(applicationContext)) {
-                if(!model.repository.isDiscovering()) model.repository.startDiscover()
-            } else if (isPassive(applicationContext)) {
-                model.repository.stopDiscover()
-                model.repository.startPassive()
-            } else {
-                model.repository.stopDiscover()
+            if(checkSelfPermission(ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
+                Log.v(TAG, "tryStart")
+                model.repository.startService()
+                model.repository.bindService(timeout = 6000L)
+                Log.v(TAG, "bound service")
+                if (isActive(applicationContext)) {
+                    model.repository.startDiscover()
+                } else if (isPassive(applicationContext)) {
+                    model.repository.stopDiscover()
+                    model.repository.startPassive()
+                } else {
+                    model.repository.stopDiscover()
+                }
+                Log.v(TAG, "discovery ui")
             }
-            Log.v(TAG, "discovery ui")
         } catch (exc: RemoteException) {
             Log.e(TAG, "failed to start/bind $exc")
             Toast.makeText(this, "Failed to start background service: $exc", Toast.LENGTH_LONG)
@@ -404,6 +415,7 @@ class DrawerActivity : AppCompatActivity() {
         super.onResume()
         broadcastReceiver.register()
         uiBroadcastReceiver.register()
+
         lifecycleScope.launch { tryStart() }
     }
 

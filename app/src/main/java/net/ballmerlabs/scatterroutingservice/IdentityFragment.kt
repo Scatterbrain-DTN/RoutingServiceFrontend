@@ -21,6 +21,7 @@ import com.lelloman.identicon.drawable.GithubIdenticonDrawable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.Identity
+import net.ballmerlabs.scatterroutingservice.R
 
 @Composable
 fun IdentityView(identity: Identity) {
