@@ -24,6 +24,7 @@ class BootBroadcastReceiver @Inject constructor() : BroadcastReceiver() {
     private suspend fun startService(context: Context) {
         binderWrapper.register()
         binderWrapper.startService()
+        binderWrapper.bindService()
         val active = isActive(context)
         log.v("starting service at boot, active: $active")
         if (active) {
