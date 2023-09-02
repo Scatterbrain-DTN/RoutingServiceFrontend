@@ -52,7 +52,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
-import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.ui.debug.DebugView
 import net.ballmerlabs.scatterroutingservice.ui.power.PowerToggle
 import net.ballmerlabs.scatterroutingservice.ui.theme.ScatterbrainTheme
@@ -190,7 +189,7 @@ class DrawerActivity : AppCompatActivity() {
             Pair(NAV_DEBUG, R.drawable.baseline_settings_applications_24)
         )
         val active = remember {
-            mutableStateOf(0)
+            mutableIntStateOf(0)
         }
         TabRow(
             selectedTabIndex = active.value,

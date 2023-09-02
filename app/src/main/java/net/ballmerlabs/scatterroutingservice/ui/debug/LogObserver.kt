@@ -1,11 +1,14 @@
 package net.ballmerlabs.scatterroutingservice.ui.debug
 
 import android.os.FileObserver
-import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ballmerlabs.uscatterbrain.util.logsDir
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import java.io.File
