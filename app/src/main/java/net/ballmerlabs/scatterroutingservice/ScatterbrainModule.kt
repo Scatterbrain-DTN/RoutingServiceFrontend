@@ -45,12 +45,6 @@ object ScatterbrainModule {
 
     @Provides
     @Singleton
-    fun providesBluetoothAdapter(manager: BluetoothManager): BluetoothAdapter {
-        return manager.adapter
-    }
-
-    @Provides
-    @Singleton
     fun providesWifiManager(@ApplicationContext context: Context): WifiManager {
         return context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
     }

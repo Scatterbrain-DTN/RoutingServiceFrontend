@@ -1,6 +1,7 @@
 package net.ballmerlabs.scatterroutingservice
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -26,13 +27,13 @@ enum class BluetoothState {
 @Singleton
 class UiBroadcastReceiver @Inject constructor(
         @ApplicationContext val context: Context,
-        private val adapter: BluetoothAdapter
+        private val manager: BluetoothManager
 ) : BroadcastReceiver() {
 
-    val liveData = MutableLiveData(convertState(adapter.state))
+    val liveData = MutableLiveData(convertState(manager?.adapter?.state))
 
     val state: BluetoothState
-        get() = convertState(adapter.state)
+        get() = convertState(manager?.adapter?.state)
 
     private val intentFilter = IntentFilter()
             .apply {
@@ -40,7 +41,7 @@ class UiBroadcastReceiver @Inject constructor(
             }
 
 
-    private fun convertState(state: Int): BluetoothState {
+    private fun convertState(state: Int?): BluetoothState {
         return when (state) {
             BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.STATE_TURNING_OFF
             BluetoothAdapter.STATE_ON -> BluetoothState.STATE_ON

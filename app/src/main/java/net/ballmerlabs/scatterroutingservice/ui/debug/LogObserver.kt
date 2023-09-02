@@ -107,7 +107,7 @@ class LogObserver @Inject constructor(
     private fun getLogObserver(): FileObserver? {
         val cache = logsDir
         if (cache != null) {
-            return object : FileObserver(cache) {
+            return object : FileObserver(cache.absolutePath) {
                 override fun onEvent(event: Int, path: String?) {
                     when (event) {
                         CLOSE_WRITE -> {
