@@ -114,7 +114,7 @@ class DrawerActivity : AppCompatActivity() {
     ) {
         val permissions = mutableListOf(
             rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION),
-            rememberPermissionState(permission = Manifest.permission.ACCESS_COARSE_LOCATION)
+            rememberPermissionState(permission = Manifest.permission.ACCESS_COARSE_LOCATION),
         )
 
         val scope = rememberCoroutineScope()

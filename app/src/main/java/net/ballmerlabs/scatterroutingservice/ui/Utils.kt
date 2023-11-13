@@ -29,6 +29,8 @@ class Utils {
             var res: Optional<String> = Optional.empty()
             if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, context)) {
                 res = Optional.of(Manifest.permission.ACCESS_FINE_LOCATION)
+            } else if(!checkPermission(Manifest.permission.FOREGROUND_SERVICE_LOCATION, context) && Build.VERSION.SDK_INT >= 34) {
+                res = Optional.of(Manifest.permission.FOREGROUND_SERVICE_LOCATION)
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     for (perm in arrayOf(
