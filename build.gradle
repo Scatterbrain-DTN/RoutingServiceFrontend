@@ -34,27 +34,8 @@ plugins {
 
 apply plugin: 'io.github.gradle-nexus.publish-plugin'
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
-}
-
-subprojects { project ->
-
-    apply plugin: 'checkstyle'
-
-    checkstyle {
-        toolVersion = '8.20'
-    }
-
-    task checkstyle(type: Checkstyle) {
-        configFile rootProject.file('ScatterRoutingService/RxAndroidBle/checkstyle.xml')
-        source 'src/main/java'
-        ignoreFailures false
-        showViolations true
-        include '**/*.java'
-
-        classpath = files()
-    }
 }
 
 repositories {
