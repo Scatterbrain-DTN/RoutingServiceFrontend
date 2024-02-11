@@ -22,6 +22,7 @@ buildscript {
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
         classpath 'io.github.gradle-nexus:publish-plugin:2.0.0-rc-1'
+        classpath "org.jacoco:org.jacoco.core:0.8.8"
         classpath 'com.google.gms:google-services:4.4.0'  // Google Services plugin
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -30,6 +31,10 @@ buildscript {
 
 plugins {
     id 'com.google.devtools.ksp' version '1.9.22-1.0.17' apply false
+}
+
+allprojects {
+    apply plugin: 'jacoco'
 }
 
 apply plugin: 'io.github.gradle-nexus.publish-plugin'
