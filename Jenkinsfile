@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'droid' }
+    agent { label 'build' }
 
     options {
         skipStagesAfterUnstable()
