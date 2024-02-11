@@ -1,7 +1,9 @@
 pipeline {
     agent { label 'build' }
+     tools {
+        gradle "8.2"
+     }
     environment {
-      GRADLE_USER_HOME = '/build'
       ANDROID_HOME = '/opt/android-sdk-linux'
       ANDROID_SDK_ROOT = "$ANDROID_HOME"
       TARGET_VERSION = 34
