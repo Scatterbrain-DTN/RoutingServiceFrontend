@@ -26,7 +26,6 @@ class IdentityImportActivity : AppCompatActivity() {
 
     private suspend fun getIdentities() = withContext(Dispatchers.IO) {
         val identities: List<Identity> = repository.getIdentities().filter { i -> i.isOwned }
-        Log.v("debug", "got identities ${identities.size}")
     }
 
     private suspend fun authorizeIdentities(): Int = withContext(Dispatchers.Default) {

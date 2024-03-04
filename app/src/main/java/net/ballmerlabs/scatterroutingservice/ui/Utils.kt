@@ -7,43 +7,164 @@ import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import java.util.*
+
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun ScopeScatterbrainPermissions(
+    modifier: Modifier = Modifier,
+    onGrant: () -> Unit = {},
+    content: @Composable () -> Unit
+) {
+    val permissions = mutableListOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+    )
+
+    val model: RoutingServiceViewModel = hiltViewModel()
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        for (x in listOf(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.BLUETOOTH_ADVERTISE)) {
+            permissions.add(x)
+        }
+    } else {
+        for (x in listOf(
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.BLUETOOTH,
+        )) {
+            val p = rememberPermissionState(permission = x)
+            permissions.add(x)
+        }
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        permissions.add(Manifest.permission.NEARBY_WIFI_DEVICES)
+    }
+    val p = rememberMultiplePermissionsState(permissions = permissions.toList())
+    ScopePermissions(
+        p,
+        modifier = modifier,
+        func = {
+           onGrant()
+        },
+        title = {
+            Text(
+                text =
+                "The following permissions need to be granted for Scatterbrain to operate. " +
+                        "push the below button to grant the permission:",
+                style = MaterialTheme.typography.labelLarge
+            )
+        },
+        text = { p->
+            when(p) {
+                Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION -> "The $p permission is required in order to " +
+                        "enable background bluetooth connections while the app is closed. This collects location data for the sole purpose " +
+                        "of bluetooth network. This data is not shared and does not leave your device. " +
+                        "Android requires this permission to access wifi and bluetooth. This is a requirement set " +
+                        "by google to preserve privacy when collecting location data from external device IDs "
+                Manifest.permission.BLUETOOTH_SCAN -> "The BLUETOOTH_SCAN permission is required on newer devices to discover" +
+                        " Scatterbrain peers in the background via bluetooth"
+                Manifest.permission.NEARBY_WIFI_DEVICES -> "The NEARBY_WIFI_DEVICES permission is required to perform" +
+                        " wifi direct operations in the background on newer devices"
+                Manifest.permission.BLUETOOTH_CONNECT -> "The BLUETOOTH_CONNECT permission is used to connect to Scatterbrain peers in the background using BLE"
+                Manifest.permission.BLUETOOTH_ADVERTISE -> "The BLUETOOTH_ADVERTISE permission is used to broadcast an anonymous id that nearby devices can connect to"
+                else -> p
+            }
+        },
+        failText = { p -> "Permission $p not granted, Scatterbrain cannot start. Push this button to try again." }
+    ) {
+        SideEffect {
+            model.onPermissionsGranted()
+        }
+        content()
+    }
+}
+
+@Composable
+@OptIn(ExperimentalPermissionsApi::class)
+fun PermissionSingleDialog(
+ permission: PermissionState,
+ text: String,
+ dialog: MutableState<Boolean>
+) {
+
+    var openMainDialog by dialog
+
+    if (openMainDialog && permission.status != PermissionStatus.Granted) {
+        AlertDialog(
+            title = { Text(text = "Permission required") },
+            text = { Text(text = text) },
+            onDismissRequest = { openMainDialog = false },
+            confirmButton = {
+                Button(onClick = { permission.launchPermissionRequest() }) {
+                    Text("Grant")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { openMainDialog = false }) {
+                    Text("Dismiss")
+                }
+            }
+        )
+    }
+}
 
 @Composable
 @ExperimentalPermissionsApi
 fun ScopePermissions(
-    permissions: List<PermissionState>,
+    permissions: MultiplePermissionsState,
     modifier: Modifier = Modifier,
     func: CoroutineScope.() -> Unit = {},
     text: (String) -> String = { v -> "Permission $v not granted" },
+    failText: (String) -> String = { v -> text(v) },
     title: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    val granted = permissions.all { s ->
-        s.status == PermissionStatus.Granted
+    val granted = permissions.allPermissionsGranted
+    val openMainDialog = remember {
+        mutableStateOf(true)
     }
     LaunchedEffect(granted, func)
     if (granted) {
-        Box {
+        Box(modifier = modifier) {
             content()
         }
     } else {
@@ -55,19 +176,22 @@ fun ScopePermissions(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
                     verticalArrangement = Arrangement.Top
                 ) {
                     title()
-                    val p =
-                        permissions.first { p -> p.status != PermissionStatus.Granted }
                     Button(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { p.launchPermissionRequest() },
+                        onClick = { openMainDialog.value = true },
                     ) {
+                        val p =
+                            permissions.permissions.first { v -> v.status != PermissionStatus.Granted }
+                        PermissionSingleDialog(permission = p, text = text(p.permission), dialog = openMainDialog)
                         Text(
                             modifier = Modifier.padding(16.dp),
-                            text = text(p.permission)
+                            text = failText(p.permission)
                         )
                     }
                 }

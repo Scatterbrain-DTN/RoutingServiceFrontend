@@ -35,13 +35,6 @@ class IdentityHomeFragment : Fragment() {
         }
     }
 
-    fun removeIdentity(identity: Identity) {
-        lifecycleScope.softCancelLaunch {
-            if (repository.removeIdentity(identity)) {
-                model.refreshIdentities()
-            }
-        }
-    }
     companion object {
         /**
          * Use this factory method to create a new instance of
