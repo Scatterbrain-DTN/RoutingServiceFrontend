@@ -3,7 +3,7 @@ buildscript {
     ext.kotlin_version = '1.9.22'
     ext.compose_version = '1.2.1'
     ext.kotlinVersion = kotlin_version
-    ext.hilt_version = '2.47'
+    ext.hilt_version = '2.51'
     rootProject.ext.set("publishable", true)
     repositories {
         google()
@@ -15,15 +15,15 @@ buildscript {
     }
     dependencies {
         def nav_version = '2.5.0'
-        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath 'com.android.tools.build:gradle:8.3.0'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
         classpath 'io.github.gradle-nexus:publish-plugin:2.0.0-rc-1'
-        classpath "org.jacoco:org.jacoco.core:0.8.8"
-        classpath 'com.google.gms:google-services:4.4.0'  // Google Services plugin
+        classpath "org.jacoco:org.jacoco.core:0.8.9"
+        classpath 'com.google.gms:google-services:4.4.1'  // Google Services plugin
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }

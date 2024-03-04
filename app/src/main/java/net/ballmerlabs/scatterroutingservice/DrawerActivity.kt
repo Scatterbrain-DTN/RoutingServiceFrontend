@@ -2,6 +2,9 @@ package net.ballmerlabs.scatterroutingservice
 
 import android.Manifest
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest.permission.BLUETOOTH_SCAN
+import android.Manifest.permission.NEARBY_WIFI_DEVICES
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -44,6 +47,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +56,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
+import net.ballmerlabs.scatterroutingservice.ui.ScopePermissions
 import net.ballmerlabs.scatterroutingservice.ui.debug.DebugView
 import net.ballmerlabs.scatterroutingservice.ui.power.PowerToggle
 import net.ballmerlabs.scatterroutingservice.ui.theme.ScatterbrainTheme
@@ -106,68 +111,7 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
-    @Composable
-    @ExperimentalPermissionsApi
-    fun ScopePermissions(
-        modifier: Modifier = Modifier,
-        content: @Composable () -> Unit
-    ) {
-        val permissions = mutableListOf(
-            rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION),
-            rememberPermissionState(permission = Manifest.permission.ACCESS_COARSE_LOCATION),
-        )
 
-        val scope = rememberCoroutineScope()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            for (x in listOf(
-                Manifest.permission.BLUETOOTH_SCAN,
-                Manifest.permission.BLUETOOTH_CONNECT,
-                Manifest.permission.BLUETOOTH_ADVERTISE)) {
-                val p = rememberPermissionState(permission = x)
-                permissions.add(p)
-            }
-        } else {
-            for (x in listOf(
-                Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.BLUETOOTH,
-            )) {
-                val p = rememberPermissionState(permission = x)
-                permissions.add(p)
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val p = rememberPermissionState(permission = Manifest.permission.NEARBY_WIFI_DEVICES)
-            permissions.add(p)
-        }
-
-        val granted = permissions.all { s ->
-            s.status == com.google.accompanist.permissions.PermissionStatus.Granted
-        }
-        LaunchedEffect(granted) {
-            scope.launch { tryStart() }
-        }
-        if (granted) {
-
-            Box(modifier = modifier) {
-                content()
-            }
-        } else {
-            Box(
-                modifier = modifier,
-                contentAlignment = Alignment.Center
-            ) {
-                val p =
-                    permissions.first { p -> p.status != com.google.accompanist.permissions.PermissionStatus.Granted }
-                Button(
-                    onClick = { p.launchPermissionRequest() }
-                ) {
-                    Text(text = "Permission ${p.permission} not granted")
-                }
-            }
-        }
-    }
 
     @Composable
     fun TopBar(navController: NavController) {
@@ -294,8 +238,7 @@ class DrawerActivity : AppCompatActivity() {
 
         }
     }
-    
-    @OptIn(ExperimentalAnimationApi::class)
+
     @Composable
     fun Fab(navController: NavController) {
         var hidefab by remember {
@@ -379,12 +322,71 @@ class DrawerActivity : AppCompatActivity() {
         setContent {
             val controller = rememberNavController()
 
+            val permissions = mutableListOf(
+                rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION),
+                rememberPermissionState(permission = Manifest.permission.ACCESS_COARSE_LOCATION),
+            )
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                for (x in listOf(
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_ADVERTISE)) {
+                    val p = rememberPermissionState(permission = x)
+                    permissions.add(p)
+                }
+            } else {
+                for (x in listOf(
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    Manifest.permission.BLUETOOTH,
+                )) {
+                    val p = rememberPermissionState(permission = x)
+                    permissions.add(p)
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val p = rememberPermissionState(permission = Manifest.permission.NEARBY_WIFI_DEVICES)
+                //  val b = rememberPermissionState(permission = Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                permissions.add(p)
+                // permissions.add(b)
+            }
+            val scope = rememberCoroutineScope()
             ScatterbrainTheme {
                 Scaffold(
                     content = { pad ->
                         NavHost(navController = controller, startDestination = NAV_POWER) {
                             composable(NAV_POWER) {
-                                ScopePermissions(modifier = Modifier.fillMaxSize()) {
+                                ScopePermissions(
+                                    permissions,
+                                    modifier = Modifier.padding(pad).fillMaxWidth(),
+                                    func = {
+                                        scope.launch { tryStart() }
+                                    },
+                                    title = {
+                                        Text(
+                                            text =
+                                                "The following permissions need to be granted for Scatterbrain to operate. " +
+                                                "push the below button to grant the permission:",
+                                            style = MaterialTheme.typography.labelLarge
+                                        )
+                                    },
+                                    text = { p->
+                                        when(p) {
+                                            ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION -> "The $p permission is required in order to" +
+                                                    " access wifi and bluetooth in the background. This is a requirement set" +
+                                                    " by google to preserve privacy when collecting location data from external device IDs" +
+                                                    " Scatterbrain does not use device ids for location, none of the collected data leaves your" +
+                                                    " device"
+                                            BLUETOOTH_SCAN -> "The BLUETOOTH_SCAN permission is required on newer devices to discover" +
+                                                    " Scatterbrain peers in the background via bluetooth"
+                                            NEARBY_WIFI_DEVICES -> "The NEARBY_WIFI_DEVICES permission is required to perform" +
+                                                    " wifi direct operations in the background on newer devices"
+                                            else -> p
+                                        }
+                                    }
+                                ) {
                                     PowerToggle(pad)
                                 }
                             }

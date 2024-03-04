@@ -50,17 +50,16 @@ class LogObserver @Inject constructor(
     }
 
     fun enableObserver() {
+        val path = logger.getCurrentLog()
+        logger.w("enableObserver $path")
+        if (path != null) {
+            postValue(path.name)
+        }
         observer.startWatching()
     }
 
     fun observeLogs(): LiveData<SnapshotStateList<LogStruct>> {
-        val path = logger.getCurrentLog()
-        return if (path != null) {
-            postValue(path.name)
-            logLiveData
-        } else {
-            logLiveData
-        }
+        return logLiveData
     }
 
     private fun postValue(path: String?) {
@@ -68,7 +67,7 @@ class LogObserver @Inject constructor(
             val lock = refreshLock.getAndSet(true)
             if (!lock) {
                 try {
-                    if (path != null && path.isNotEmpty() && logLiveData.hasObservers()) {
+                    if (!path.isNullOrEmpty()) {
                         val buf = mappedLogs.putIfAbsent(path, Pair(0, SnapshotStateList()))
                         val file = File(logsDir, path)
                         val reader = file.inputStream()
@@ -90,7 +89,7 @@ class LogObserver @Inject constructor(
                                     buf.second.add(getLogStruct(x))
                                 }
                             }
-                                logLiveData.postValue(buf.second!!)
+                                logLiveData.postValue(buf.second)
                                 mappedLogs[path] = Pair(channel.position(), buf.second)
                             }
                         }
