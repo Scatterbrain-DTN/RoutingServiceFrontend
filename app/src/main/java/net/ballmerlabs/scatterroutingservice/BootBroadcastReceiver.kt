@@ -6,22 +6,16 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
-import net.ballmerlabs.scatterbrainsdk.internal.SCOPE_DEFAULT
 import net.ballmerlabs.uscatterbrain.isActive
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 
 @AndroidEntryPoint

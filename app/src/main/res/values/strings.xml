@@ -88,5 +88,6 @@
     </string>
 
     <string name="title_activity_identity_import">IdentityImportActivity</string>
+    <string name="import_identities">Import Identities</string>
 
 </resources>

@@ -1,20 +1,21 @@
 package net.ballmerlabs.scatterroutingservice
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
 import net.ballmerlabs.scatterroutingservice.ui.debug.LogObserver
 import net.ballmerlabs.uscatterbrain.util.scatterLog
-import java.util.jar.Attributes.Name
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
