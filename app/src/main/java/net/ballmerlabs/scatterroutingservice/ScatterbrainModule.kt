@@ -3,6 +3,7 @@ package net.ballmerlabs.scatterroutingservice
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.net.wifi.WifiManager
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,6 +12,7 @@ import dagger.hilt.components.SingletonComponent
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
+import net.ballmerlabs.scatterroutingservice.db.UiDatastore
 import javax.inject.Singleton
 
 @Module
@@ -27,6 +29,14 @@ object ScatterbrainModule {
     @Singleton
     fun provideSdk(component: ScatterbrainApi): BinderWrapper {
         return component.binderWrapper
+    }
+
+    @Provides
+    @Singleton
+    fun providesDb(@ApplicationContext context: Context): UiDatastore {
+        return Room.databaseBuilder(context, UiDatastore::class.java, "uidatastore")
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides

@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
+import net.ballmerlabs.scatterroutingservice.db.UiDatastore
 import net.ballmerlabs.scatterroutingservice.ui.debug.LogObserver
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import javax.inject.Inject
@@ -24,7 +25,8 @@ class RoutingServiceViewModel @Inject constructor(
     application: ScatterbrainApp,
     val logObserver: LogObserver,
     val repository: BinderWrapper,
-    val uiBroadcastReceiver: UiBroadcastReceiver
+    val uiBroadcastReceiver: UiBroadcastReceiver,
+    val datastore: UiDatastore
 ) : AndroidViewModel(application) {
 
     val log by scatterLog()
@@ -50,7 +52,7 @@ class RoutingServiceViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun onPermissionsGranted() {
-        repository.coroutineScope.launch(Dispatchers.Main) {
+        repository.coroutineScope.launch(Dispatchers.IO) {
             try {
                 val ids = repository.getIdentities()
                 identities.postValue(ids)

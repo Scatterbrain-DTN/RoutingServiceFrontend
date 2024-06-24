@@ -8,9 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 
 @Composable
-fun About(paddingValues: PaddingValues) {
+fun About() {
     Text(
-        modifier = Modifier.padding(paddingValues),
         text = stringResource(R.string.privacy_link)
     )
 }

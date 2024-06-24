@@ -48,12 +48,11 @@ fun DatastoreBackup() {
 
 
 @Composable
-fun DebugView(padding: PaddingValues) {
+fun DebugView() {
     val model: RoutingServiceViewModel = hiltViewModel()
     val livedata by model.logObserver.observeLogs().observeAsState(listOf())
     Column(
         Modifier
-            .padding(padding)
             .fillMaxSize()
     ) {
         DatastoreBackup()

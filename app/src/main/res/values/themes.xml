@@ -16,7 +16,7 @@
     </style>
 
     <style name="AppBottomSheetDialogTheme" parent="Theme.MaterialComponents.BottomSheetDialog">
-        <item name="android:windowSoftInputMode">adjustResize</item>
+
     </style>
 
     <style name="Theme.RoutingServiceFrontend.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

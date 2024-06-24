@@ -22,22 +22,24 @@ data class LogStruct(
     val text: String
 ) {
     fun shortScope(): String {
-        return SHORT_HEAD_REGEX.find(scope)?.value?:"invalid"
+        return SHORT_HEAD_REGEX.find(scope)?.value ?: "invalid"
     }
 }
+
 const val HEAD_PATTERN = "^\\[.*\\]:"
 val SHORT_HEAD_REGEX = "\\w+$".toRegex()
 val HEAD_REGEX = HEAD_PATTERN.toRegex()
 val TAIL_REGEX = "]:.*".toRegex()
 
 fun getLogStruct(text: String): LogStruct {
-    val scope = HEAD_REGEX.find(text)?.value?:"invalid"
-    val tail = TAIL_REGEX.find(text)?.value?:"invalid"
+    val scope = HEAD_REGEX.find(text)?.value ?: "invalid"
+    val tail = TAIL_REGEX.find(text)?.value ?: "invalid"
     return LogStruct(
-        scope = scope.slice(1..scope.length-3),
+        scope = scope.slice(1..scope.length - 3),
         text = tail.slice(2 until tail.length)
     )
 }
+
 @Singleton
 class LogObserver @Inject constructor(
 ) {
@@ -84,11 +86,12 @@ class LogObserver @Inject constructor(
 
                             } else {
                                 reader.skip(buf.first)
-                                withContext(Dispatchers.Main) {
                                 for (x in buffered.lines()) {
-                                    buf.second.add(getLogStruct(x))
+                                    val s = getLogStruct(x)
+                                    withContext(Dispatchers.Main) {
+                                        buf.second.add(s)
+                                    }
                                 }
-                            }
                                 logLiveData.postValue(buf.second)
                                 mappedLogs[path] = Pair(channel.position(), buf.second)
                             }
@@ -115,9 +118,11 @@ class LogObserver @Inject constructor(
                         CLOSE_WRITE -> {
                             postValue(path)
                         }
+
                         OPEN -> {
                             postValue(path)
                         }
+
                         DELETE -> {
                             mappedLogs.remove(path)
                         }

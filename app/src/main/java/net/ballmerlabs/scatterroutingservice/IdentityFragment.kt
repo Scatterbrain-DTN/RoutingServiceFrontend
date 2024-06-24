@@ -85,33 +85,37 @@ fun IdentityView(identity: Identity) {
             ) {
                 if (identity.isOwned) {
                     Badge { Text(text = "Owned!") }
-                }
-                Box {
-                    Image(
-                        modifier = Modifier.clickable { menuState = true },
-                        painter = painterResource(id = R.drawable.ic_baseline_menu_24),
-                        contentDescription = "Menu",
-                    )
-                    DropdownMenu(expanded = menuState, onDismissRequest = { menuState = false }) {
-                        DropdownMenuItem(text = { Text(text = "Delete") }, onClick = {
-                            scope.launch {
-                                try {
-                                    model.repository.removeIdentity(identity)
-                                } catch (exc: RemoteException) {
-                                    Toast.makeText(
-                                        ctx,
-                                        "Failed to delete identity $exc",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
-                        })
-                        DropdownMenuItem(text = { Text(text = "Permissions") }, onClick = {
-                            showBottomSheet = true
-                            menuState = false
-                        })
-                    }
 
+                    Box {
+                        Image(
+                            modifier = Modifier.clickable { menuState = true },
+                            painter = painterResource(id = R.drawable.ic_baseline_menu_24),
+                            contentDescription = "Menu",
+                        )
+
+                        DropdownMenu(
+                            expanded = menuState,
+                            onDismissRequest = { menuState = false }) {
+                            DropdownMenuItem(text = { Text(text = "Delete") }, onClick = {
+                                scope.launch {
+                                    try {
+                                        model.repository.removeIdentity(identity)
+                                    } catch (exc: RemoteException) {
+                                        Toast.makeText(
+                                            ctx,
+                                            "Failed to delete identity $exc",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }
+                            })
+                            DropdownMenuItem(text = { Text(text = "Permissions") }, onClick = {
+                                showBottomSheet = true
+                                menuState = false
+                            })
+                        }
+
+                    }
                 }
             }
 
@@ -225,8 +229,8 @@ fun IdentityList(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun IdentityManagement(paddingValues: PaddingValues) {
-    ScopeScatterbrainPermissions(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+fun IdentityManagement() {
+    ScopeScatterbrainPermissions(modifier = Modifier.fillMaxSize()) {
         IdentityList()
     }
 }

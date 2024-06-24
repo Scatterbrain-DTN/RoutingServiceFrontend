@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -60,16 +61,19 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.ui.ScopeScatterbrainPermissions
+import net.ballmerlabs.scatterroutingservice.ui.chat.ChatView
 import net.ballmerlabs.scatterroutingservice.ui.debug.DebugView
 import net.ballmerlabs.scatterroutingservice.ui.power.PowerToggle
 import net.ballmerlabs.scatterroutingservice.ui.theme.ScatterbrainTheme
@@ -129,9 +133,10 @@ class DrawerActivity : AppCompatActivity() {
 
     @Composable
     fun TopBar(navController: NavController) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
         Column {
             TopAppBar(
-                title = { Text(text = getString(R.string.app_name)) },
+                title = { Text(text = navBackStackEntry?.destination?.route?:getString(R.string.app_name)) },
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
             TabSwitcher(navController)
@@ -141,10 +146,12 @@ class DrawerActivity : AppCompatActivity() {
     @Composable
     fun TabSwitcher(navController: NavController) {
         val indices = arrayOf(
+            Pair(NAV_CHAT, R.drawable.baseline_chat_24),
             Pair(NAV_POWER, R.drawable.ic_baseline_power_settings_new_24),
             Pair(NAV_IDENTITY, R.drawable.ic_baseline_perm_identity_24),
-            Pair(NAV_ABOUT, R.drawable.ic_baseline_info_24),
-            Pair(NAV_DEBUG, R.drawable.baseline_settings_applications_24)
+            Pair(NAV_DEBUG, R.drawable.baseline_settings_applications_24),
+            Pair(NAV_ABOUT, R.drawable.ic_baseline_info_24)
+
         )
         val active = remember {
             mutableIntStateOf(0)
@@ -253,8 +260,6 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
-
-
     @Composable
     fun Fab(navController: NavController) {
         var hidefab by remember {
@@ -329,6 +334,7 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         applicationContext.initDiskLogging()
@@ -342,10 +348,26 @@ class DrawerActivity : AppCompatActivity() {
             ScatterbrainTheme {
                 Scaffold(
                     content = { pad ->
-                        NavHost(navController = controller, startDestination = NAV_POWER) {
+                        NavHost(
+                            modifier = Modifier
+                                .padding(pad)
+                                .fillMaxSize(),
+                            navController = controller,
+                            startDestination = NAV_CHAT
+                        ) {
+                            composable(NAV_CHAT) {
+                                ScopeScatterbrainPermissions(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    onGrant = { scope.launch { tryStart() } },
+                                ) {
+                                    ChatView(modifier = Modifier.fillMaxSize())
+                                }
+                            }
                             composable(NAV_POWER) {
                                ScopeScatterbrainPermissions(
-                                   modifier = Modifier.padding(pad).fillMaxSize(),
+                                   modifier = Modifier
+                                       .fillMaxSize(),
                                    onGrant = { scope.launch { tryStart() } },
                                ) {
                                     SideEffect {
@@ -354,9 +376,9 @@ class DrawerActivity : AppCompatActivity() {
                                     PowerToggle()
                                 }
                             }
-                            composable(NAV_IDENTITY) { IdentityManagement(pad) }
-                            composable(NAV_ABOUT) { About(pad) }
-                            composable(NAV_DEBUG) { DebugView(pad) }
+                            composable(NAV_IDENTITY) { IdentityManagement() }
+                            composable(NAV_DEBUG) { DebugView() }
+                            composable(NAV_ABOUT) { About() }
                             dialog(NAV_CREATE_IDENTITY) { CreateIdentityDialog(controller) }
                         }
                     },
@@ -386,10 +408,11 @@ class DrawerActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "DrawerActivity"
-        const val NAV_IDENTITY = "identity"
+        const val NAV_IDENTITY = "Identities"
         const val NAV_CREATE_IDENTITY = "create_identity"
-        const val NAV_POWER = "power"
-        const val NAV_ABOUT = "about"
-        const val NAV_DEBUG = "debug"
+        const val NAV_POWER = "Control Panel"
+        const val NAV_ABOUT = "Legal Info"
+        const val NAV_DEBUG = "Debugging Information"
+        const val NAV_CHAT = "Public Chat"
     }
 }

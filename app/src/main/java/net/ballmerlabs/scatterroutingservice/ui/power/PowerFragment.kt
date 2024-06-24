@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -55,16 +57,16 @@ fun ToggleBox(modifier: Modifier = Modifier) {
     val state by model.repository.observeRouterState().observeAsState()
     val bleState by model.observeAdapterState().observeAsState()
     Column(
-        modifier
-            .fillMaxWidth(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Top) {
+        modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Top
+    ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Switch(
-                checked = state == RouterState.DISCOVERING,
+            Switch(checked = state == RouterState.DISCOVERING,
                 enabled = bleState == BluetoothState.STATE_ON,
                 onCheckedChange = { s ->
                     scope.launch {
@@ -78,11 +80,8 @@ fun ToggleBox(modifier: Modifier = Modifier) {
                             }
                         } catch (exc: RemoteException) {
                             Toast.makeText(
-                                context,
-                                "Failed to start discovery $exc",
-                                Toast.LENGTH_LONG
-                            )
-                                .show()
+                                context, "Failed to start discovery $exc", Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
                 })
@@ -90,8 +89,7 @@ fun ToggleBox(modifier: Modifier = Modifier) {
 
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -101,34 +99,17 @@ fun ToggleBox(modifier: Modifier = Modifier) {
                 var checked by remember { mutableStateOf(false) }
                 Column {
                     if (!permission.allPermissionsGranted) {
-                        Switch(
-                            checked = checked,
-                            onCheckedChange = { c -> checked = c }
-                        )
+                        Switch(checked = checked, onCheckedChange = { c -> checked = c })
                     }
                     if (checked || permission.allPermissionsGranted) {
-                        ScopePermissions(
-                            modifier = if (!permission.allPermissionsGranted)
-                                Modifier.padding(horizontal = 16.dp)
-                            else
-                                Modifier,
-                            permissions = permission,
-                            text = {
-                                "The ACCESS_BACKGROUND_LOCATION permission is required to start the Scatterbrain " +
-                                        "service on boot and continue operation even when the app is closed. " +
-                                        "this is an optional requirement, without granting this permission Scatterbrain will still run after " +
-                                        "you open the app manually. " +
-                                        "The location data accessed by this permission is only collected to use bluetooth and wifi " +
-                                        "in the background. It is not shared and it does not leave your device. " +
-                                        "This is an android restriction on android 14 and newer. " +
-                                        "press this message and select \"Allow all the time\" to enable autostart on boot, or leave this permission " +
-                                        "ungranted to use Scatterbrain after manually starting it."
-                            },
-                            failText = {
-                                "ACCESS_BACKGROUND_LOCATION permission is not granted. Scatterbrain wont start on boot, " +
-                                        "but will work just fine after the app is opened manually"
-                            }
-                        ) {
+                        ScopePermissions(modifier = if (!permission.allPermissionsGranted) Modifier.padding(
+                            horizontal = 16.dp
+                        )
+                        else Modifier, permissions = permission, text = {
+                            "The ACCESS_BACKGROUND_LOCATION permission is required to start the Scatterbrain " + "service on boot and continue operation even when the app is closed. " + "this is an optional requirement, without granting this permission Scatterbrain will still run after " + "you open the app manually. " + "The location data accessed by this permission is only collected to use bluetooth and wifi " + "in the background. It is not shared and it does not leave your device. " + "This is an android restriction on android 14 and newer. " + "press this message and select \"Allow all the time\" to enable autostart on boot, or leave this permission " + "ungranted to use Scatterbrain after manually starting it."
+                        }, failText = {
+                            "ACCESS_BACKGROUND_LOCATION permission is not granted. Scatterbrain wont start on boot, " + "but will work just fine after the app is opened manually"
+                        }) {
                             BootSwitch()
                         }
                     }
@@ -165,32 +146,39 @@ fun LuidView(modifier: Modifier = Modifier) {
 @Composable
 fun MetricsView(modifier: Modifier = Modifier) {
     val model: RoutingServiceViewModel = hiltViewModel()
-
+    val state = rememberLazyListState()
     val metrics by model.repository.observeMetrics().observeAsState()
     LaunchedEffect(key1 = model) {
         model.repository.getMetrics()
     }
     val m = metrics?.metrics
-    Column(modifier = modifier) {
-        if (m != null) {
+    if (m != null) {
+        LazyColumn(
+            state = state, modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             for (stat in m) {
                 val signed = stat.signed
                 val unsigned = stat.messages - stat.signed
                 val lastSeen = Date(stat.lastSeen)
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(text = stat.application, style = MaterialTheme.typography.titleMedium)
-                        Text(text ="signed: $signed\n" +
-                                "unsigned: $unsigned\n" +
-                                "last seen: $lastSeen")
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(
+                                text = stat.application,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = "signed: $signed\nunsigned: $unsigned\nlast seen: $lastSeen"
+                            )
+                        }
                     }
                 }
             }
-        } else {
-            Text(text = "No metrics yet")
         }
+    } else {
+        Text(text = "No metrics yet")
     }
 }
 
@@ -226,8 +214,7 @@ fun BootSwitch(modifier: Modifier = Modifier) {
     var enabled by remember {
         mutableStateOf(
             prefs.getBoolean(
-                context.getString(R.string.pref_enabled),
-                false
+                context.getString(R.string.pref_enabled), false
             )
         )
     }
