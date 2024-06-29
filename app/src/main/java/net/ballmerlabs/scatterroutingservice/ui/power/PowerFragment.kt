@@ -17,10 +17,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -162,6 +164,15 @@ fun MetricsView(modifier: Modifier = Modifier) {
                 val lastSeen = Date(stat.lastSeen)
                 item {
                     Card(
+                        colors = CardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            contentColor = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.surfaceContainer),
+                            disabledContentColor = MaterialTheme.colorScheme.contentColorFor(
+                                MaterialTheme.colorScheme.surfaceContainer
+                            )
+
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Column(modifier = Modifier.padding(8.dp)) {

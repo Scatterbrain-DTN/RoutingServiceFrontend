@@ -41,6 +41,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -51,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -137,6 +139,13 @@ class DrawerActivity : AppCompatActivity() {
         Column {
             TopAppBar(
                 title = { Text(text = navBackStackEntry?.destination?.route?:getString(R.string.app_name)) },
+                colors = TopAppBarColors(
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    scrolledContainerColor = MaterialTheme.colorScheme.background
+                ),
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
             TabSwitcher(navController)
@@ -174,7 +183,7 @@ class DrawerActivity : AppCompatActivity() {
                     Icon(
                         painter = painterResource(id = item.second),
                         contentDescription = stringResource(id = R.string.enable_disable),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.padding(vertical = 20.dp),
                     )
                 }
@@ -312,7 +321,9 @@ class DrawerActivity : AppCompatActivity() {
         }
 
         AnimatedVisibility(visible = hidefab, enter = scaleIn(), exit = scaleOut()) {
-            FloatingActionButton(onClick = {
+            FloatingActionButton(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                onClick = {
                 when(dest) {
                     NAV_IDENTITY -> navController.navigate(NAV_CREATE_IDENTITY)
                     NAV_DEBUG -> launcher.launch(

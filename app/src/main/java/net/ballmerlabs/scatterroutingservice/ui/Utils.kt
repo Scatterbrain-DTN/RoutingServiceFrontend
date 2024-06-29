@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -129,8 +131,19 @@ fun PermissionSingleDialog(
             text = { Text(text = text) },
             onDismissRequest = { openMainDialog = false },
             confirmButton = {
-                Button(onClick = { permission.launchPermissionRequest() }) {
-                    Text("Grant")
+                Button(
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.secondary,
+                        disabledContentColor = MaterialTheme.colorScheme.surfaceDim,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                    ),
+                    onClick = { permission.launchPermissionRequest() }
+                ) {
+                    Text(
+                        color = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.secondary),
+                        text = "Grant"
+                    )
                 }
             },
             dismissButton = {
@@ -167,9 +180,6 @@ fun ScopePermissions(
             modifier = modifier.padding(4.dp),
             contentAlignment = Alignment.Center
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -190,7 +200,6 @@ fun ScopePermissions(
                         )
                     }
                 }
-            }
         }
     }
 }

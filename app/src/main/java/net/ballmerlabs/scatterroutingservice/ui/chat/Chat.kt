@@ -90,10 +90,9 @@ fun ChatView(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Bottom
     ) {
 
-
         LazyColumn(
             state = state,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom),
             contentPadding = PaddingValues(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -107,7 +106,7 @@ fun ChatView(modifier: Modifier = Modifier) {
                             .fillMaxWidth()
                             .shadow(4.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.inversePrimary)
+                            .background(MaterialTheme.colorScheme.secondary)
                             .padding(vertical = 8.dp, horizontal = 8.dp)
                             ,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -115,9 +114,14 @@ fun ChatView(modifier: Modifier = Modifier) {
                         val df = DateFormat.getDateFormat(context)
                         Text(
                             modifier = Modifier.weight(1f),
-                            text = m.text
+                            text = m.text,
+                            color = MaterialTheme.colorScheme.onSecondary
                         )
-                        Text(text = df.format(m.date), style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            text = df.format(m.date),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
                     }
                 }
             }

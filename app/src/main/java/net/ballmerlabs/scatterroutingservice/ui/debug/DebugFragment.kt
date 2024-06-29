@@ -8,7 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -66,6 +69,16 @@ fun DebugView() {
                 for (x in livedata) {
                     item {
                         Card(
+                            colors = CardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                contentColor = MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.surfaceContainer),
+                                disabledContentColor = MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.surfaceContainer
+                                )
+
+                            ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 2.dp)

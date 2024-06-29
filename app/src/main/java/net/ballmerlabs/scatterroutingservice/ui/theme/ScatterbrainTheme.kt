@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -17,17 +18,19 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 
 
+
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    secondary = cyanSecondary,
+    tertiary = cyanSecondary,
 )
 
+/*
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
+    primary = greyPrimary,
+    secondary = cyanSecondary,
+    tertiary = lightTertiary,
+    tertiaryContainer = lightTertiary
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -39,11 +42,65 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+ */
+
+//attempt4
+private val LightColorScheme = lightColorScheme(
+    primary = brightTeal,
+    secondary = brightBlue,
+    tertiary = brightGreen,
+    errorContainer = brightAntiTeal,
+    error = brightAntiTeal,
+    secondaryContainer = brightGreen,
+    surfaceContainer = surfaceBlue,
+    surface = dimBlue,
+    onSecondary = Color.White,
+    surfaceVariant = surfaceGreen,
+    surfaceTint = brightGreen,
+    surfaceDim = dimBlue,
+    surfaceContainerLow = dimTeal,
+    surfaceContainerHigh = surfaceTeal,
+    surfaceContainerHighest = brightTeal,
+    surfaceBright = surfaceGreen,
+    surfaceContainerLowest = dimTeal,
+    background = dimBlue
+)
+
+//attempt3
+private val LightColorScheme3 = lightColorScheme(
+    primary = Color(0xff9C2468),
+    secondary = Color(0xff24689C),
+    tertiary = Color(0xFF689C24),
+    onSecondary = Color.White,
+)
+
+// attempt2
+private val LightColorScheme2 = lightColorScheme(
+    primary = Color(0xFF57A857),
+    secondary = Color(0xff5780A8),
+    tertiary = Color(0xFFA857A8),
+    tertiaryContainer = Color(0xffb7fffd),
+    onSecondary = Color.White,
+    onSecondaryContainer = Color.White,
+)
+
+/* attempt1
+private val LightColorScheme = lightColorScheme(
+    primary = Color(0xFF43BC87),
+    secondary = Color(0xff4A43BC),
+    tertiary = Color(0xffBC4378),
+    tertiaryContainer = Color(0xffb7fffd),
+    onSecondary = Color.White,
+    onSecondaryContainer = Color.White,
+)
+
+ */
+
 @Composable
 fun ScatterbrainTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
