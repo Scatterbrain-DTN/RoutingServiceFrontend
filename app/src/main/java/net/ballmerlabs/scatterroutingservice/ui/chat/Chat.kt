@@ -64,7 +64,7 @@ data class SimpleMessage(
 @Composable
 fun ChatView(modifier: Modifier = Modifier) {
     val model: RoutingServiceViewModel = hiltViewModel()
-    val message by model.repository.observeMessages(DEFAULT_APP)
+    val message by model.repository.observeMessages(DEFAULT_APP, 256)
         .map { l ->
             l.map { v ->
                 val message = v.body?.decodeToString()

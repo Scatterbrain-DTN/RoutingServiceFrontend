@@ -31,15 +31,10 @@ class RoutingServiceViewModel @Inject constructor(
 
     val log by scatterLog()
 
-    val permissionGranted = MutableLiveData(false)
-
     val identities: MutableLiveData<List<Identity>> =  MutableLiveData<List<Identity>>(listOf())
     fun observeAdapterState(): LiveData<BluetoothState> {
         return uiBroadcastReceiver.liveData
     }
-
-    val adapterState: BluetoothState
-        get() = uiBroadcastReceiver.state
 
 
     fun getPermissions(identity: Identity): LiveData<List<NamePackage>> {
