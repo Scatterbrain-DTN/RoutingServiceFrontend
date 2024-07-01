@@ -71,7 +71,7 @@ class BootBroadcastReceiver @Inject constructor() : BroadcastReceiver() {
                 ContextCompat.startForegroundService(context, startIntent)
             }
             if (start) {
-                binderWrapper.coroutineScope.launch { startService(context) }
+                binderWrapper.coroutineScope.launch(Dispatchers.Default) { startService(context) }
             }
         }
     }

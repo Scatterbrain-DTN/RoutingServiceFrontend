@@ -210,8 +210,10 @@ class DrawerActivity : AppCompatActivity() {
             }
         } catch (exc: RemoteException) {
             Log.e(TAG, "failed to start/bind $exc")
-            Toast.makeText(this, "Failed to start background service: $exc", Toast.LENGTH_LONG)
-                .show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(applicationContext, "Failed to start background service: $exc", Toast.LENGTH_LONG)
+                    .show()
+            }
         }
     }
 
@@ -220,8 +222,10 @@ class DrawerActivity : AppCompatActivity() {
         try {
             model.repository.unbindService()
         } catch (exc: RemoteException) {
-            Toast.makeText(this, "Failed to unbind background service: $exc", Toast.LENGTH_LONG)
-                .show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(applicationContext, "Failed to unbind background service: $exc", Toast.LENGTH_LONG)
+                    .show()
+            }
         }
     }
 
@@ -249,7 +253,7 @@ class DrawerActivity : AppCompatActivity() {
                     placeholder = { Text(text = "Identity name") }
                 )
                 Row {
-                    Button(onClick = { scope.launch {
+                    Button(onClick = { scope.launch(Dispatchers.Main) {
                         try {
                             val id = model.repository.generateIdentity(name)
                             Toast.makeText(ctx, "Created identity ${id.fingerprint}", Toast.LENGTH_LONG).show()
@@ -371,7 +375,7 @@ class DrawerActivity : AppCompatActivity() {
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .imePadding(),
-                                    onGrant = { scope.launch { tryStart() } },
+                                    onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
                                 ) {
                                     ChatView(modifier = Modifier.fillMaxSize())
                                 }
@@ -380,7 +384,7 @@ class DrawerActivity : AppCompatActivity() {
                                ScopeScatterbrainPermissions(
                                    modifier = Modifier
                                        .fillMaxSize(),
-                                   onGrant = { scope.launch { tryStart() } },
+                                   onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
                                ) {
                                     SideEffect {
                                         model.onPermissionsGranted()
@@ -407,7 +411,7 @@ class DrawerActivity : AppCompatActivity() {
         super.onPause()
         broadcastReceiver.unregister()
         uiBroadcastReceiver.unregister()
-        lifecycleScope.launch { tryPause() }
+        lifecycleScope.launch(Dispatchers.Default) { tryPause() }
     }
 
     override fun onResume() {
@@ -415,7 +419,7 @@ class DrawerActivity : AppCompatActivity() {
         broadcastReceiver.register()
         uiBroadcastReceiver.register()
 
-        lifecycleScope.launch { tryStart() }
+        lifecycleScope.launch(Dispatchers.Default) { tryStart() }
     }
 
     companion object {

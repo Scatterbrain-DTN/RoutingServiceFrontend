@@ -207,7 +207,7 @@ class IdentityImportActivity : AppCompatActivity() {
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
-                                lifecycleScope.launch {
+                                lifecycleScope.launch(Dispatchers.Default) {
                                     val res = authorizeIdentities()
                                     val resultList = arrayListOf<Identity>()
                                     resultList.addAll(viewModel.selected)

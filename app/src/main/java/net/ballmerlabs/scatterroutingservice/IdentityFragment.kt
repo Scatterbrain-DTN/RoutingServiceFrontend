@@ -47,7 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lelloman.identicon.drawable.GithubIdenticonDrawable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
 import net.ballmerlabs.scatterroutingservice.ui.ScopeScatterbrainPermissions
@@ -67,11 +69,11 @@ fun IdentityView(identity: Identity) {
     }
     Card(
         colors = CardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            contentColor = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.surfaceContainer),
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.secondaryContainer),
             disabledContentColor = MaterialTheme.colorScheme.contentColorFor(
-                MaterialTheme.colorScheme.surfaceContainer
+                MaterialTheme.colorScheme.secondaryContainer
             )
         ),
         modifier = Modifier
@@ -108,15 +110,17 @@ fun IdentityView(identity: Identity) {
                             expanded = menuState,
                             onDismissRequest = { menuState = false }) {
                             DropdownMenuItem(text = { Text(text = "Delete") }, onClick = {
-                                scope.launch {
+                                scope.launch(Dispatchers.Default) {
                                     try {
                                         model.repository.removeIdentity(identity)
                                     } catch (exc: RemoteException) {
-                                        Toast.makeText(
-                                            ctx,
-                                            "Failed to delete identity $exc",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(
+                                                ctx,
+                                                "Failed to delete identity $exc",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
                                     }
                                 }
                             })

@@ -39,7 +39,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.preference.PreferenceManager
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterroutingservice.BluetoothState
 import net.ballmerlabs.scatterroutingservice.R
@@ -71,7 +73,7 @@ fun ToggleBox(modifier: Modifier = Modifier) {
             Switch(checked = state == RouterState.DISCOVERING,
                 enabled = bleState == BluetoothState.STATE_ON,
                 onCheckedChange = { s ->
-                    scope.launch {
+                    scope.launch(Dispatchers.Default) {
                         try {
                             if (s) {
                                 setActive(context)
@@ -81,9 +83,11 @@ fun ToggleBox(modifier: Modifier = Modifier) {
                                 model.repository.stopDiscover()
                             }
                         } catch (exc: RemoteException) {
-                            Toast.makeText(
-                                context, "Failed to start discovery $exc", Toast.LENGTH_LONG
-                            ).show()
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    context, "Failed to start discovery $exc", Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
                     }
                 })
@@ -136,7 +140,7 @@ fun LuidView(modifier: Modifier = Modifier) {
         Text(text = "Current router id:")
         Text(text = "${state?.uuid}")
         Button(onClick = {
-            scope.launch {
+            scope.launch(Dispatchers.Default) {
                 model.repository.randomizeLuid()
             }
         }) {
@@ -165,11 +169,11 @@ fun MetricsView(modifier: Modifier = Modifier) {
                 item {
                     Card(
                         colors = CardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            contentColor = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.surfaceContainer),
+                            contentColor = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.secondaryContainer),
                             disabledContentColor = MaterialTheme.colorScheme.contentColorFor(
-                                MaterialTheme.colorScheme.surfaceContainer
+                                MaterialTheme.colorScheme.secondaryContainer
                             )
 
                         ),

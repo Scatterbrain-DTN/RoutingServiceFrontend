@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.streams.asSequence
+import kotlin.streams.toList
 
 data class LogStruct(
     val scope: String,
@@ -86,11 +88,9 @@ class LogObserver @Inject constructor(
 
                             } else {
                                 reader.skip(buf.first)
-                                for (x in buffered.lines()) {
-                                    val s = getLogStruct(x)
-                                    withContext(Dispatchers.Main) {
-                                        buf.second.add(s)
-                                    }
+                                val s = buffered.lines().map { v -> getLogStruct(v) }.asSequence()
+                                withContext(Dispatchers.Main) {
+                                    buf.second.addAll(s)
                                 }
                                 logLiveData.postValue(buf.second)
                                 mappedLogs[path] = Pair(channel.position(), buf.second)

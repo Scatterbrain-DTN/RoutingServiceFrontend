@@ -31,7 +31,7 @@ private val DarkColorScheme = lightColorScheme(
     tertiary = brightGreen,
     errorContainer = brightAntiTeal,
     error = brightAntiTeal,
-    secondaryContainer = brightGreen,
+    secondaryContainer = surfaceBlue,
     surfaceContainer = surfaceBlue,
     surface = black,
     onSecondary = Color.White,
@@ -45,7 +45,7 @@ private val DarkColorScheme = lightColorScheme(
     surfaceContainerLowest = dimTeal,
     background = black,
     onBackground = white,
-    onSurface = black
+    onSurface = white
 )
 
 /*
@@ -74,7 +74,7 @@ private val LightColorScheme = lightColorScheme(
     tertiary = brightGreen,
     errorContainer = brightAntiTeal,
     error = brightAntiTeal,
-    secondaryContainer = brightGreen,
+    secondaryContainer = surfaceBlue,
     surfaceContainer = surfaceBlue,
     surface = dimBlue,
     onSecondary = Color.White,
@@ -86,7 +86,8 @@ private val LightColorScheme = lightColorScheme(
     surfaceContainerHighest = brightTeal,
     surfaceBright = surfaceGreen,
     surfaceContainerLowest = dimTeal,
-    background = dimBlue
+    background = dimBlue,
+
 )
 
 //attempt3

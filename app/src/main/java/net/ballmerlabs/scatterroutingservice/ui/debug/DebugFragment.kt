@@ -70,12 +70,12 @@ fun DebugView() {
                     item {
                         Card(
                             colors = CardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 contentColor = MaterialTheme.colorScheme.contentColorFor(
-                                    MaterialTheme.colorScheme.surfaceContainer),
+                                    MaterialTheme.colorScheme.secondaryContainer),
                                 disabledContentColor = MaterialTheme.colorScheme.contentColorFor(
-                                    MaterialTheme.colorScheme.surfaceContainer
+                                    MaterialTheme.colorScheme.secondaryContainer
                                 )
 
                             ),
