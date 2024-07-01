@@ -362,14 +362,15 @@ class DrawerActivity : AppCompatActivity() {
                         NavHost(
                             modifier = Modifier
                                 .padding(pad)
-                                .fillMaxSize(),
+                                .imePadding(),
                             navController = controller,
                             startDestination = NAV_CHAT
                         ) {
                             composable(NAV_CHAT) {
                                 ScopeScatterbrainPermissions(
                                     modifier = Modifier
-                                        .fillMaxSize(),
+                                        .fillMaxSize()
+                                        .imePadding(),
                                     onGrant = { scope.launch { tryStart() } },
                                 ) {
                                     ChatView(modifier = Modifier.fillMaxSize())
