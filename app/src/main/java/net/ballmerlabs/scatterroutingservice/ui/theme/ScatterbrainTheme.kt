@@ -19,10 +19,33 @@ import androidx.core.view.ViewCompat
 
 
 
-private val DarkColorScheme = darkColorScheme(
+private val DarkColorSchemeOld = darkColorScheme(
     primary = Purple80,
     secondary = cyanSecondary,
     tertiary = cyanSecondary,
+)
+
+private val DarkColorScheme = lightColorScheme(
+    primary = brightTeal,
+    secondary = brightBlue,
+    tertiary = brightGreen,
+    errorContainer = brightAntiTeal,
+    error = brightAntiTeal,
+    secondaryContainer = brightGreen,
+    surfaceContainer = surfaceBlue,
+    surface = black,
+    onSecondary = Color.White,
+    surfaceVariant = surfaceGreen,
+    surfaceTint = brightGreen,
+    surfaceDim = black,
+    surfaceContainerLow = dimTeal,
+    surfaceContainerHigh = surfaceTeal,
+    surfaceContainerHighest = brightTeal,
+    surfaceBright = surfaceGreen,
+    surfaceContainerLowest = dimTeal,
+    background = black,
+    onBackground = white,
+    onSurface = black
 )
 
 /*
