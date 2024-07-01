@@ -27,7 +27,7 @@ private val DarkColorSchemeOld = darkColorScheme(
 
 private val DarkColorScheme = lightColorScheme(
     primary = brightTeal,
-    secondary = brightBlue,
+    secondary = brightAntiTeal,
     tertiary = brightGreen,
     errorContainer = brightAntiTeal,
     error = brightAntiTeal,
