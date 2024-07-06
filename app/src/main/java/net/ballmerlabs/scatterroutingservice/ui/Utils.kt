@@ -128,7 +128,7 @@ fun PermissionSingleDialog(
     if (openMainDialog && permission.status != PermissionStatus.Granted) {
         AlertDialog(
             title = { Text(text = "Permission required") },
-            text = { Text(text = text) },
+            text = { Text(text = text, color = MaterialTheme.colorScheme.onBackground) },
             onDismissRequest = { openMainDialog = false },
             confirmButton = {
                 Button(
@@ -196,7 +196,7 @@ fun ScopePermissions(
                         PermissionSingleDialog(permission = p, text = text(p.permission), dialog = openMainDialog)
                         Text(
                             modifier = Modifier.padding(16.dp),
-                            text = failText(p.permission)
+                            text = failText(p.permission),
                         )
                     }
                 }

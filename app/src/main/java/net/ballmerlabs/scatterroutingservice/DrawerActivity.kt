@@ -46,6 +46,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,6 +74,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
+import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.ui.ScopeScatterbrainPermissions
 import net.ballmerlabs.scatterroutingservice.ui.chat.ChatView
@@ -359,6 +361,8 @@ class DrawerActivity : AppCompatActivity() {
             val controller = rememberNavController()
 
 
+            val state = model.repository.observeRouterState().value
+
             val scope = rememberCoroutineScope()
             ScatterbrainTheme {
                 Scaffold(
@@ -368,7 +372,7 @@ class DrawerActivity : AppCompatActivity() {
                                 .padding(pad)
                                 .imePadding(),
                             navController = controller,
-                            startDestination = NAV_CHAT
+                            startDestination = if (state == RouterState.DISCOVERING) NAV_CHAT else NAV_POWER
                         ) {
                             composable(NAV_CHAT) {
                                 ScopeScatterbrainPermissions(

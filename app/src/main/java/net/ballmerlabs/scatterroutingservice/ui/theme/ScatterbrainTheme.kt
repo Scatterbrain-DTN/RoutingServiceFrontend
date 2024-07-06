@@ -45,7 +45,13 @@ private val DarkColorScheme = lightColorScheme(
     surfaceContainerLowest = dimTeal,
     background = black,
     onBackground = white,
-    onSurface = white
+    onSurface = black,
+    onSecondaryContainer = black,
+    onPrimaryContainer = black,
+    onSurfaceVariant = black,
+    onTertiary = black,
+    onTertiaryContainer = black,
+    onPrimary = black
 )
 
 /*
