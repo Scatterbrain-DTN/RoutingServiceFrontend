@@ -77,6 +77,7 @@ import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.ui.ScopeScatterbrainPermissions
+import net.ballmerlabs.scatterroutingservice.ui.apps.AppsView
 import net.ballmerlabs.scatterroutingservice.ui.chat.ChatView
 import net.ballmerlabs.scatterroutingservice.ui.debug.DebugView
 import net.ballmerlabs.scatterroutingservice.ui.power.PowerToggle
@@ -160,6 +161,7 @@ class DrawerActivity : AppCompatActivity() {
             Pair(NAV_CHAT, R.drawable.baseline_chat_24),
             Pair(NAV_POWER, R.drawable.ic_baseline_power_settings_new_24),
             Pair(NAV_IDENTITY, R.drawable.ic_baseline_perm_identity_24),
+            Pair(NAV_APPS, R.drawable.baseline_apps_24),
             Pair(NAV_DEBUG, R.drawable.baseline_settings_applications_24),
             Pair(NAV_ABOUT, R.drawable.ic_baseline_info_24)
 
@@ -397,6 +399,7 @@ class DrawerActivity : AppCompatActivity() {
                                 }
                             }
                             composable(NAV_IDENTITY) { IdentityManagement() }
+                            composable(NAV_APPS) { AppsView() }
                             composable(NAV_DEBUG) { DebugView() }
                             composable(NAV_ABOUT) { About() }
                             dialog(NAV_CREATE_IDENTITY) { CreateIdentityDialog(controller) }
@@ -434,5 +437,6 @@ class DrawerActivity : AppCompatActivity() {
         const val NAV_ABOUT = "Legal Info"
         const val NAV_DEBUG = "Debugging Information"
         const val NAV_CHAT = "Public Chat"
+        const val NAV_APPS = "Apps"
     }
 }
