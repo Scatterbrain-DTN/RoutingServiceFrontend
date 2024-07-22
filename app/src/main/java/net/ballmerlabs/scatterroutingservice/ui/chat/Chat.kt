@@ -45,10 +45,15 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.liveData
 import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.softCancelLaunch
@@ -66,15 +71,26 @@ data class SimpleMessage(
 @Composable
 fun ChatView(modifier: Modifier = Modifier) {
     val model: RoutingServiceViewModel = hiltViewModel()
+    val scope = rememberCoroutineScope()
     val message by model.repository.observeMessages(DEFAULT_APP, 256)
-        .map { l ->
-            l.map { v ->
-                val message = v.body?.decodeToString()
-                val uuidlen = UUID.randomUUID().toString().length
-                if (message != null && message.length > uuidlen +1)
-                    SimpleMessage( text = message.removeRange(message.length - uuidlen -1, message.length), date = v.receiveDate)
-                else
-                    SimpleMessage(text = message ?: "null", date = v.receiveDate)
+        .switchMap { l ->
+            liveData {
+            scope.launch (Dispatchers.IO) {
+                    emit(l.map { v ->
+                        val message = v.body?.decodeToString()
+                        val uuidlen = UUID.randomUUID().toString().length
+                        if (message != null && message.length > uuidlen + 1)
+                            SimpleMessage(
+                                text = message.removeRange(
+                                    message.length - uuidlen - 1,
+                                    message.length
+                                ), date = v.receiveDate
+                            )
+                        else
+                            SimpleMessage(text = message ?: "null", date = v.receiveDate)
+                    })
+                }
+                awaitCancellation()
             }
         }
         .observeAsState(initial = listOf())
