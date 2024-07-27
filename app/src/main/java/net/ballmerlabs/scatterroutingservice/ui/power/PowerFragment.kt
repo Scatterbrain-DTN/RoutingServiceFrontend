@@ -46,6 +46,7 @@ import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterroutingservice.BluetoothState
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
+import net.ballmerlabs.scatterroutingservice.ui.SbCard
 import net.ballmerlabs.scatterroutingservice.ui.ScopePermissions
 import net.ballmerlabs.uscatterbrain.setActive
 import net.ballmerlabs.uscatterbrain.setPassive
@@ -167,16 +168,7 @@ fun MetricsView(modifier: Modifier = Modifier) {
                 val unsigned = stat.messages - stat.signed
                 val lastSeen = Date(stat.lastSeen)
                 item {
-                    Card(
-                        colors = CardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            contentColor = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.secondaryContainer),
-                            disabledContentColor = MaterialTheme.colorScheme.contentColorFor(
-                                MaterialTheme.colorScheme.secondaryContainer
-                            )
-
-                        ),
+                    SbCard(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Column(modifier = Modifier.padding(8.dp)) {

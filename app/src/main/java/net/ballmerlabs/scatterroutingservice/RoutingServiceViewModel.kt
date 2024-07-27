@@ -1,5 +1,6 @@
 package net.ballmerlabs.scatterroutingservice
 
+import android.net.wifi.WifiManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -14,7 +15,9 @@ import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
+import net.ballmerlabs.scatterbrainsdk.internal.handlers
 import net.ballmerlabs.scatterroutingservice.db.UiDatastore
+import net.ballmerlabs.scatterroutingservice.ui.DesktopObserver
 import net.ballmerlabs.scatterroutingservice.ui.debug.LogObserver
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import javax.inject.Inject
@@ -26,16 +29,18 @@ class RoutingServiceViewModel @Inject constructor(
     val logObserver: LogObserver,
     val repository: BinderWrapper,
     val uiBroadcastReceiver: UiBroadcastReceiver,
-    val datastore: UiDatastore
+    val datastore: UiDatastore,
+    val desktopObserver: DesktopObserver,
+    val wifiManager: WifiManager
 ) : AndroidViewModel(application) {
 
     val log by scatterLog()
 
     val identities: MutableLiveData<List<Identity>> =  MutableLiveData<List<Identity>>(listOf())
+
     fun observeAdapterState(): LiveData<BluetoothState> {
         return uiBroadcastReceiver.liveData
     }
-
 
     fun getPermissions(identity: Identity): LiveData<List<NamePackage>> {
         val ld = MutableLiveData<List<NamePackage>>()

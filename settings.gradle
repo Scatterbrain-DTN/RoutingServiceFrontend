@@ -1,5 +1,12 @@
 
 include ':app'
 include ':ScatterRoutingService:app'
+project(':ScatterRoutingService:app').projectDir = new File('ScatterRoutingService/app')
 include ':scatterbrainSDK'
 project(':scatterbrainSDK').projectDir = new File('ScatterRoutingService/scatterbrainSDK/scatterbrainSDK/')
+include ':annotation'
+project(':annotation').projectDir = new File('ScatterRoutingService/annotation')
+include ':ser'
+project(':ser').projectDir = new File('ScatterRoutingService/ser')
+//include ':lazysodiumjava'
+//project(':lazysodiumjava').projectDir = new File('ScatterRoutingService/lazysodium-android/lazysodium-java')

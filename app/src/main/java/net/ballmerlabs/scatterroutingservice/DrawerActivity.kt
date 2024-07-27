@@ -28,7 +28,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -43,7 +45,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -61,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -74,16 +79,21 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
+import net.ballmerlabs.scatterbrainsdk.IdentityImportContract
+import net.ballmerlabs.scatterbrainsdk.PairingStage
+import net.ballmerlabs.scatterbrainsdk.PairingState
 import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterbrainsdk.ScatterbrainBroadcastReceiver
 import net.ballmerlabs.scatterroutingservice.ui.ScopeScatterbrainPermissions
 import net.ballmerlabs.scatterroutingservice.ui.apps.AppsView
+import net.ballmerlabs.scatterroutingservice.ui.apps.PairingRequestDialog
 import net.ballmerlabs.scatterroutingservice.ui.chat.ChatView
 import net.ballmerlabs.scatterroutingservice.ui.debug.DebugView
 import net.ballmerlabs.scatterroutingservice.ui.power.PowerToggle
 import net.ballmerlabs.scatterroutingservice.ui.theme.ScatterbrainTheme
 import net.ballmerlabs.uscatterbrain.isActive
 import net.ballmerlabs.uscatterbrain.isPassive
+import net.ballmerlabs.uscatterbrain.network.LibsodiumInterface
 import net.ballmerlabs.uscatterbrain.util.initDiskLogging
 import net.ballmerlabs.uscatterbrain.util.logsDir
 import java.io.BufferedOutputStream
@@ -109,6 +119,15 @@ class DrawerActivity : AppCompatActivity() {
 
     @InternalCoroutinesApi
     val model: RoutingServiceViewModel by viewModels()
+
+    val desktopImportContract = registerForActivityResult(IdentityImportContract()) { res ->
+        if (res?.isNotEmpty() == true) {
+            val id = res[0]
+            model.viewModelScope.softCancelLaunch {
+                model.repository.approveDesktopIdentity(model.desktopObserver.currentImport.value!!.handle, id.fingerprint)
+            }
+        }
+    }
 
     private val requestCodeBattery = 1
 
@@ -353,6 +372,48 @@ class DrawerActivity : AppCompatActivity() {
         }
     }
 
+    @Composable
+    fun HandleDesktopImport(navController: NavController) {
+        val viewModel: RoutingServiceViewModel = hiltViewModel()
+        val scope = rememberCoroutineScope()
+        val state by viewModel.desktopObserver.currentImport.observeAsState()
+        var block by remember {
+            mutableStateOf(false)
+        }
+        
+        if (state != null && !block) {
+            AlertDialog(
+                title = { Text(text = "Desktop app ${state?.appName}") },
+                text = { Text(text = "Pressing 'import' will grant the selected application permission to use the identity") },
+                onDismissRequest = { },
+                confirmButton = {
+                    Button(
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.secondary,
+                            disabledContentColor = MaterialTheme.colorScheme.surfaceDim,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                        ),
+                        onClick = {
+                            desktopImportContract.launch(1)
+                        }
+                    ) {
+                        Text(
+                            color = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.secondary),
+                            text = "Import"
+                        )
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { block = true }) {
+                        Text("Dismiss")
+                    }
+                }
+            )
+        }
+        
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -362,11 +423,28 @@ class DrawerActivity : AppCompatActivity() {
         setContent {
             val controller = rememberNavController()
 
+            HandleDesktopImport(navController = controller)
 
             val state = model.repository.observeRouterState().value
 
             val scope = rememberCoroutineScope()
             ScatterbrainTheme {
+                val pairingState by model.repository.observePairingAttempts().observeAsState(
+                    PairingState(
+                        appName = "",
+                        stage = PairingStage.UNKNOWN,
+                        identity = byteArrayOf()
+                    )
+                )
+
+                if (pairingState.stage == PairingStage.INITIATE) {
+                    val id = LibsodiumInterface.base64encUrl(pairingState.identity)
+                    Log.v("debug", "recompose PairingStage INITIATE $id")
+                    val name = pairingState.appName.ifEmpty { "default" }.replace("/", "\\/")
+                    LaunchedEffect(key1 = true) {
+                        controller.navigate("${NAV_PAIRING_REQUEST}/$name/$id")
+                    }
+                }
                 Scaffold(
                     content = { pad ->
                         NavHost(
@@ -403,6 +481,9 @@ class DrawerActivity : AppCompatActivity() {
                             composable(NAV_DEBUG) { DebugView() }
                             composable(NAV_ABOUT) { About() }
                             dialog(NAV_CREATE_IDENTITY) { CreateIdentityDialog(controller) }
+                            dialog("$NAV_PAIRING_REQUEST/{name}/{fingerprint}") { PairingRequestDialog(
+                                navController = controller
+                            ) }
                         }
                     },
                     topBar = { TopBar(controller) },
@@ -433,6 +514,7 @@ class DrawerActivity : AppCompatActivity() {
         const val TAG = "DrawerActivity"
         const val NAV_IDENTITY = "Identities"
         const val NAV_CREATE_IDENTITY = "create_identity"
+        const val NAV_PAIRING_REQUEST = "pairing_request"
         const val NAV_POWER = "Control Panel"
         const val NAV_ABOUT = "Legal Info"
         const val NAV_DEBUG = "Debugging Information"

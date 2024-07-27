@@ -64,7 +64,6 @@
         Bluetooth will NEVER be used to collect or track location</string>
     <string name="failed_location_text">If location permission is not granted, scatterbrain will only function in passive mode</string>
     <string name="failed_strongly_assert">If bluetooth permission is not granted scatterbrain will not function correctly.</string>
-    <!-- TODO: Remove or change this placeholder text -->
 
     <string name="disable_doze_text">Scatterbrain needs permission to disable battery optimizations. This allows scatterbrain to forward and receive messages in the background.</string>
 

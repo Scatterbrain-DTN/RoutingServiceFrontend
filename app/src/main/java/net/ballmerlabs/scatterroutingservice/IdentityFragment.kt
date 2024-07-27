@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -27,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,6 +49,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
+import net.ballmerlabs.scatterroutingservice.ui.SbCard
 import net.ballmerlabs.scatterroutingservice.ui.ScopeScatterbrainPermissions
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,24 +65,21 @@ fun IdentityView(identity: Identity) {
     var menuState by remember {
         mutableStateOf(false)
     }
-    Card(
-        colors = CardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.secondaryContainer),
-            disabledContentColor = MaterialTheme.colorScheme.contentColorFor(
-                MaterialTheme.colorScheme.secondaryContainer
-            )
-        ),
+    SbCard(
         modifier = Modifier
-        .fillMaxWidth()
-        .height(100.dp)) {
+            .fillMaxWidth()
+            .height(100.dp)
+    ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(modifier = Modifier.fillMaxHeight() , painter = painter, contentDescription = "identicon")
+            Image(
+                modifier = Modifier.fillMaxHeight(),
+                painter = painter,
+                contentDescription = "identicon"
+            )
             Text(
                 modifier = Modifier.padding(end = 10.dp),
                 text = identity.name, style = MaterialTheme.typography.headlineMedium
@@ -137,14 +132,19 @@ fun IdentityView(identity: Identity) {
         }
     }
     if (showBottomSheet) {
-        ModalBottomSheet(onDismissRequest = { showBottomSheet =false }, sheetState = sheetState) {
+        ModalBottomSheet(onDismissRequest = { showBottomSheet = false }, sheetState = sheetState) {
             BottomSheetContent(modifier = Modifier, identity)
         }
     }
 }
 
 @Composable
-fun PermissionCard(granted: Boolean, p: NamePackage, identity: Identity, modifier: Modifier = Modifier) {
+fun PermissionCard(
+    granted: Boolean,
+    p: NamePackage,
+    identity: Identity,
+    modifier: Modifier = Modifier,
+) {
     val model: RoutingServiceViewModel = hiltViewModel()
     val scope = rememberCoroutineScope()
     var grantState by remember {
@@ -157,7 +157,7 @@ fun PermissionCard(granted: Boolean, p: NamePackage, identity: Identity, modifie
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = p.name)
-            Checkbox(checked = grantState, onCheckedChange = {c ->
+            Checkbox(checked = grantState, onCheckedChange = { c ->
                 Log.v("debug", "auth checked $c")
                 scope.softCancelLaunch {
                     if (grantState) {
@@ -186,21 +186,32 @@ fun BottomSheetContent(modifier: Modifier = Modifier, identity: Identity) {
         ) {
             packages?.forEach { p ->
                 item {
-                    PermissionCard(granted = true, p = p, identity, modifier = Modifier.fillMaxWidth())
+                    PermissionCard(
+                        granted = true,
+                        p = p,
+                        identity,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
             notgranted?.forEach { p ->
-                if(packages?.contains(p) != true) {
+                if (packages?.contains(p) != true) {
                     item {
-                        PermissionCard(granted = false, p = p, identity, modifier = Modifier.fillMaxWidth())
+                        PermissionCard(
+                            granted = false,
+                            p = p,
+                            identity,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }
         }
     } else {
-        Box(modifier = modifier
-            .defaultMinSize(minHeight = 160.dp)
-            .fillMaxWidth(),
+        Box(
+            modifier = modifier
+                .defaultMinSize(minHeight = 160.dp)
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -214,9 +225,10 @@ fun BottomSheetContent(modifier: Modifier = Modifier, identity: Identity) {
 
 @Composable
 fun IdentityList(modifier: Modifier = Modifier) {
+    Log.v("debug", "IdentityList recompose")
     val model: RoutingServiceViewModel = hiltViewModel()
-    val identities by model.identities.observeAsState()
-    if (identities!!.isEmpty()) {
+    val identities by model.repository.observeIdentitiesLiveData().observeAsState()
+    if (identities?.isNotEmpty() == false) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(text = "No identities yet")
         }
