@@ -25,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -104,7 +105,11 @@ fun IdentityView(identity: Identity) {
                         DropdownMenu(
                             expanded = menuState,
                             onDismissRequest = { menuState = false }) {
-                            DropdownMenuItem(text = { Text(text = "Delete") }, onClick = {
+                            DropdownMenuItem(text = {
+                                Text(
+                                    text = "Delete",
+                                    color = MaterialTheme.colorScheme.onBackground
+                                ) }, onClick = {
                                 scope.launch(Dispatchers.Default) {
                                     try {
                                         model.repository.removeIdentity(identity)
@@ -119,7 +124,10 @@ fun IdentityView(identity: Identity) {
                                     }
                                 }
                             })
-                            DropdownMenuItem(text = { Text(text = "Permissions") }, onClick = {
+                            DropdownMenuItem(text = { Text(
+                                text = "Permissions",
+                                color = MaterialTheme.colorScheme.onBackground
+                            ) }, onClick = {
                                 showBottomSheet = true
                                 menuState = false
                             })
