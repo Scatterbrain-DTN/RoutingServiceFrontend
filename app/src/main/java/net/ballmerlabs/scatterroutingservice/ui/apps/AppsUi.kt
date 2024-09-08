@@ -20,6 +20,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import cash.z.ecc.android.bip39.Mnemonics
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
@@ -175,7 +177,15 @@ fun ToggleView(modifier: Modifier = Modifier) {
         )
     )
     var name by remember {
-        mutableStateOf(sbName())
+        mutableStateOf("")
+    }
+
+
+    LaunchedEffect(true) {
+        prefs.edit { p ->
+            val n = p[stringPreferencesKey(context.getString(R.string.pref_desktop_name))]?: sbName()
+            name = n
+        }
     }
 
     Column(modifier = modifier) {
@@ -225,7 +235,6 @@ fun ToggleView(modifier: Modifier = Modifier) {
 
 @Composable
 fun AppsView(modifier: Modifier = Modifier) {
-
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(text = "WARNING: Desktop API is in alpha", style = MaterialTheme.typography.titleMedium)
         ToggleView(modifier = Modifier.fillMaxWidth())
