@@ -77,12 +77,11 @@ fun FirstStartWizard(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
 
-                        if (!model.isStart()) {
+                        if (page > 0) {
                             TextButton(
                                 onClick = {
                                     scope.launch(Dispatchers.IO) {
-                                        if (page > 0)
-                                            pagerState.animateScrollToPage(page - 1)
+                                        pagerState.animateScrollToPage(page - 1)
                                     }
                                 }) { Text("Previous") }
                         } else {

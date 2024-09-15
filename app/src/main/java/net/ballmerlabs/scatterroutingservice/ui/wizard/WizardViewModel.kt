@@ -78,7 +78,6 @@ class WizardViewModel @Inject constructor(
     @ApplicationContext val ctx: Context,
     pm: PowerManager
 ) : AndroidViewModel(application) {
-    private val done = mutableListOf<WizardState>()
 
     var onBattery: () -> Unit = {}
 
@@ -155,19 +154,5 @@ class WizardViewModel @Inject constructor(
 
             }
         }
-    }
-
-    fun popState() {
-        if (states.isNotEmpty())
-            done.add(states.removeLast())
-    }
-
-    fun pushState() {
-        if (done.isNotEmpty())
-            states.add(done.removeLast())
-    }
-
-    fun isStart(): Boolean {
-        return done.isEmpty()
     }
 }
