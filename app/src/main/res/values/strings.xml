@@ -88,7 +88,35 @@
 
     <string name="title_activity_identity_import">IdentityImportActivity</string>
     <string name="import_identities">Import Identities</string>
-    
+
+    <string name="wifi_description">
+        The NEARBY_WIFI_DEVICES permission is required to perform
+        wifi direct operations in the background on newer devices
+        this is used in tandem with bluetooth to speed to transfers to nearby
+        devices that are capable of wifi direct
+    </string>
+    <string name="advertise_description">
+        The BLUETOOTH_ADVERTISE permission is used to broadcast an anonymous id that nearby devices can connect to.
+        The id is randomized frequently to prevent tracking.
+    </string>
+    <string name="bluetooth_connect_description">
+        The BLUETOOTH_CONNECT permission is used to connect to Scatterbrain peers in the background using BLE
+    </string>
+    <string name="bluetooth_scan_description">
+        The BLUETOOTH_SCAN permission is required on newer devices to discover Scatterbrain peers in the background via bluetooth
+    </string>
+    <string name="location_description">
+        The ACCESS_FINE_LOCATION permission is required in order to 
+        enable background bluetooth connections while the app is closed. This collects location data for the sole purpose
+        of bluetooth network. This data is not shared and does not leave your device.
+        Android requires this permission to access wifi and bluetooth. This is a requirement set
+        by google to preserve privacy when collecting location data from external device IDs
+
+        This location permission does not actually use the GPS location, it only allows Scatterbrain to
+        access the bluetooth adapter. The reason your device requires ACCESS_FINE_LOCATION for bluetooth
+        is because some apps use 3rd party bluetooth devices to find your devices approximate location by
+        looking up their device ids. Scatterbrain does not do this.
+    </string>
     <string name="big_description">
         Scatterbrain is a platform for building rich media apps that don\'t need a data plan to work.
         Using bluetooth, wifi, and your own physical social network. Scatterbrain forwards content to all

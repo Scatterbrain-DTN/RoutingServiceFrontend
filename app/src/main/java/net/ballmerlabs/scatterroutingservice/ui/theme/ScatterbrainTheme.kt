@@ -25,7 +25,7 @@ private val DarkColorSchemeOld = darkColorScheme(
     tertiary = cyanSecondary,
 )
 
-private val DarkColorScheme = lightColorScheme(
+private val DarkColorScheme = darkColorScheme(
     primary = brightTeal,
     secondary = brightAntiTeal,
     tertiary = brightGreen,

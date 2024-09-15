@@ -12,6 +12,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,66 +51,69 @@ fun FirstStartWizard(
     }.collectAsState(false)
 
     if (show && model.states.isNotEmpty()) {
-        val pagerState = rememberPagerState(pageCount = { model.states.size })
+        Surface {
 
-        HorizontalPager(state = pagerState) { page ->
-            val state = model.states[page]
-            Column(modifier = modifier, verticalArrangement = Arrangement.SpaceBetween) {
-                val scrollstate = rememberScrollState()
-                Column(
-                    modifier = Modifier.scrollable(
-                        scrollstate,
-                        orientation = Orientation.Vertical
-                    )
-                ) {
-                    Text(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        style = MaterialTheme.typography.headlineLarge,
-                        text = state.title
-                    )
-                    Text(color = MaterialTheme.colorScheme.onBackground, text = state.text)
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+            val pagerState = rememberPagerState(pageCount = { model.states.size })
 
-                    if (!model.isStart()) {
-                        TextButton(
-                            onClick = {
-                                scope.launch(Dispatchers.IO) {
-                                    if (page > 0)
-                                        pagerState.animateScrollToPage(page - 1)
-                                }
-                            }) { Text("Previous") }
-                    } else {
-                        Column { }
+            HorizontalPager(state = pagerState) { page ->
+                val state = model.states[page]
+                Column(modifier = modifier, verticalArrangement = Arrangement.SpaceBetween) {
+                    val scrollstate = rememberScrollState()
+                    Column(
+                        modifier = Modifier.scrollable(
+                            scrollstate,
+                            orientation = Orientation.Vertical
+                        )
+                    ) {
+                        Text(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            style = MaterialTheme.typography.headlineLarge,
+                            text = state.title
+                        )
+                        state.body()
                     }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
 
-                    if (state.battery && !model.batteryState.value) {
-                        Button(onClick = model.onBattery) {
-                            Text("Grant battery permission")
-                        }
-                    } else if (model.batteryState.value && state.battery) {
-                        Text("Granted!")
-                    }
-                    state.Button(onClick = {
-                        scope.launch(Dispatchers.IO) {
-                            if (page < pagerState.pageCount - 1)
-                                pagerState.animateScrollToPage(page + 1)
-                            else
-                                withContext(Dispatchers.IO) {
-                                    context.dataStore.edit { p ->
-                                        p[booleanPreferencesKey(SHOW_WIZARD)] = false
+                        if (!model.isStart()) {
+                            TextButton(
+                                onClick = {
+                                    scope.launch(Dispatchers.IO) {
+                                        if (page > 0)
+                                            pagerState.animateScrollToPage(page - 1)
                                     }
-                                }
+                                }) { Text("Previous") }
+                        } else {
+                            Column { }
                         }
-                    })
+
+                        if (state.battery && !model.batteryState.value) {
+                            Button(onClick = model.onBattery) {
+                                Text("Grant battery permission")
+                            }
+                        } else if (model.batteryState.value && state.battery) {
+                            Text("Granted!")
+                        }
+                        state.Button(onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                if (page < pagerState.pageCount - 1)
+                                    pagerState.animateScrollToPage(page + 1)
+                                else
+                                    withContext(Dispatchers.IO) {
+                                        context.dataStore.edit { p ->
+                                            p[booleanPreferencesKey(SHOW_WIZARD)] = false
+                                        }
+                                    }
+                            }
+                        })
+                    }
                 }
             }
         }
-
     } else {
         content()
     }
+
 }
