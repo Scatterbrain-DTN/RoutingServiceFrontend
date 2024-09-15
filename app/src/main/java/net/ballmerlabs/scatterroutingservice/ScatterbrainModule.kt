@@ -2,7 +2,9 @@ package net.ballmerlabs.scatterroutingservice
 
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.health.connect.datatypes.units.Power
 import android.net.wifi.WifiManager
+import android.os.PowerManager
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -56,5 +58,11 @@ object ScatterbrainModule {
     @Singleton
     fun providesWifiManager(@ApplicationContext context: Context): WifiManager {
         return context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    }
+
+    @Provides
+    @Singleton
+    fun providesPowerManager(@ApplicationContext context: Context): PowerManager {
+        return context.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
     }
 }

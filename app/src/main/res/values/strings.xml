@@ -88,5 +88,28 @@
 
     <string name="title_activity_identity_import">IdentityImportActivity</string>
     <string name="import_identities">Import Identities</string>
+    
+    <string name="big_description">
+        Scatterbrain is a platform for building rich media apps that don\'t need a data plan to work.
+        Using bluetooth, wifi, and your own physical social network. Scatterbrain forwards content to all
+        your friends even if they are miles away. Scatterbrain powers an entire ecosystem of 3rd party apps on
+        your phone, on your desktop, and beyond! Anyone can make an app leveraging the Scatterbrain Router to
+        enable offline communication with any device on the Scatterbrain network.
+        So, how is this possible if bluetooth and wifi only work over short ranges? Scatterbrain
+        swaps messages with other Scatterbrain enabled phones that you pass on the street and allows them to
+        carry your messages to their destination as they go about their own day. Messages spread
+        like rumors throughout your neighborhood, powered by human connections!
+
+
+        To get started using Scatterbrain, first you need to grant a few permissions. These are required for the
+        Scatterbrain Router app to access your phone\'s bluetooth/wifi hardware. Press "Next" to begin the setup process"
+    </string>
+    <string name="battery_description">
+        To prevent android from pausing Scatterbrain in the background, it is possible to grant an exemption from automatic battery optimization for Scatterbrain router.
+        This should prevent android from killing the Scatterbrain service in the background which should improve performance.
+        This is optional, as Scatterbrain will try its best to operate without being killed even without this permission.
+        Because most background tasks are run on the bluetooth adapter itself you should not see any noticeable drain on battery
+        even if you grant this permission.
+    </string>
 
 </resources>

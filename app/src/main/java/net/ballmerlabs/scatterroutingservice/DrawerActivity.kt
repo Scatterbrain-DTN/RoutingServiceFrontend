@@ -48,6 +48,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -91,6 +92,8 @@ import net.ballmerlabs.scatterroutingservice.ui.chat.ChatView
 import net.ballmerlabs.scatterroutingservice.ui.debug.DebugView
 import net.ballmerlabs.scatterroutingservice.ui.power.PowerToggle
 import net.ballmerlabs.scatterroutingservice.ui.theme.ScatterbrainTheme
+import net.ballmerlabs.scatterroutingservice.ui.wizard.FirstStartWizard
+import net.ballmerlabs.scatterroutingservice.ui.wizard.WizardViewModel
 import net.ballmerlabs.uscatterbrain.isActive
 import net.ballmerlabs.uscatterbrain.isPassive
 import net.ballmerlabs.uscatterbrain.network.LibsodiumInterface
@@ -120,7 +123,9 @@ class DrawerActivity : AppCompatActivity() {
     @InternalCoroutinesApi
     val model: RoutingServiceViewModel by viewModels()
 
-    val desktopImportContract = registerForActivityResult(IdentityImportContract()) { res ->
+    val wizardViewModel: WizardViewModel by viewModels()
+
+    private val desktopImportContract = registerForActivityResult(IdentityImportContract()) { res ->
         if (res?.isNotEmpty() == true) {
             val id = res[0]
             model.viewModelScope.softCancelLaunch {
@@ -131,25 +136,29 @@ class DrawerActivity : AppCompatActivity() {
 
     private val requestCodeBattery = 1
 
+    @Inject
+    lateinit var pm: PowerManager
+
+
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        Log.v("debug", "onActivityResult $requestCode $resultCode")
         if (requestCode == requestCodeBattery) {
-            if (resultCode == RESULT_OK) {
-            } else {
-                //TODO: chastise user
-            }
+            wizardViewModel.batteryState.value = resultCode == 0
         }
     }
 
     @SuppressLint("BatteryLife")
     private fun ignoreBatteryOptimizations() {
-        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
         if(!pm.isIgnoringBatteryOptimizations(packageName)) {
             val intent = Intent().apply {
                 action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
                 data = Uri.parse("package:$packageName")
             }
-            startActivity(intent)
+            startActivityForResult(intent, requestCodeBattery)
+        } else {
+            wizardViewModel.batteryState.value = true
         }
     }
 
@@ -375,7 +384,6 @@ class DrawerActivity : AppCompatActivity() {
     @Composable
     fun HandleDesktopImport(navController: NavController) {
         val viewModel: RoutingServiceViewModel = hiltViewModel()
-        val scope = rememberCoroutineScope()
         val state by viewModel.desktopObserver.currentImport.observeAsState()
         var block by remember {
             mutableStateOf(false)
@@ -420,6 +428,8 @@ class DrawerActivity : AppCompatActivity() {
         applicationContext.initDiskLogging()
         model.logObserver.enableObserver()
 
+        wizardViewModel.onBattery = { ignoreBatteryOptimizations() }
+
         setContent {
             val controller = rememberNavController()
 
@@ -445,54 +455,60 @@ class DrawerActivity : AppCompatActivity() {
                         controller.navigate("${NAV_PAIRING_REQUEST}/$name/$id")
                     }
                 }
-                Scaffold(
-                    content = { pad ->
-                        NavHost(
-                            modifier = Modifier
-                                .padding(pad)
-                                .imePadding(),
-                            navController = controller,
-                            startDestination = if (state == RouterState.DISCOVERING) NAV_CHAT else NAV_POWER
-                        ) {
-                            composable(NAV_CHAT) {
-                                ScopeScatterbrainPermissions(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .imePadding(),
-                                    onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
-                                ) {
-                                    ChatView(modifier = Modifier.fillMaxSize())
-                                }
-                            }
-                            composable(NAV_POWER) {
-                               ScopeScatterbrainPermissions(
-                                   modifier = Modifier
-                                       .fillMaxSize(),
-                                   onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
-                               ) {
-                                    SideEffect {
-                                        model.onPermissionsGranted()
+                FirstStartWizard(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Scaffold(
+                        content = { pad ->
+                            NavHost(
+                                modifier = Modifier
+                                    .padding(pad)
+                                    .imePadding(),
+                                navController = controller,
+                                startDestination = if (state == RouterState.DISCOVERING) NAV_CHAT else NAV_POWER
+                            ) {
+                                composable(NAV_CHAT) {
+                                    ScopeScatterbrainPermissions(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .imePadding(),
+                                        onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
+                                    ) {
+                                        ChatView(modifier = Modifier.fillMaxSize())
                                     }
-                                    PowerToggle()
+                                }
+                                composable(NAV_POWER) {
+                                    ScopeScatterbrainPermissions(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
+                                    ) {
+                                        SideEffect {
+                                            model.onPermissionsGranted()
+                                        }
+                                        PowerToggle()
+                                    }
+                                }
+                                composable(NAV_IDENTITY) { IdentityManagement() }
+                                composable(NAV_APPS) { AppsView() }
+                                composable(NAV_DEBUG) { DebugView() }
+                                composable(NAV_ABOUT) { About() }
+                                dialog(NAV_CREATE_IDENTITY) { CreateIdentityDialog(controller) }
+                                dialog("$NAV_PAIRING_REQUEST/{name}/{fingerprint}") {
+                                    PairingRequestDialog(
+                                        navController = controller
+                                    )
                                 }
                             }
-                            composable(NAV_IDENTITY) { IdentityManagement() }
-                            composable(NAV_APPS) { AppsView() }
-                            composable(NAV_DEBUG) { DebugView() }
-                            composable(NAV_ABOUT) { About() }
-                            dialog(NAV_CREATE_IDENTITY) { CreateIdentityDialog(controller) }
-                            dialog("$NAV_PAIRING_REQUEST/{name}/{fingerprint}") { PairingRequestDialog(
-                                navController = controller
-                            ) }
-                        }
-                    },
-                    topBar = { TopBar(controller) },
-                    floatingActionButton = { Fab(controller) }
+                        },
+                        topBar = { TopBar(controller) },
+                        floatingActionButton = { Fab(controller) }
 
-                )
+                    )
+                }
             }
         }
-        ignoreBatteryOptimizations()
+        //ignoreBatteryOptimizations()
     }
 
     override fun onPause() {

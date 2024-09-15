@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -39,7 +38,6 @@ import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
@@ -52,7 +50,7 @@ fun SbCard(
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
     padding: Dp = 0.dp,
     contentAlignment: Alignment = Alignment.TopStart,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Card(
         colors = CardColors(
@@ -63,8 +61,14 @@ fun SbCard(
                 color
             )
         ),
-        modifier = modifier) {
-        Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = contentAlignment) {
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentAlignment = contentAlignment
+        ) {
             content()
         }
 
@@ -76,7 +80,7 @@ fun SbCard(
 fun ScopeScatterbrainPermissions(
     modifier: Modifier = Modifier,
     onGrant: () -> Unit = {},
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val permissions = mutableListOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -89,7 +93,8 @@ fun ScopeScatterbrainPermissions(
         for (x in listOf(
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_CONNECT,
-            Manifest.permission.BLUETOOTH_ADVERTISE)) {
+            Manifest.permission.BLUETOOTH_ADVERTISE
+        )) {
             permissions.add(x)
         }
     } else {
@@ -97,7 +102,6 @@ fun ScopeScatterbrainPermissions(
             Manifest.permission.BLUETOOTH_ADMIN,
             Manifest.permission.BLUETOOTH,
         )) {
-            val p = rememberPermissionState(permission = x)
             permissions.add(x)
         }
     }
@@ -110,7 +114,7 @@ fun ScopeScatterbrainPermissions(
         p,
         modifier = modifier,
         func = {
-           onGrant()
+            onGrant()
         },
         title = {
             Text(
@@ -120,17 +124,20 @@ fun ScopeScatterbrainPermissions(
                 style = MaterialTheme.typography.labelLarge
             )
         },
-        text = { p->
-            when(p) {
+        text = { p ->
+            when (p) {
                 Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION -> "The $p permission is required in order to " +
                         "enable background bluetooth connections while the app is closed. This collects location data for the sole purpose " +
                         "of bluetooth network. This data is not shared and does not leave your device. " +
                         "Android requires this permission to access wifi and bluetooth. This is a requirement set " +
                         "by google to preserve privacy when collecting location data from external device IDs "
+
                 Manifest.permission.BLUETOOTH_SCAN -> "The BLUETOOTH_SCAN permission is required on newer devices to discover" +
                         " Scatterbrain peers in the background via bluetooth"
+
                 Manifest.permission.NEARBY_WIFI_DEVICES -> "The NEARBY_WIFI_DEVICES permission is required to perform" +
                         " wifi direct operations in the background on newer devices"
+
                 Manifest.permission.BLUETOOTH_CONNECT -> "The BLUETOOTH_CONNECT permission is used to connect to Scatterbrain peers in the background using BLE"
                 Manifest.permission.BLUETOOTH_ADVERTISE -> "The BLUETOOTH_ADVERTISE permission is used to broadcast an anonymous id that nearby devices can connect to"
                 else -> p
@@ -148,9 +155,9 @@ fun ScopeScatterbrainPermissions(
 @Composable
 @OptIn(ExperimentalPermissionsApi::class)
 fun PermissionSingleDialog(
- permission: PermissionState,
- text: String,
- dialog: MutableState<Boolean>
+    permission: PermissionState,
+    text: String,
+    dialog: MutableState<Boolean>,
 ) {
 
     var openMainDialog by dialog
@@ -194,7 +201,7 @@ fun ScopePermissions(
     text: (String) -> String = { v -> "Permission $v not granted" },
     failText: (String) -> String = { v -> text(v) },
     title: @Composable () -> Unit = {},
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val granted = permissions.allPermissionsGranted
     val openMainDialog = remember {
@@ -210,26 +217,30 @@ fun ScopePermissions(
             modifier = modifier.padding(4.dp),
             contentAlignment = Alignment.Center
         ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp),
-                    verticalArrangement = Arrangement.Top
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                verticalArrangement = Arrangement.Top
+            ) {
+                title()
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { openMainDialog.value = true },
                 ) {
-                    title()
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { openMainDialog.value = true },
-                    ) {
-                        val p =
-                            permissions.permissions.first { v -> v.status != PermissionStatus.Granted }
-                        PermissionSingleDialog(permission = p, text = text(p.permission), dialog = openMainDialog)
-                        Text(
-                            modifier = Modifier.padding(16.dp),
-                            text = failText(p.permission),
-                        )
-                    }
+                    val p =
+                        permissions.permissions.first { v -> v.status != PermissionStatus.Granted }
+                    PermissionSingleDialog(
+                        permission = p,
+                        text = text(p.permission),
+                        dialog = openMainDialog
+                    )
+                    Text(
+                        modifier = Modifier.padding(16.dp),
+                        text = failText(p.permission),
+                    )
                 }
+            }
         }
     }
 }
