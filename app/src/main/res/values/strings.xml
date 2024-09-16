@@ -86,6 +86,12 @@
         OF THE POSSIBILITY OF SUCH DAMAGE.
     </string>
 
+
+    <string name="bluetooth_title">Grant bluetooth scan permission</string>
+    <string name="advertise_title">Grant bluetooth advertise permission</string>
+    <string name="connect_title">Grant bluetooth connect permission</string>
+    <string name="battery_title">"Optionally grant permission to ignore battery optimizations"</string>
+
     <string name="title_activity_identity_import">IdentityImportActivity</string>
     <string name="import_identities">Import Identities</string>
 
