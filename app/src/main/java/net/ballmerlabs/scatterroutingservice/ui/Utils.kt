@@ -175,7 +175,10 @@ fun PermissionSingleDialog(
                         disabledContentColor = MaterialTheme.colorScheme.surfaceDim,
                         disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                     ),
-                    onClick = { permission.launchPermissionRequest() }
+                    onClick = {
+                        permission.launchPermissionRequest()
+                        openMainDialog = false
+                    }
                 ) {
                     Text(
                         color = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.secondary),

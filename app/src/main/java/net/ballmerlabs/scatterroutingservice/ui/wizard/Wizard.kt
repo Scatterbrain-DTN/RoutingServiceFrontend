@@ -182,7 +182,6 @@ fun FirstStartWizard(
 
     if (show && model.states.isNotEmpty()) {
         var state by remember { mutableStateOf(model.states[0]) }
-        var currentPage by remember { mutableIntStateOf(0) }
         Surface(modifier = modifier) {
             val pagerState = rememberPagerState(pageCount = { model.states.size })
                 Row(modifier = Modifier.fillMaxSize(),horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -196,8 +195,9 @@ fun FirstStartWizard(
                     )
                     Column(modifier = modifier.padding(start = 4.dp).weight(1F).verticalScroll(scrollstate), verticalArrangement = Arrangement.SpaceBetween) {
                         HorizontalPager(modifier = Modifier.weight(1F), state = pagerState) { page ->
-                            currentPage = page
+
                             state = model.states[page]
+
 
                             Column(modifier = Modifier.fillMaxHeight()) {
                                 Text(
@@ -222,11 +222,13 @@ fun FirstStartWizard(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
 
-                            if (currentPage > 0) {
+                            val state = model.states[pagerState.currentPage]
+
+                            if (pagerState.currentPage > 0) {
                                 TextButton(
                                     onClick = {
                                         scope.launch(Dispatchers.IO) {
-                                            pagerState.animateScrollToPage(currentPage - 1)
+                                            pagerState.animateScrollToPage(pagerState.currentPage - 1)
                                         }
                                     }) { Text("Previous") }
                             } else {
@@ -242,8 +244,8 @@ fun FirstStartWizard(
                             }
                             state.Button(onClick = {
                                 scope.launch(Dispatchers.IO) {
-                                    if (currentPage < pagerState.pageCount - 1)
-                                        pagerState.animateScrollToPage(currentPage + 1)
+                                    if (pagerState.currentPage < pagerState.pageCount - 1)
+                                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
                                     else
                                         withContext(Dispatchers.IO) {
                                             context.dataStore.edit { p ->
