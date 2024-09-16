@@ -438,7 +438,7 @@ class DrawerActivity : AppCompatActivity() {
             val state = model.repository.observeRouterState().value
 
             val scope = rememberCoroutineScope()
-            ScatterbrainTheme {
+            ScatterbrainTheme() {
                 val pairingState by model.repository.observePairingAttempts().observeAsState(
                     PairingState(
                         appName = "",

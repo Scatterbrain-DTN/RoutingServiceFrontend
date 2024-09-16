@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.FilledTonalButton
@@ -114,75 +115,23 @@ class WizardViewModel @Inject constructor(
 
     val states = mutableStateListOf(
         WizardState(
-            title = "Welcome to Scatterbrain!",
+            title = ctx.getString(R.string.welcome),
             body = {
-                val trans = rememberInfiniteTransition("welcome")
-                var end by remember { mutableStateOf(IntSize.Zero) }
-                var start by remember { mutableStateOf(IntSize.Zero) }
-                var person by remember { mutableStateOf(IntSize.Zero) }
-                var showfile by remember { mutableStateOf(false) }
-                val endWalk = end.width.pxToDp().value- start.width.pxToDp().value - person.width.pxToDp().value
-                val walk by trans.animateFloat(
-                    initialValue = 0.dp.value,
-                    targetValue = endWalk,
-                    animationSpec = infiniteRepeatable(tween(5000), RepeatMode.Reverse),
-                    label = "walk"
-                )
-
-                if (walk in 0.toFloat()..0.5.toFloat())
-                    showfile = true
-                if (walk in (endWalk-0.5).toFloat()..endWalk)
-                    showfile = false
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1F)
-                            .onGloballyPositioned { v -> end = v.size },
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(60.dp).onGloballyPositioned { v ->
-                                start = v.size
-                            },
-                            painter = painterResource(R.drawable.baseline_groups_24),
-                            contentDescription = "Group of people"
-                        )
-                        Row(
-                            modifier = Modifier.wrapContentWidth()
-                                .offset(x = walk.dp)
-                        ) {
-                            if (showfile) {
-                                Icon(
-                                    modifier = Modifier.size(15.dp),
-                                    painter = painterResource(R.drawable.baseline_insert_drive_file_24),
-                                    contentDescription = "file"
-                                )
-                            }
-                            Icon(
-                                modifier = Modifier.size(30.dp).onGloballyPositioned { v ->
-                                    person = v.size
-                                },
-                                painter = painterResource(R.drawable.baseline_person_outline_24),
-                                contentDescription = "person"
-                            )
-
-                        }
-                    }
-                    Icon(
-                        modifier = Modifier.size(60.dp),
-                        painter = painterResource(R.drawable.baseline_groups_24),
-                        contentDescription = "Group of people"
-                    )
-                }
-
-
                 Text(
-                    text = stringResource(R.string.big_description)
+                    text = stringResource(R.string.big_description_1)
+                )
+                SendAnimation(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp))
+                Text(
+                    text = stringResource(R.string.big_description_2)
+                )
+            }
+        ),
+        WizardState(
+            title = ctx.getString(R.string.your_personal),
+            body =  {
+                CityAnimation(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp))
+                Text(
+                    text = stringResource(R.string.big_description_3)
                 )
             }
         ),

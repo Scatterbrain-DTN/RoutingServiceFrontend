@@ -95,6 +95,9 @@
     <string name="title_activity_identity_import">IdentityImportActivity</string>
     <string name="import_identities">Import Identities</string>
 
+    <string name="welcome">Welcome to Scatterbrain!</string>
+    <string name="your_personal">Your personal internet</string>
+
     <string name="wifi_description">
         The NEARBY_WIFI_DEVICES permission is required to perform
         wifi direct operations in the background on newer devices
@@ -123,17 +126,24 @@
         is because some apps use 3rd party bluetooth devices to find your devices approximate location by
         looking up their device ids. Scatterbrain does not do this.
     </string>
-    <string name="big_description">
-        Scatterbrain is a platform for building rich media apps that don\'t need a data plan to work.
+    <string name="big_description_1">
+        Scatterbrain is your own personal internet that doesn\'t require mobile data! \n\n
+
         Using bluetooth, wifi, and your own physical social network. Scatterbrain forwards content to all
-        your friends even if they are miles away. Scatterbrain powers an entire ecosystem of 3rd party apps on
-        your phone, on your desktop, and beyond! Anyone can make an app leveraging the Scatterbrain Router to
-        enable offline communication with any device on the Scatterbrain network.
+        your friends even if they are miles away.
+    </string>
+
+    <string name="big_description_2">
+        Scatterbrain powers an entire ecosystem of 3rd party apps on
+        your phone, on your desktop, and beyond! Anyone can make a Scatterbrain powered app driving powerful new experiences
+        on mobile, desktop, and beyond.
+    </string>
+
+    <string name="big_description_3">
         So, how is this possible if bluetooth and wifi only work over short ranges? Scatterbrain
         swaps messages with other Scatterbrain enabled phones that you pass on the street and allows them to
         carry your messages to their destination as they go about their own day. Messages spread
-        like rumors throughout your neighborhood, powered by human connections!
-
+        like rumors throughout your neighborhood, powered by human connections!\n
 
         To get started using Scatterbrain, first you need to grant a few permissions. These are required for the
         Scatterbrain Router app to access your phone\'s bluetooth/wifi hardware. Press "Next" to begin the setup process"
