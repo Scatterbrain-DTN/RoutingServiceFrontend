@@ -201,7 +201,7 @@ fun FirstStartWizard(
 
                             Column(modifier = Modifier.fillMaxHeight()) {
                                 Text(
-                                    modifier = Modifier.padding(bottom = 32.dp),
+                                    modifier = Modifier.padding(vertical = 32.dp),
                                     color = MaterialTheme.colorScheme.onBackground,
                                     style = MaterialTheme.typography.headlineLarge,
                                     text = state.title

@@ -129,24 +129,26 @@
     <string name="big_description_1">
         Scatterbrain is your own personal internet that doesn\'t require mobile data! \n\n
 
-        Using bluetooth, wifi, and your own physical social network. Scatterbrain forwards content to all
+        Using bluetooth, wifi, and your own physical social network. Scatterbrain pushes content to all
         your friends even if they are miles away.
     </string>
 
     <string name="big_description_2">
         Scatterbrain powers an entire ecosystem of 3rd party apps on
-        your phone, on your desktop, and beyond! Anyone can make a Scatterbrain powered app driving powerful new experiences
-        on mobile, desktop, and beyond.
+        your phone, laptop and beyond! Anyone can make a Scatterbrain powered app driving powerful new experiences
+        even with zero bars of signal.
     </string>
 
     <string name="big_description_3">
-        So, how is this possible if bluetooth and wifi only work over short ranges? Scatterbrain
-        swaps messages with other Scatterbrain enabled phones that you pass on the street and allows them to
+        How does it work?\n
+        Scatterbrain swaps messages with other Scatterbrain enabled phones that you pass on the street and allows them to
         carry your messages to their destination as they go about their own day. Messages spread
-        like rumors throughout your neighborhood, powered by human connections!\n
+        like rumors throughout your neighborhood, powered by human connections!
+    </string>
 
+    <string name="big_description_4">
         To get started using Scatterbrain, first you need to grant a few permissions. These are required for the
-        Scatterbrain Router app to access your phone\'s bluetooth/wifi hardware. Press "Next" to begin the setup process"
+        Scatterbrain Router app to access your phone\'s bluetooth/wifi hardware. Press "Next" to begin the setup process.
     </string>
     <string name="battery_description">
         To prevent android from pausing Scatterbrain in the background, it is possible to grant an exemption from automatic battery optimization for Scatterbrain router.

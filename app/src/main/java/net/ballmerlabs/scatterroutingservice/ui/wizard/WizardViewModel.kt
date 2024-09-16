@@ -120,7 +120,7 @@ class WizardViewModel @Inject constructor(
                 Text(
                     text = stringResource(R.string.big_description_1)
                 )
-                SendAnimation(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp))
+                CityAnimation(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp))
                 Text(
                     text = stringResource(R.string.big_description_2)
                 )
@@ -129,9 +129,12 @@ class WizardViewModel @Inject constructor(
         WizardState(
             title = ctx.getString(R.string.your_personal),
             body =  {
-                CityAnimation(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp))
                 Text(
                     text = stringResource(R.string.big_description_3)
+                )
+                SendAnimation(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp))
+                Text(
+                    text = stringResource(R.string.big_description_4)
                 )
             }
         ),
