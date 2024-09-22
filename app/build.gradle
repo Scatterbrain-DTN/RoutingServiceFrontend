@@ -100,12 +100,14 @@ android {
     }
 }
 
+/*
 tasks.withType(KotlinCompile).configureEach {
     compilerOptions.freeCompilerArgs.addAll(
             "-P",
             "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=/Users/khanson/Documents/repos/scatter/",
     )
 }
+ */
 
 dependencies {
     implementation "androidx.hilt:hilt-navigation-compose:1.2.0"

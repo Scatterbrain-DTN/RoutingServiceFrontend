@@ -165,7 +165,6 @@ fun SendAnimation(modifier: Modifier = Modifier) {
 @Composable
 fun FirstStartWizard(
     modifier: Modifier = Modifier,
-    batteryGranted: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
