@@ -451,7 +451,7 @@ class DrawerActivity : AppCompatActivity() {
                     val id = LibsodiumInterface.base64encUrl(pairingState.identity)
                     Log.v("debug", "recompose PairingStage INITIATE $id")
                     val name = pairingState.appName.ifEmpty { "default" }.replace("/", "\\/")
-                    LaunchedEffect(key1 = true) {
+                    SideEffect {
                         controller.navigate("${NAV_PAIRING_REQUEST}/$name/$id")
                     }
                 }

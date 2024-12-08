@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -49,8 +50,7 @@ fun SbCard(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
     padding: Dp = 0.dp,
-    contentAlignment: Alignment = Alignment.TopStart,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
         colors = CardColors(
@@ -61,16 +61,14 @@ fun SbCard(
                 color
             )
         ),
-        modifier = modifier
+        modifier = modifier,
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = contentAlignment
-        ) {
-            content()
-        }
+            content = content
+        )
 
     }
 }
