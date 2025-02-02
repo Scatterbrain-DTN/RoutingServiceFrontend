@@ -9,12 +9,19 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -27,13 +34,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.preference.PreferenceManager
@@ -48,6 +59,7 @@ import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.ui.SbCard
 import net.ballmerlabs.scatterroutingservice.ui.ScopePermissions
+import net.ballmerlabs.scatterroutingservice.ui.wizard.pxToDp
 import net.ballmerlabs.uscatterbrain.setActive
 import net.ballmerlabs.uscatterbrain.setPassive
 import java.util.Date
@@ -137,7 +149,7 @@ fun LuidView(modifier: Modifier = Modifier) {
     val model: RoutingServiceViewModel = hiltViewModel()
     val scope = rememberCoroutineScope()
     val state by model.repository.observeLuid().observeAsState()
-    Column(modifier = modifier) {
+    Column {
         Text(text = "Current router id:")
         Text(text = "${state?.uuid}")
         Button(onClick = {
@@ -191,25 +203,37 @@ fun MetricsView(modifier: Modifier = Modifier) {
 
 @Composable
 fun PowerToggle() {
-    val scrollState = rememberScrollState()
+    var containerHeight by remember { mutableIntStateOf(0) }
+
     Column(
         Modifier
             .fillMaxSize()
-            .scrollable(scrollState, Orientation.Vertical)
-            .padding(horizontal = 4.dp),
+            .padding(horizontal = 4.dp)
+            .verticalScroll(rememberScrollState())
+            .onGloballyPositioned { coords -> containerHeight = coords.size.height },
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top
     ) {
         val titleStyle = MaterialTheme.typography.titleMedium
         val titleModifier = Modifier
-        Text(modifier = titleModifier, text = "Router state", style = titleStyle)
-        ToggleBox()
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-        Text(modifier = titleModifier, text = "Identity", style = titleStyle)
-        LuidView()
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-        Text(modifier = titleModifier, text = "Recently seen applications:", style = titleStyle)
-        MetricsView()
+        var blockHeight by remember { mutableIntStateOf(0) }
+        Column(modifier = Modifier.onGloballyPositioned { coords -> blockHeight = coords.size.height }) {
+            Text(modifier = titleModifier, text = "Router state", style = titleStyle)
+            ToggleBox()
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Text(modifier = titleModifier, text = "Identity", style = titleStyle)
+            LuidView(modifier = Modifier)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+        }
+
+        var listHeight = (containerHeight.pxToDp() - blockHeight.pxToDp())
+        if (listHeight <= 0.dp) {
+            listHeight = 200.dp
+        }
+        Column(modifier = Modifier.sizeIn(minHeight = listHeight)) {
+            Text(modifier = titleModifier, text = "Recently seen applications:", style = titleStyle)
+            MetricsView(modifier = Modifier.fillMaxHeight(1F).weight(1F))
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 package net.ballmerlabs.scatterroutingservice.ui.debug
 
 import android.os.FileObserver
+import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
