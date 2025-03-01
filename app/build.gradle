@@ -18,7 +18,7 @@ android {
         applicationId "net.ballmerlabs.scatterroutingservice"
         minSdkVersion 26
         targetSdkVersion 35
-        versionCode 84
+        versionCode 85
         compileSdk 35
 
         javaCompileOptions {
@@ -118,45 +118,45 @@ tasks.withType(KotlinCompile).configureEach {
 
 dependencies {
     implementation "androidx.hilt:hilt-navigation-compose:1.2.0"
-    implementation 'androidx.compose.material3:material3:1.2.1'
+    implementation 'androidx.compose.material3:material3:1.3.1'
     implementation "androidx.compose.foundation:foundation:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.navigation:navigation-compose:2.7.7"
-    implementation 'androidx.paging:paging-compose:3.3.1'
-    implementation 'androidx.activity:activity-compose:1.9.1'
+    implementation "androidx.navigation:navigation-compose:2.8.8"
+    implementation 'androidx.paging:paging-compose:3.3.6'
+    implementation 'androidx.activity:activity-compose:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation "androidx.compose.runtime:runtime-livedata:1.6.8"
+    implementation "androidx.compose.runtime:runtime-livedata:1.7.8"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7"
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.7'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.7.7'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.4'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.8'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.8.8'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
     implementation project(':ScatterRoutingService:app')
     implementation project(':scatterbrainSDK')
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'com.sergivonavi:materialbanner:1.2.0'
-    implementation 'androidx.activity:activity-ktx:1.9.1'
-    implementation 'androidx.fragment:fragment-ktx:1.8.2'
+    implementation 'androidx.activity:activity-ktx:1.10.1'
+    implementation 'androidx.fragment:fragment-ktx:1.8.6'
     implementation "cash.z.ecc.android:kotlin-bip39:1.0.8"
-    implementation "androidx.core:core-ktx:1.13.1"
+    implementation "androidx.core:core-ktx:1.15.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     ksp "com.google.dagger:hilt-compiler:$hilt_version"
     implementation 'com.github.lelloman:android-identicons:v11'
-    implementation 'com.google.firebase:firebase-crashlytics:19.0.3'
-    implementation "androidx.startup:startup-runtime:1.1.1"
+    implementation 'com.google.firebase:firebase-crashlytics:19.4.1'
+    implementation "androidx.startup:startup-runtime:1.2.0"
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation "com.google.accompanist:accompanist-permissions:0.27.0"
-    implementation "androidx.datastore:datastore-preferences:1.1.1"
+    implementation "androidx.datastore:datastore-preferences:1.1.3"
    //implementation "androidx.graphics:graphics-shapes:1.0.0-beta01"
 
     // Room

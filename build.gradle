@@ -19,11 +19,11 @@ buildscript {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.3'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
         classpath 'io.github.gradle-nexus:publish-plugin:2.0.0-rc-1'
-        classpath "org.jacoco:org.jacoco.core:0.8.9"
-        classpath 'com.google.gms:google-services:4.4.1'  // Google Services plugin
+        classpath "org.jacoco:org.jacoco.core:0.8.11"
+        classpath 'com.google.gms:google-services:4.4.2'  // Google Services plugin
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
