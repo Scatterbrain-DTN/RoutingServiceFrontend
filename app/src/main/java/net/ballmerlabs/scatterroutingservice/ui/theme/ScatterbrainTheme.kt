@@ -141,13 +141,6 @@ fun ScatterbrainTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-         //   (view.context as Activity).window.statusBarColor = colorScheme.primary.toArgb()
-           // ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
-        }
-    }
 
     val typography = Typography(
         headlineSmall = TextStyle(
