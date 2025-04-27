@@ -4,6 +4,7 @@ buildscript {
     ext.compose_version = '1.2.1'
     ext.kotlinVersion = kotlin_version
     ext.hilt_version = '2.55'
+    ext.dagger_version = ext.hilt_version
     rootProject.ext.set("publishable", true)
     repositories {
         google()

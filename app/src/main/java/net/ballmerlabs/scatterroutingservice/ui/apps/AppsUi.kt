@@ -60,12 +60,14 @@ import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.ui.ImmutableApps
 import net.ballmerlabs.scatterroutingservice.ui.SbCard
+import net.ballmerlabs.scatterroutingservice.ui.isAppInstalled
 import net.ballmerlabs.uscatterbrain.dataStore
 import net.ballmerlabs.uscatterbrain.network.LibsodiumInterface
 import net.ballmerlabs.uscatterbrain.network.b64
 import net.ballmerlabs.uscatterbrain.network.desktop.DesktopAddrs
 import net.ballmerlabs.uscatterbrain.network.desktop.DesktopPower
 import net.ballmerlabs.uscatterbrain.network.fingerprint
+import net.ballmerlabs.uscatterbrain.network.meshtastic.prefix
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.util.Date
@@ -239,6 +241,28 @@ fun AppsList(modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun MeshtasticSettings(modifier: Modifier = Modifier) {
+    val appInstalled = LocalContext.current.isAppInstalled(prefix)
+
+    val scope = rememberCoroutineScope()
+
+    val routingServiceViewModel: RoutingServiceViewModel = hiltViewModel()
+
+    if (appInstalled) {
+        Column(modifier = modifier) {
+            Text("Meshtastic installed!")
+            Button(onClick = {
+                scope.launch {
+                    routingServiceViewModel.repository.startMeshtastic()
+                }
+            }) {
+                Text("test connection")
+            }
+        }
+    }
+}
+
+@Composable
 fun ToggleView(modifier: Modifier = Modifier) {
     val model: RoutingServiceViewModel = hiltViewModel()
     val scope = rememberCoroutineScope()
@@ -257,7 +281,8 @@ fun ToggleView(modifier: Modifier = Modifier) {
 
     LaunchedEffect(true) {
         prefs.edit { p ->
-            val n = p[stringPreferencesKey(context.getString(R.string.pref_desktop_name))]?: sbName()
+            val n =
+                p[stringPreferencesKey(context.getString(R.string.pref_desktop_name))] ?: sbName()
             name = n
         }
     }
@@ -312,6 +337,7 @@ fun AppsView(modifier: Modifier = Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(text = "WARNING: Desktop API is in alpha", style = MaterialTheme.typography.titleMedium)
         ToggleView(modifier = Modifier.fillMaxWidth())
+        MeshtasticSettings(modifier = Modifier.fillMaxWidth())
         AppsList(modifier = Modifier.fillMaxWidth())
     }
 }
