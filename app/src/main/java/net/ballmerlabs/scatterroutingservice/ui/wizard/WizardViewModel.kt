@@ -143,7 +143,7 @@ class WizardViewModel @Inject constructor(
             body = { Text(stringResource(R.string.location_description)) },
             permissionState = WizardPermission(
                 permissionState = Manifest.permission.ACCESS_FINE_LOCATION,
-                text = "Grant the ACCESS_FINE_LOCATION to allow wifi and bluetooth connections when the app" +
+                text = "Grant the ACCESS_FINE_LOCATION to allow wifi and bluetooth connections when the app " +
                         "is closed?"
             )
         )
