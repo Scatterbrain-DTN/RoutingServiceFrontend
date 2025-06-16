@@ -2,6 +2,7 @@ package net.ballmerlabs.scatterroutingservice.ui.apps
 
 import android.content.SharedPreferences
 import android.os.RemoteException
+import android.provider.Settings.Global.putString
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -38,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -64,6 +66,7 @@ import androidx.preference.PreferenceManager
 import cash.z.ecc.android.bip39.Mnemonics
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -280,14 +283,16 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
     val appInstalled = LocalContext.current.isAppInstalled(prefix)
     val context = LocalContext.current
 
+
     val routingServiceViewModel: RoutingServiceViewModel = hiltViewModel()
     if (appInstalled) {
         val settingsEnable = stringResource(R.string.pref_meshtastic)
         val opts = stringArrayResource(R.array.meshtastic_options)
         val descriptions = stringArrayResource(R.array.meshtastic_descriptions)
-        val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
+        val prefs = context.dataStore
+        val scope = rememberCoroutineScope()
+        val enabled by prefs.data.map { pref -> pref[stringPreferencesKey(settingsEnable)] }.collectAsState("disabled")
 
-        val enabled by prefs.observeString(settingsEnable, "disabled")
 
         Text("Meshtastic installed!")
         Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -296,8 +301,16 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
                     modifier = Modifier.selectable(
                         selected = enabled == option,
                         onClick = {
-                            prefs.edit {
-                                putString(settingsEnable, option)
+                            scope.launch {
+                                prefs.edit { prefs ->
+                                    if (option != "disabled") {
+                                            if (routingServiceViewModel.repository.startMeshtastic()) {
+                                                prefs[stringPreferencesKey(settingsEnable)] = option
+                                        }
+                                    } else {
+                                        prefs[stringPreferencesKey(settingsEnable)] = option
+                                    }
+                                }
                             }
                         },
                         role = Role.RadioButton
