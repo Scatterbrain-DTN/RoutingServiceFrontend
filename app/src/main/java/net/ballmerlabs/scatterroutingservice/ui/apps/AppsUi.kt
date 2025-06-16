@@ -1,5 +1,6 @@
 package net.ballmerlabs.scatterroutingservice.ui.apps
 
+import android.content.SharedPreferences
 import android.os.RemoteException
 import android.util.Log
 import android.widget.Toast
@@ -9,6 +10,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
@@ -19,18 +22,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -42,12 +49,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
+import androidx.preference.PreferenceManager
 import cash.z.ecc.android.bip39.Mnemonics
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
@@ -241,22 +254,66 @@ fun AppsList(modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun SharedPreferences.observeString(key: String, initial: String): State<String> {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val state = remember {
+        mutableStateOf(getString(key, initial)!!)
+    }
+
+    DisposableEffect(this, lifecycleOwner) {
+        val listener =
+            SharedPreferences.OnSharedPreferenceChangeListener { prefs: SharedPreferences, changedKey: String? ->
+                if (key == changedKey)
+                    state.value = prefs.getString(key, initial)!!
+            }
+        registerOnSharedPreferenceChangeListener(listener)
+
+        onDispose { unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    return state
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
 fun MeshtasticSettings(modifier: Modifier = Modifier) {
     val appInstalled = LocalContext.current.isAppInstalled(prefix)
-
-    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val routingServiceViewModel: RoutingServiceViewModel = hiltViewModel()
-
     if (appInstalled) {
-        Column(modifier = modifier) {
-            Text("Meshtastic installed!")
-            Button(onClick = {
-                scope.launch {
-                    routingServiceViewModel.repository.startMeshtastic()
+        val settingsEnable = stringResource(R.string.pref_meshtastic)
+        val opts = stringArrayResource(R.array.meshtastic_options)
+        val descriptions = stringArrayResource(R.array.meshtastic_descriptions)
+        val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
+
+        val enabled by prefs.observeString(settingsEnable, "disabled")
+
+        Text("Meshtastic installed!")
+        Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            for ((option, desc) in opts.zip(descriptions)) {
+                Row(
+                    modifier = Modifier.selectable(
+                        selected = enabled == option,
+                        onClick = {
+                            prefs.edit {
+                                putString(settingsEnable, option)
+                            }
+                        },
+                        role = Role.RadioButton
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = enabled == option,
+                        onClick = null,
+                    )
+                    Text(
+                        text = desc,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 }
-            }) {
-                Text("test connection")
             }
         }
     }

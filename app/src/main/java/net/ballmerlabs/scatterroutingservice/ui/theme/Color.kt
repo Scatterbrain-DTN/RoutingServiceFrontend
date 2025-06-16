@@ -32,3 +32,4 @@ val dimGreen = Color(0xffE3F0E9)
 
 val black = Color.Black
 val white = Color.White
+val grayTeal = Color(0xFF1D2A2A)

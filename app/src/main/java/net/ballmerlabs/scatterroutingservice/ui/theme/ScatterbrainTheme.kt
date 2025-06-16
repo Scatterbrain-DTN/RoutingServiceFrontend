@@ -39,19 +39,19 @@ private val DarkColorScheme = darkColorScheme(
     surfaceTint = brightGreen,
     surfaceDim = black,
     surfaceContainerLow = dimTeal,
-    surfaceContainerHigh = surfaceTeal,
-    surfaceContainerHighest = brightTeal,
+    surfaceContainerHigh = black,
+    surfaceContainerHighest = grayTeal,
     surfaceBright = surfaceGreen,
     surfaceContainerLowest = dimTeal,
     background = black,
     onBackground = white,
-    onSurface = black,
+    onSurface = white,
     onSecondaryContainer = black,
     onPrimaryContainer = black,
-    onSurfaceVariant = black,
+    onSurfaceVariant = white,
     onTertiary = black,
     onTertiaryContainer = black,
-    onPrimary = black
+    onPrimary = black,
 )
 
 /*

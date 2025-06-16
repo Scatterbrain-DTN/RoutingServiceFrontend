@@ -158,7 +158,9 @@ fun ChatView(modifier: Modifier = Modifier) {
                     .padding(8.dp),
                 value = chatText,
                 placeholder = {
-                    Text(text = "Message the entire network")
+                    Text(
+                        text = "Message the entire network",
+                    )
                 },
                 onValueChange = { v ->
                     chatText = v
