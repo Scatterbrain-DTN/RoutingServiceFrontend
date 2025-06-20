@@ -2,6 +2,7 @@ package net.ballmerlabs.scatterroutingservice.ui
 
 import android.Manifest
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
@@ -20,9 +21,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.PermissionState
@@ -44,6 +48,26 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import java.util.Optional
 
+@Composable
+fun SharedPreferences.observeString(key: String, initial: String): State<String> {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val state = remember {
+        mutableStateOf(getString(key, initial)!!)
+    }
+
+    DisposableEffect(this, lifecycleOwner) {
+        val listener =
+            SharedPreferences.OnSharedPreferenceChangeListener { prefs: SharedPreferences, changedKey: String? ->
+                if (key == changedKey)
+                    state.value = prefs.getString(key, initial)!!
+            }
+        registerOnSharedPreferenceChangeListener(listener)
+
+        onDispose { unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    return state
+}
 
 @Composable
 fun SbCard(

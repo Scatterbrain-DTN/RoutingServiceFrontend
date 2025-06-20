@@ -55,7 +55,6 @@ kotlinx-coroutines-core-version = "1.7.3"
 kotlinx-serialization-json = "1.8.1"
 kotlinxCoroutinesRx2 = "1.8.1"
 ktor-server-websockets = "3.0.0-rc-1"
-lazysodium-android = "5.2.0"
 legacySupportV4 = "1.0.0"
 lifecycle = "2.9.1"
 lifecycle-service = "2.9.1"
@@ -80,7 +79,7 @@ protobuf-gradle-plugin = "0.9.5"
 protobuf-kotlin = "4.30.2"
 publish-plugin = "1.3.0"
 recyclerview = "1.4.0"
-robolectric = "4.9.2"
+robolectric = "4.14.1"
 room = "2.7.1"
 roomRxjava2 = "2.7.1"
 rules = "1.6.1"
@@ -188,8 +187,6 @@ hilt-android-v255 = { module = "com.google.dagger:hilt-android", version.ref = "
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 jetbrains-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core-version" }
-jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
-jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "jna-platform" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-bip39 = { module = "cash.z.ecc.android:kotlin-bip39", version.ref = "kotlinBip39" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -207,7 +204,6 @@ kotlinx-coroutines-guava = { group = "org.jetbrains.kotlinx", name = "kotlinx-co
 kotlinx-coroutines-rx2 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx2", version.ref = "kotlinxCoroutinesRx2" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor-server-websockets" }
-lazysodium-android = { module = "com.goterl:lazysodium-android", version.ref = "lazysodium-android" }
 lifecycle-common-java8 = { group = "androidx.lifecycle", name = "lifecycle-common-java8", version.ref = "lifecycle" }
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
 lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycle" }

@@ -257,28 +257,6 @@ fun AppsList(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SharedPreferences.observeString(key: String, initial: String): State<String> {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val state = remember {
-        mutableStateOf(getString(key, initial)!!)
-    }
-
-    DisposableEffect(this, lifecycleOwner) {
-        val listener =
-            SharedPreferences.OnSharedPreferenceChangeListener { prefs: SharedPreferences, changedKey: String? ->
-                if (key == changedKey)
-                    state.value = prefs.getString(key, initial)!!
-            }
-        registerOnSharedPreferenceChangeListener(listener)
-
-        onDispose { unregisterOnSharedPreferenceChangeListener(listener) }
-    }
-
-    return state
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
 fun MeshtasticSettings(modifier: Modifier = Modifier) {
     val appInstalled = LocalContext.current.isAppInstalled(prefix)
     val context = LocalContext.current
@@ -294,7 +272,16 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
         val enabled by prefs.data.map { pref -> pref[stringPreferencesKey(settingsEnable)] }.collectAsState("disabled")
 
 
-        Text("Meshtastic installed!")
+        Row {
+            Text("Meshtastic installed!")
+            Button(onClick = {
+                scope.launch {
+                    routingServiceViewModel.repository.syncMeshtastic()
+                }
+            }) {
+                Text("Manual sync")
+            }
+        }
         Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             for ((option, desc) in opts.zip(descriptions)) {
                 Row(
