@@ -275,8 +275,12 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
         Row {
             Text("Meshtastic installed!")
             Button(onClick = {
-                scope.launch {
-                    routingServiceViewModel.repository.syncMeshtastic()
+                scope.launch(Dispatchers.IO) {
+                    try {
+                        routingServiceViewModel.repository.syncMeshtastic()
+                    } catch (exc: Exception) {
+                        Log.e("debug","failed to send: $exc")
+                    }
                 }
             }) {
                 Text("Manual sync")
