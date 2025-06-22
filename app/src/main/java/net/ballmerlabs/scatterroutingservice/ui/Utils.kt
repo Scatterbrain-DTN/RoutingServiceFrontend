@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
@@ -68,6 +69,60 @@ fun SharedPreferences.observeString(key: String, initial: String): State<String>
 
     return state
 }
+
+data class SbSettingsList(
+    private val items: MutableMap<@Composable ColumnScope.() -> Unit, Modifier> = mutableMapOf(),
+) {
+    fun item(name: String, item: @Composable ColumnScope.() -> Unit): SbSettingsList = apply {
+        items[
+            {
+                Text(name, style = MaterialTheme.typography.titleMedium)
+                item()
+            }
+        ] = Modifier
+    }
+
+    fun item(
+        modifier: Modifier = Modifier,
+        item: @Composable ColumnScope.() -> Unit,
+    ): SbSettingsList = apply {
+        items[item] = modifier
+    }
+
+    @Composable
+    fun Display(
+        modifier: Modifier = Modifier,
+        horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+        verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(4.dp),
+    ) {
+        Column(
+            modifier = modifier,
+            verticalArrangement = verticalArrangement,
+            horizontalAlignment = horizontalAlignment
+        ) {
+            items.forEach { (i, m) ->
+                Column(modifier = m) {
+                    i()
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                }
+            }
+        }
+    }
+}
+
+//@Composable
+//fun SbSettingsList(
+//    modifier: Modifier = Modifier,
+//    items: Map<String ,@Composable ColumnScope.()->Unit>
+//) {
+//    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+//        items.forEach { (s, k) ->
+//            Text(s, style = MaterialTheme.typography.titleMedium)
+//            k()
+//            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+//        }
+//    }
+//}
 
 @Composable
 fun SbCard(
@@ -150,8 +205,8 @@ fun ScopeScatterbrainPermissions(
         title = {
             Text(
                 text =
-                "The following permissions need to be granted for Scatterbrain to operate. " +
-                        "push the below button to grant the permission:",
+                    "The following permissions need to be granted for Scatterbrain to operate. " +
+                            "push the below button to grant the permission:",
                 style = MaterialTheme.typography.labelLarge
             )
         },

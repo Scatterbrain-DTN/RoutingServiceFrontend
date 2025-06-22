@@ -29,6 +29,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -76,6 +77,7 @@ import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.ui.ImmutableApps
 import net.ballmerlabs.scatterroutingservice.ui.SbCard
+import net.ballmerlabs.scatterroutingservice.ui.SbSettingsList
 import net.ballmerlabs.scatterroutingservice.ui.isAppInstalled
 import net.ballmerlabs.uscatterbrain.dataStore
 import net.ballmerlabs.uscatterbrain.network.LibsodiumInterface
@@ -223,7 +225,6 @@ fun AppsList(modifier: Modifier = Modifier) {
     val ctx = LocalContext.current
 
     Column {
-        Text(text = "Connected apps")
         LazyColumn(
             modifier = modifier,
             state = state,
@@ -272,8 +273,7 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
         val enabled by prefs.data.map { pref -> pref[stringPreferencesKey(settingsEnable)] }.collectAsState("disabled")
 
 
-        Row {
-            Text("Meshtastic installed!")
+        Column(modifier = Modifier.fillMaxWidth()) {
             Button(onClick = {
                 scope.launch(Dispatchers.IO) {
                     try {
@@ -287,6 +287,7 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
             }
         }
         Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Message handling")
             for ((option, desc) in opts.zip(descriptions)) {
                 Row(
                     modifier = Modifier.selectable(
@@ -349,7 +350,6 @@ fun ToggleView(modifier: Modifier = Modifier) {
     }
 
     Column(modifier = modifier) {
-        Text(text = "Connection settings")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextField(
                 modifier = Modifier.weight(1F),
@@ -395,10 +395,12 @@ fun ToggleView(modifier: Modifier = Modifier) {
 
 @Composable
 fun AppsView(modifier: Modifier = Modifier) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(text = "WARNING: Desktop API is in alpha", style = MaterialTheme.typography.titleMedium)
-        ToggleView(modifier = Modifier.fillMaxWidth())
-        MeshtasticSettings(modifier = Modifier.fillMaxWidth())
-        AppsList(modifier = Modifier.fillMaxWidth())
-    }
+    SbSettingsList()
+        .item("Desktop settings") {
+            ToggleView(modifier = Modifier.fillMaxWidth())
+        }.item("Meshtastic settings") {
+            MeshtasticSettings(modifier = Modifier.fillMaxWidth())
+        }.item("Connected apps") {
+            AppsList(modifier = Modifier.fillMaxWidth())
+        }.Display(modifier = modifier)
 }

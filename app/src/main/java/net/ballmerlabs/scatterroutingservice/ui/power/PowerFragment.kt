@@ -4,32 +4,22 @@ import android.Manifest
 import android.os.Build
 import android.os.RemoteException
 import android.widget.Toast
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,10 +31,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.preference.PreferenceManager
@@ -58,6 +46,7 @@ import net.ballmerlabs.scatterroutingservice.BluetoothState
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.ui.SbCard
+import net.ballmerlabs.scatterroutingservice.ui.SbSettingsList
 import net.ballmerlabs.scatterroutingservice.ui.ScopePermissions
 import net.ballmerlabs.scatterroutingservice.ui.wizard.pxToDp
 import net.ballmerlabs.uscatterbrain.setActive
@@ -83,7 +72,8 @@ fun ToggleBox(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Switch(checked = state == RouterState.DISCOVERING,
+            Switch(
+                checked = state == RouterState.DISCOVERING,
                 enabled = bleState == BluetoothState.STATE_ON,
                 onCheckedChange = { s ->
                     scope.launch(Dispatchers.Default) {
@@ -121,7 +111,8 @@ fun ToggleBox(modifier: Modifier = Modifier) {
                         Switch(checked = checked, onCheckedChange = { c -> checked = c })
                     }
                     if (checked || permission.allPermissionsGranted) {
-                        ScopePermissions(modifier = if (!permission.allPermissionsGranted) Modifier.padding(
+                        ScopePermissions(
+                            modifier = if (!permission.allPermissionsGranted) Modifier.padding(
                             horizontal = 16.dp
                         )
                         else Modifier, permissions = permission, text = {
@@ -204,37 +195,68 @@ fun MetricsView(modifier: Modifier = Modifier) {
 @Composable
 fun PowerToggle() {
     var containerHeight by remember { mutableIntStateOf(0) }
+    val titleStyle = MaterialTheme.typography.titleMedium
+    val titleModifier = Modifier
+    var blockHeight by remember { mutableIntStateOf(0) }
+    var listHeight = (containerHeight.pxToDp() - blockHeight.pxToDp())
+    if (listHeight <= 0.dp) {
+        listHeight = 200.dp
+    }
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(horizontal = 4.dp)
-            .verticalScroll(rememberScrollState())
-            .onGloballyPositioned { coords -> containerHeight = coords.size.height },
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Top
-    ) {
-        val titleStyle = MaterialTheme.typography.titleMedium
-        val titleModifier = Modifier
-        var blockHeight by remember { mutableIntStateOf(0) }
-        Column(modifier = Modifier.onGloballyPositioned { coords -> blockHeight = coords.size.height }) {
+    SbSettingsList()
+        .item(modifier = Modifier.onGloballyPositioned { coords ->
+            blockHeight = coords.size.height
+        }) {
             Text(modifier = titleModifier, text = "Router state", style = titleStyle)
             ToggleBox()
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             Text(modifier = titleModifier, text = "Identity", style = titleStyle)
             LuidView(modifier = Modifier)
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
         }
-
-        var listHeight = (containerHeight.pxToDp() - blockHeight.pxToDp())
-        if (listHeight <= 0.dp) {
-            listHeight = 200.dp
-        }
-        Column(modifier = Modifier.sizeIn(minHeight = listHeight)) {
+        .item(modifier = Modifier.sizeIn(minHeight = listHeight)) {
             Text(modifier = titleModifier, text = "Recently seen applications:", style = titleStyle)
-            MetricsView(modifier = Modifier.fillMaxHeight(1F).weight(1F))
-        }
-    }
+            Text(
+                modifier = titleModifier,
+                text = "Recently seen applications:",
+                style = titleStyle
+            )
+            MetricsView(modifier = Modifier
+                .fillMaxHeight(1F)
+                .weight(1F))
+        }.Display(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 4.dp)
+                .verticalScroll(rememberScrollState())
+                .onGloballyPositioned { coords -> containerHeight = coords.size.height },
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
+        )
+
+//    Column(
+//        Modifier
+//            .fillMaxSize()
+//            .padding(horizontal = 4.dp)
+//            .verticalScroll(rememberScrollState())
+//            .onGloballyPositioned { coords -> containerHeight = coords.size.height },
+//        horizontalAlignment = Alignment.Start,
+//        verticalArrangement = Arrangement.Top
+//    ) {
+//
+//        Column(modifier = Modifier.onGloballyPositioned { coords -> blockHeight = coords.size.height }) {
+//            Text(modifier = titleModifier, text = "Router state", style = titleStyle)
+//            ToggleBox()
+//            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+//            Text(modifier = titleModifier, text = "Identity", style = titleStyle)
+//            LuidView(modifier = Modifier)
+//            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+//        }
+//
+//
+//        Column(modifier = Modifier.sizeIn(minHeight = listHeight)) {
+//            Text(modifier = titleModifier, text = "Recently seen applications:", style = titleStyle)
+//            MetricsView(modifier = Modifier.fillMaxHeight(1F).weight(1F))
+//        }
+//    }
 }
 
 @Composable
