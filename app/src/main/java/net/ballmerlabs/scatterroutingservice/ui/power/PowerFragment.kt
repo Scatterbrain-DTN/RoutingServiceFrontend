@@ -241,6 +241,7 @@ fun EnabledTransports(modifier: Modifier = Modifier) {
                                 set.remove("wifi")
                             }
 
+
                             try {
                                 if (!set.contains("bluetooth")) {
                                     viewModel.repository.stopDiscover()
@@ -252,12 +253,17 @@ fun EnabledTransports(modifier: Modifier = Modifier) {
                             }
 
                             try {
-                                if (set.contains("meshtastic")) {
+                                if (set.contains("meshtastic") && appInstalled) {
                                     viewModel.repository.startMeshtastic()
                                 }
                             } catch (exc: Exception) {
                                 Log.e("debug", "failed to start/stop meshtastic: $exc")
                             }
+
+                            if (!appInstalled)
+                                set.remove("meshtastic")
+
+                            Log.v("debug", "settings prefs $set")
 
                             p[stringSetPreferencesKey(prefSettings)] = set
                         }

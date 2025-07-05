@@ -257,8 +257,8 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
     val descriptions = stringArrayResource(R.array.meshtastic_descriptions)
     val prefs = context.dataStore
     val scope = rememberCoroutineScope()
-    val enabled by prefs.data.map { pref -> pref[stringPreferencesKey(settingsEnable)] }
-        .collectAsState("disabled")
+    val enabled by prefs.data.map { pref -> pref[stringPreferencesKey(settingsEnable)]?:opts[1] }
+        .collectAsState(opts[1])
 
 
     Column(modifier = Modifier.fillMaxWidth()) {
