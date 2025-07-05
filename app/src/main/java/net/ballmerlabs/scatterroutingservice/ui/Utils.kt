@@ -47,27 +47,40 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
+import java.io.Serializable
+import java.lang.IllegalStateException
 import java.util.Optional
 
 @Composable
-fun SharedPreferences.observeString(key: String, initial: String): State<String> {
+@Suppress("UNCHECKED_CAST")
+inline fun <reified T> SharedPreferences.observeAsState(key: String, initial: T): State<T> {
     val lifecycleOwner = LocalLifecycleOwner.current
     val state = remember {
-        mutableStateOf(getString(key, initial)!!)
+        mutableStateOf(when(T::class) {
+            String::class -> getString(key, initial as String?)
+            Boolean::class -> getBoolean(key, initial as Boolean)
+            Int::class -> getInt(key, initial as Int)
+            else -> throw IllegalStateException("invalid class")
+        })
     }
 
     DisposableEffect(this, lifecycleOwner) {
         val listener =
             SharedPreferences.OnSharedPreferenceChangeListener { prefs: SharedPreferences, changedKey: String? ->
                 if (key == changedKey)
-                    state.value = prefs.getString(key, initial)!!
+                    state.value = when(T::class) {
+                        String::class -> getString(key, initial as String?)
+                        Boolean::class -> getBoolean(key, initial as Boolean)
+                        Int::class -> getInt(key, initial as Int)
+                        else -> throw IllegalStateException("invalid class")
+                    }
             }
         registerOnSharedPreferenceChangeListener(listener)
 
         onDispose { unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
-    return state
+    return state as State<T>
 }
 
 data class SbSettingsList(
@@ -109,20 +122,6 @@ data class SbSettingsList(
         }
     }
 }
-
-//@Composable
-//fun SbSettingsList(
-//    modifier: Modifier = Modifier,
-//    items: Map<String ,@Composable ColumnScope.()->Unit>
-//) {
-//    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-//        items.forEach { (s, k) ->
-//            Text(s, style = MaterialTheme.typography.titleMedium)
-//            k()
-//            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-//        }
-//    }
-//}
 
 @Composable
 fun SbCard(

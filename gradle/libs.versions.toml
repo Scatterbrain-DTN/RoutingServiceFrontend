@@ -31,7 +31,7 @@ firebase-bom = "33.15.0"
 firebaseCrashlytics = "19.4.4"
 fragment-ktx = "1.8.8"
 google-services = "4.4.2"
-gradle = "8.10.1"
+gradle = "8.11.0"
 gradleVersionsPlugin = "0.21.0"
 hilt = "2.56.2"
 hilt-navigation-compose = "1.2.0"
@@ -91,6 +91,7 @@ rxandroidble = "1.19.1"
 rxdogtag = "1.0.2"
 rxjava2-debug = "1.4.0"
 rxjava2Extras = "0.1.38"
+rxjava2ExtrasVersion = "0.2.2"
 rxJavaVersion = "2.2.18"
 rxrelay = "2.1.1"
 security-crypto = "1.1.0-beta01"
@@ -240,6 +241,7 @@ rxdogtag = { module = "com.uber.rxdogtag:rxdogtag", version.ref = "rxdogtag" }
 rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxJavaVersion" }
 rxjava2-debug = { module = "com.akaita.java:rxjava2-debug", version.ref = "rxjava2-debug" }
 rxjava2-extras = { module = "com.github.davidmoten:rxjava2-extras", version.ref = "rxjava2Extras" }
+rxjava2-extras-v022 = { module = "com.github.davidmoten:rxjava2-extras", version.ref = "rxjava2ExtrasVersion" }
 rxrelay = { module = "com.jakewharton.rxrelay2:rxrelay", version.ref = "rxrelay" }
 sqlite-android = { module = "com.github.requery:sqlite-android", version.ref = "sqliteAndroid" }
 streamsupport-minifuture = { group = "net.sourceforge.streamsupport", name = "streamsupport-minifuture", version.ref = "streamsupport-minifuture" }

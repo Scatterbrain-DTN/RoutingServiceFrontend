@@ -3,6 +3,7 @@ package net.ballmerlabs.scatterroutingservice.ui.power
 import android.Manifest
 import android.os.Build
 import android.os.RemoteException
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,15 +18,18 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -33,12 +37,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.preference.PreferenceManager
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.RouterState
@@ -48,7 +56,11 @@ import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.ui.SbCard
 import net.ballmerlabs.scatterroutingservice.ui.SbSettingsList
 import net.ballmerlabs.scatterroutingservice.ui.ScopePermissions
+import net.ballmerlabs.scatterroutingservice.ui.isAppInstalled
+import net.ballmerlabs.scatterroutingservice.ui.observeAsState
 import net.ballmerlabs.scatterroutingservice.ui.wizard.pxToDp
+import net.ballmerlabs.uscatterbrain.dataStore
+import net.ballmerlabs.uscatterbrain.network.meshtastic.prefix
 import net.ballmerlabs.uscatterbrain.setActive
 import net.ballmerlabs.uscatterbrain.setPassive
 import java.util.Date
@@ -70,9 +82,9 @@ fun ToggleBox(modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Switch(
+                modifier = Modifier.padding(end = 16.dp),
                 checked = state == RouterState.DISCOVERING,
                 enabled = bleState == BluetoothState.STATE_ON,
                 onCheckedChange = { s ->
@@ -100,7 +112,6 @@ fun ToggleBox(modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val permission =
@@ -140,7 +151,7 @@ fun LuidView(modifier: Modifier = Modifier) {
     val model: RoutingServiceViewModel = hiltViewModel()
     val scope = rememberCoroutineScope()
     val state by model.repository.observeLuid().observeAsState()
-    Column {
+    Column(modifier = modifier) {
         Text(text = "Current router id:")
         Text(text = "${state?.uuid}")
         Button(onClick = {
@@ -193,12 +204,78 @@ fun MetricsView(modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun EnabledTransports(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val viewModel: RoutingServiceViewModel = hiltViewModel()
+    val prefSettings  = stringResource(R.string.pref_enabled_transports)
+    val prefs = context.dataStore
+    val scope = rememberCoroutineScope()
+    val appInstalled = context.isAppInstalled(prefix)
+    val default = remember {
+        if (appInstalled)
+            setOf("wifi", "bluetooth", "meshtastic")
+        else
+            setOf("wifi", "bluetooth")
+    }
+
+
+    val transports by prefs.data.map { pref ->
+        pref[stringSetPreferencesKey(prefSettings)]?:default
+    }.collectAsState(default)
+    Column(modifier = modifier) {
+        Text("Enabled transports", style = MaterialTheme.typography.titleMedium)
+        for (name in default)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(checked = transports.contains(name), onCheckedChange = { c ->
+                    scope.launch {
+                        prefs.edit { p ->
+                            val set = (if (c)
+                                 transports + setOf(name)
+                            else
+                                transports - setOf(name)).toMutableSet()
+
+                            if (set.contains("wifi") && !set.contains("bluetooth")) {
+                                set.remove("wifi")
+                            }
+
+                            try {
+                                if (!set.contains("bluetooth")) {
+                                    viewModel.repository.stopDiscover()
+                                } else {
+                                    viewModel.repository.startDiscover()
+                                }
+                            } catch (exc: Exception) {
+                                Log.e("debug", "failed to start/stop discover: $exc")
+                            }
+
+                            try {
+                                if (set.contains("meshtastic")) {
+                                    viewModel.repository.startMeshtastic()
+                                }
+                            } catch (exc: Exception) {
+                                Log.e("debug", "failed to start/stop meshtastic: $exc")
+                            }
+
+                            p[stringSetPreferencesKey(prefSettings)] = set
+                        }
+                    }
+                })
+                Text(name)
+            }
+    }
+}
+
+@Composable
 fun PowerToggle() {
     var containerHeight by remember { mutableIntStateOf(0) }
     val titleStyle = MaterialTheme.typography.titleMedium
     val titleModifier = Modifier
     var blockHeight by remember { mutableIntStateOf(0) }
-    var listHeight = (containerHeight.pxToDp() - blockHeight.pxToDp())
+    var identityHeight by remember { mutableIntStateOf(0) }
+    var listHeight = (containerHeight.pxToDp() - (blockHeight.pxToDp() + identityHeight.pxToDp()))
     if (listHeight <= 0.dp) {
         listHeight = 200.dp
     }
@@ -209,11 +286,15 @@ fun PowerToggle() {
         }) {
             Text(modifier = titleModifier, text = "Router state", style = titleStyle)
             ToggleBox()
+            EnabledTransports(modifier = Modifier.fillMaxWidth())
+        }
+        .item(modifier = Modifier.onGloballyPositioned { coords ->
+            identityHeight = coords.size.height
+        }) {
             Text(modifier = titleModifier, text = "Identity", style = titleStyle)
             LuidView(modifier = Modifier)
         }
         .item(modifier = Modifier.sizeIn(minHeight = listHeight)) {
-            Text(modifier = titleModifier, text = "Recently seen applications:", style = titleStyle)
             Text(
                 modifier = titleModifier,
                 text = "Recently seen applications:",
@@ -231,32 +312,6 @@ fun PowerToggle() {
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         )
-
-//    Column(
-//        Modifier
-//            .fillMaxSize()
-//            .padding(horizontal = 4.dp)
-//            .verticalScroll(rememberScrollState())
-//            .onGloballyPositioned { coords -> containerHeight = coords.size.height },
-//        horizontalAlignment = Alignment.Start,
-//        verticalArrangement = Arrangement.Top
-//    ) {
-//
-//        Column(modifier = Modifier.onGloballyPositioned { coords -> blockHeight = coords.size.height }) {
-//            Text(modifier = titleModifier, text = "Router state", style = titleStyle)
-//            ToggleBox()
-//            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-//            Text(modifier = titleModifier, text = "Identity", style = titleStyle)
-//            LuidView(modifier = Modifier)
-//            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-//        }
-//
-//
-//        Column(modifier = Modifier.sizeIn(minHeight = listHeight)) {
-//            Text(modifier = titleModifier, text = "Recently seen applications:", style = titleStyle)
-//            MetricsView(modifier = Modifier.fillMaxHeight(1F).weight(1F))
-//        }
-//    }
 }
 
 @Composable
@@ -264,21 +319,14 @@ fun BootSwitch(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
 
-    var enabled by remember {
-        mutableStateOf(
-            prefs.getBoolean(
-                context.getString(R.string.pref_enabled), false
-            )
-        )
-    }
+    val enabled by prefs.observeAsState(context.getString(R.string.pref_enabled), false)
     val scope = rememberCoroutineScope()
-    Switch(modifier = modifier, checked = enabled, onCheckedChange = { s ->
+    Switch(modifier = modifier.padding(end = 16.dp), checked = enabled, onCheckedChange = { s ->
         scope.launch {
             prefs.edit().apply {
                 putBoolean(context.getString(R.string.pref_enabled), s)
                 apply()
             }
-            enabled = s
         }
     })
 }
