@@ -250,7 +250,7 @@ fun PermissionSingleDialog(
     if (openMainDialog && permission.status != PermissionStatus.Granted) {
         AlertDialog(
             title = { Text(text = "Permission required") },
-            text = { Text(text = text, color = MaterialTheme.colorScheme.onPrimaryContainer) },
+            text = { Text(text = text) },
             onDismissRequest = { openMainDialog = false },
             confirmButton = {
                 Button(
