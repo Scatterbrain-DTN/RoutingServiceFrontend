@@ -8,12 +8,14 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -68,6 +70,7 @@ data class SimpleMessage(
     val date: Date
 )
 
+@OptIn(ExperimentalLayoutApi::class)
 @ExperimentalCoroutinesApi
 @Composable
 fun ChatView(modifier: Modifier = Modifier) {
@@ -114,10 +117,12 @@ fun ChatView(modifier: Modifier = Modifier) {
             state = state,
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom),
             contentPadding = PaddingValues(8.dp),
+            reverseLayout = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
                 .weight(1f)
+                .imePadding()
 
         ) {
             for (m in message) {
