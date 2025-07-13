@@ -219,9 +219,9 @@ fun EnabledTransports(modifier: Modifier = Modifier) {
     }
 
 
-    val transports by prefs.data.map { pref ->
+    val transports by remember {  prefs.data.map { pref ->
         pref[stringSetPreferencesKey(prefSettings)]?:default
-    }.collectAsState(default)
+    } }.collectAsState(default)
     Column(modifier = modifier) {
         Text("Enabled transports", style = MaterialTheme.typography.titleMedium)
         for (name in default)
@@ -281,7 +281,7 @@ fun PowerToggle() {
     val titleModifier = Modifier
     var blockHeight by remember { mutableIntStateOf(0) }
     var identityHeight by remember { mutableIntStateOf(0) }
-    var listHeight = (containerHeight.pxToDp() - (blockHeight.pxToDp() + identityHeight.pxToDp()))
+    var listHeight =  (containerHeight.pxToDp() - (blockHeight.pxToDp() + identityHeight.pxToDp()))
     if (listHeight <= 0.dp) {
         listHeight = 200.dp
     }

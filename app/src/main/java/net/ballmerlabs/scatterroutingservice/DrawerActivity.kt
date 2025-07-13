@@ -202,7 +202,7 @@ class DrawerActivity : AppCompatActivity() {
 
     @Composable
     fun TabSwitcher(navController: NavController) {
-        val indices = arrayOf(
+        val indices = remember {   arrayOf(
             Pair(NAV_CHAT, R.drawable.baseline_chat_24),
             Pair(NAV_POWER, R.drawable.ic_baseline_power_settings_new_24),
             Pair(NAV_IDENTITY, R.drawable.ic_baseline_perm_identity_24),
@@ -211,6 +211,7 @@ class DrawerActivity : AppCompatActivity() {
             Pair(NAV_ABOUT, R.drawable.ic_baseline_info_24)
 
         )
+            }
         val active = remember {
             mutableIntStateOf(0)
         }
