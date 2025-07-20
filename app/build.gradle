@@ -128,7 +128,7 @@ dependencies {
     implementation libs.androidx.activity.compose
     implementation libs.appcompat
     implementation libs.androidx.runtime.livedata
-    implementation libs.kotlinx.collections.immutable.v037
+    implementation libs.kotlinx.collections.immutable
     implementation libs.material
     implementation libs.constraintlayout
     implementation libs.androidx.navigation.fragment.ktx
@@ -148,8 +148,8 @@ dependencies {
     implementation libs.fragment.ktx
     implementation libs.kotlin.bip39
     implementation libs.core.ktx
-    implementation libs.kotlin.stdlib.v2120
-    implementation libs.hilt.android.v255
+    implementation libs.kotlin.stdlib
+    implementation libs.hilt.android
     ksp "com.google.dagger:hilt-compiler:$hilt_version"
     implementation libs.android.identicons
     implementation libs.google.firebase.crashlytics

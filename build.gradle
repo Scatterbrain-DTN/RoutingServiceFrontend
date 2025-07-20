@@ -16,7 +16,7 @@ buildscript {
     }
     dependencies {
         def nav_version = '2.5.0'
-        classpath libs.gradle.v8101
+        classpath libs.gradle
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
