@@ -1,4 +1,5 @@
-package net.ballmerlabs.scatterroutingservice.db;
+package net.ballmerlabs.scatterroutingservice.db
+
 import androidx.room.*
 import net.ballmerlabs.uscatterbrain.db.entities.*
 import java.util.*
