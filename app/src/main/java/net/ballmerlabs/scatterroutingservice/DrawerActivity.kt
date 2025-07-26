@@ -123,6 +123,7 @@ import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @AndroidEntryPoint
 @InternalCoroutinesApi
@@ -171,7 +172,7 @@ class DrawerActivity : AppCompatActivity() {
         if(!pm.isIgnoringBatteryOptimizations(packageName)) {
             val intent = Intent().apply {
                 action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                data = Uri.parse("package:$packageName")
+                data = "package:$packageName".toUri()
             }
             startActivityForResult(intent, requestCodeBattery)
         } else {
