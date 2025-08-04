@@ -81,7 +81,11 @@ class LogObserver @Inject constructor(
                         if (file.exists()) {
                             if (buf == null) {
                                 val list = SnapshotStateList<LogStruct>()
+                                var count = 0
                                 for (x in buffered.lines()) {
+                                    count ++
+                                    if (count > 200)
+                                        break
                                     list.add(getLogStruct(x))
                                 }
                                 logLiveData.postValue(list)
