@@ -88,7 +88,7 @@ fun ToggleBox(modifier: Modifier = Modifier) {
                 checked = state == RouterState.DISCOVERING,
                 enabled = bleState == BluetoothState.STATE_ON,
                 onCheckedChange = { s ->
-                    scope.launch(Dispatchers.Default) {
+                    scope.launch(Dispatchers.IO) {
                         try {
                             if (s) {
                                 setActive(context)
