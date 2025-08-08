@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -142,6 +143,46 @@ fun ToggleBox(modifier: Modifier = Modifier) {
             Text(text = "Start on boot")
 
         }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            var dialogState by remember { mutableStateOf(false) }
+
+            if (dialogState) {
+                AlertDialog(
+                    title = { Text(stringResource(R.string.purge_title)) },
+                    text = {
+                        Text(stringResource(R.string.purge_text))
+                    },
+                    onDismissRequest = {
+                        dialogState = false
+                    },
+                    confirmButton = {
+                        Button(onClick = {
+                            scope.launch {
+                                model.repository.purgeMessages(Date(0), Date(Long.MAX_VALUE))
+                                model.repository.purgeIdentities(true)
+                                dialogState = false
+                            }
+                        }) {
+                            Text("Yes")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { dialogState = false }) {
+                            Text("No")
+                        }
+                    }
+                )
+            }
+            Button(onClick = {
+                dialogState = true
+            }) {
+                Text("Purge messages!")
+            }
+        }
     }
 }
 
@@ -151,6 +192,7 @@ fun LuidView(modifier: Modifier = Modifier) {
     val model: RoutingServiceViewModel = hiltViewModel()
     val scope = rememberCoroutineScope()
     val state by model.repository.observeLuid().observeAsState()
+
     Column(modifier = modifier) {
         Text(text = "Current router id:")
         Text(text = "${state?.uuid}")

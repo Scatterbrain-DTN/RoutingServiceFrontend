@@ -37,6 +37,15 @@
     <string name="pref_enable_crashlytics_title">Opt-out of crash reporting spyware</string>
     <string name="pref_enable_crashlyting_desc">Crashlytics helps me debug issues with scatterbrain, but requires sending data to google. A restart is required to disable after enabling.</string>
 
+    <string name="purge_title">Are you sure you want to continue?</string>
+
+    <string name="purge_text">
+        Pressing "yes" will result in all messages stored on this device
+        being deleted forever. All identities will be suspended but not deleted.
+        Suspension will prevent an identity from being shared with nearby devices
+        but not from being referenced from a local app.
+    </string>
+
     <string name="privacy_link">
         Scatterbrain Router is free software! You too can contribute at <a href="https://github.com/Scatterbrain-DTN/">https://github.com/Scatterbrain-DTN/</a>\n\n
 
