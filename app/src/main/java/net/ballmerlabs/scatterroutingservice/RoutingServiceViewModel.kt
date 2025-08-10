@@ -20,6 +20,7 @@ import net.ballmerlabs.scatterroutingservice.db.UiDatastore
 import net.ballmerlabs.scatterroutingservice.ui.DesktopObserver
 import net.ballmerlabs.scatterroutingservice.ui.debug.LogObserver
 import net.ballmerlabs.uscatterbrain.util.scatterLog
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -42,7 +43,7 @@ class RoutingServiceViewModel @Inject constructor(
         return uiBroadcastReceiver.liveData
     }
 
-    fun getPermissions(identity: Identity): LiveData<List<NamePackage>> {
+    fun getPermissions(identity: UUID): LiveData<List<NamePackage>> {
         val ld = MutableLiveData<List<NamePackage>>()
         viewModelScope.softCancelLaunch {
             ld.postValue(repository.getPermissions(identity))

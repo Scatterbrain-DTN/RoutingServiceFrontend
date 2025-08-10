@@ -57,6 +57,7 @@ import net.ballmerlabs.scatterbrainsdk.ScatterbrainApi
 import net.ballmerlabs.scatterroutingservice.BottomSheetContent
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
+import net.ballmerlabs.scatterroutingservice.StableId
 import net.ballmerlabs.scatterroutingservice.ui.theme.ScatterbrainTheme
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -130,7 +131,7 @@ class IdentityImportActivity : AppCompatActivity() {
                 onDismissRequest = { showBottomSheet = false },
                 sheetState = sheetState
             ) {
-                BottomSheetContent(modifier = Modifier, identity)
+                BottomSheetContent(modifier = Modifier, StableId.fromIdentity(identity))
             }
         }
     }
@@ -170,13 +171,13 @@ class IdentityImportActivity : AppCompatActivity() {
             val callingPackage = callingActivity?.packageName
             if (callingPackage != null) {
                 viewModel.selected.forEach { id ->
-                    repository.authorizeIdentity(id, callingPackage)
+                    repository.authorizeIdentity(id.fingerprint, callingPackage)
                 }
-                Activity.RESULT_OK
+                RESULT_OK
             } else {
                 ERR_CALLING_PACKAGE_INVALID
             }
-        } catch (exception: Exception) {
+        } catch (_: Exception) {
             ERR_AUTH_FAILED
         }
     }

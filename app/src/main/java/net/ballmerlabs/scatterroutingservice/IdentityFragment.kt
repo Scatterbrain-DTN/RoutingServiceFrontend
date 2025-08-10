@@ -27,12 +27,14 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -43,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.map
 import com.lelloman.identicon.drawable.GithubIdenticonDrawable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,10 +54,31 @@ import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
 import net.ballmerlabs.scatterroutingservice.ui.SbCard
 import net.ballmerlabs.scatterroutingservice.ui.ScopeScatterbrainPermissions
+import java.util.UUID
+
+data class StableId (
+    val isOwned: Boolean,
+    val name: String,
+    val frozen: Boolean,
+    val fingerprint: Int,
+    val uuid: String
+) {
+    companion object {
+        fun fromIdentity(identity: Identity): StableId {
+            return StableId(
+                isOwned = identity.isOwned,
+                name = identity.name,
+                frozen = identity.frozen,
+                fingerprint = identity.fingerprint.hashCode(),
+                uuid = identity.fingerprint.toString()
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IdentityView(identity: Identity) {
+fun IdentityView(identity: StableId) {
     val identicon = GithubIdenticonDrawable(256, 256, identity.fingerprint.hashCode())
     val painter = BitmapPainter(identicon.toBitmap(width = 256, height = 256).asImageBitmap())
     val model: RoutingServiceViewModel = hiltViewModel()
@@ -93,16 +117,16 @@ fun IdentityView(identity: Identity) {
             ) {
 
                 if (identity.isOwned) {
-                    Badge { Text(text = "Owned!") }
-
-                    Box {
-
+                    Column {
+                        Badge { Text(text = "Owned!") }
                         if (identity.frozen) {
                             Badge(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest) {
                                 Text(text = "Frozen")
                             }
                         }
+                    }
 
+                    Box {
                         Image(
                             modifier = Modifier.clickable { menuState = true },
                             painter = painterResource(id = R.drawable.ic_baseline_menu_24),
@@ -120,7 +144,7 @@ fun IdentityView(identity: Identity) {
                             }, onClick = {
                                 scope.launch {
                                     try {
-                                        model.repository.removeIdentity(identity)
+                                        model.repository.removeIdentity(UUID.fromString(identity.uuid))
                                     } catch (exc: RemoteException) {
                                         withContext(Dispatchers.Main) {
                                             Toast.makeText(
@@ -151,7 +175,7 @@ fun IdentityView(identity: Identity) {
                                 },
                                 onClick = {
                                     scope.launch {
-                                        model.repository.purgeIdentity(identity.fingerprint, false)
+                                        model.repository.purgeIdentity(UUID.fromString(identity.uuid), false)
                                     }
                                 })
                         }
@@ -179,7 +203,7 @@ fun IdentityView(identity: Identity) {
                                 },
                                 onClick = {
                                     scope.launch {
-                                        model.repository.purgeIdentity(identity.fingerprint, false)
+                                        model.repository.purgeIdentity(UUID.fromString(identity.uuid), false)
                                     }
                                 })
                         }
@@ -200,7 +224,7 @@ fun IdentityView(identity: Identity) {
 fun PermissionCard(
     granted: Boolean,
     p: NamePackage,
-    identity: Identity,
+    identity: StableId,
     modifier: Modifier = Modifier,
 ) {
     val model: RoutingServiceViewModel = hiltViewModel()
@@ -218,9 +242,9 @@ fun PermissionCard(
             Checkbox(checked = grantState, onCheckedChange = { c ->
                 scope.softCancelLaunch {
                     if (grantState) {
-                        model.repository.deauthorizeIdentity(identity, p.info.packageName)
+                        model.repository.deauthorizeIdentity(UUID.fromString(identity.uuid), p.info.packageName)
                     } else {
-                        model.repository.authorizeIdentity(identity, p.info.packageName)
+                        model.repository.authorizeIdentity(UUID.fromString(identity.uuid), p.info.packageName)
                     }
                     grantState = c
                 }
@@ -230,10 +254,10 @@ fun PermissionCard(
 }
 
 @Composable
-fun BottomSheetContent(modifier: Modifier = Modifier, identity: Identity) {
+fun BottomSheetContent(modifier: Modifier = Modifier, identity: StableId) {
     val model: RoutingServiceViewModel = hiltViewModel()
     val notgranted by model.getPackages().observeAsState()
-    val packages by model.getPermissions(identity).observeAsState()
+    val packages by model.getPermissions(UUID.fromString(identity.uuid)).observeAsState()
     if (notgranted?.size != 0) {
 
         LazyColumn(
@@ -283,7 +307,11 @@ fun BottomSheetContent(modifier: Modifier = Modifier, identity: Identity) {
 @Composable
 fun IdentityList(modifier: Modifier = Modifier) {
     val model: RoutingServiceViewModel = hiltViewModel()
-    val identities by model.repository.observeIdentitiesLiveData().observeAsState()
+    val identities by model.repository.observeIdentitiesLiveData()
+        .map { v -> v.map { identity ->
+            StableId.fromIdentity(identity)
+        } }
+        .observeAsState()
     Log.v("debug", "identity list recompose")
     if (identities?.isNotEmpty() == false) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
