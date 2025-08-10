@@ -19,7 +19,7 @@ android {
         applicationId "net.ballmerlabs.scatterroutingservice"
         minSdkVersion 26
         targetSdkVersion 36
-        versionCode 95
+        versionCode 96
         compileSdk 36
 
         javaCompileOptions {
@@ -108,6 +108,11 @@ android {
     }
 }
 
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    metricsDestination = layout.buildDirectory.dir("compose_compiler")
+}
+
 /*
 tasks.withType(KotlinCompile).configureEach {
     compilerOptions.freeCompilerArgs.addAll(
@@ -157,7 +162,11 @@ dependencies {
     implementation libs.androidx.preference.ktx
     implementation libs.accompanist.permissions
     implementation libs.androidx.datastore.preferences
-   //implementation "androidx.graphics:graphics-shapes:1.0.0-beta01"
+    implementation libs.room.runtime
+    ksp libs.room.compiler // For Kotlin use kapt instead of annotationProcessor
+    androidTestImplementation libs.room.testing
+
+    //implementation "androidx.graphics:graphics-shapes:1.0.0-beta01"
 
     // Room
     implementation libs.room.runtime
