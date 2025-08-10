@@ -25,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -92,10 +91,18 @@ fun IdentityView(identity: Identity) {
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.End
             ) {
+
                 if (identity.isOwned) {
                     Badge { Text(text = "Owned!") }
 
                     Box {
+
+                        if (identity.frozen) {
+                            Badge(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest) {
+                                Text(text = "Frozen")
+                            }
+                        }
+
                         Image(
                             modifier = Modifier.clickable { menuState = true },
                             painter = painterResource(id = R.drawable.ic_baseline_menu_24),
@@ -108,9 +115,10 @@ fun IdentityView(identity: Identity) {
                             DropdownMenuItem(text = {
                                 Text(
                                     text = "Delete",
-                                    color = MaterialTheme.colorScheme.onBackground
-                                ) }, onClick = {
-                                scope.launch(Dispatchers.Default) {
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }, onClick = {
+                                scope.launch {
                                     try {
                                         model.repository.removeIdentity(identity)
                                     } catch (exc: RemoteException) {
@@ -124,15 +132,57 @@ fun IdentityView(identity: Identity) {
                                     }
                                 }
                             })
-                            DropdownMenuItem(text = { Text(
-                                text = "Permissions",
-                                color = MaterialTheme.colorScheme.onBackground
-                            ) }, onClick = {
+
+                            DropdownMenuItem(text = {
+                                Text(
+                                    text = "Permissions",
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }, onClick = {
                                 showBottomSheet = true
                                 menuState = false
                             })
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        "Unfreeze",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                },
+                                onClick = {
+                                    scope.launch {
+                                        model.repository.purgeIdentity(identity.fingerprint, false)
+                                    }
+                                })
                         }
 
+                    }
+                } else {
+                    if (identity.frozen) {
+                        Badge(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest) {
+                            Text(text = "Frozen")
+                        }
+                        Image(
+                            modifier = Modifier.clickable { menuState = true },
+                            painter = painterResource(id = R.drawable.ic_baseline_menu_24),
+                            contentDescription = "Menu",
+                        )
+                        DropdownMenu(
+                            expanded = menuState,
+                            onDismissRequest = { menuState = false }) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        "Unfreeze",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                },
+                                onClick = {
+                                    scope.launch {
+                                        model.repository.purgeIdentity(identity.fingerprint, false)
+                                    }
+                                })
+                        }
                     }
                 }
             }
@@ -166,7 +216,6 @@ fun PermissionCard(
         ) {
             Text(text = p.name)
             Checkbox(checked = grantState, onCheckedChange = { c ->
-                Log.v("debug", "auth checked $c")
                 scope.softCancelLaunch {
                     if (grantState) {
                         model.repository.deauthorizeIdentity(identity, p.info.packageName)
@@ -233,9 +282,9 @@ fun BottomSheetContent(modifier: Modifier = Modifier, identity: Identity) {
 
 @Composable
 fun IdentityList(modifier: Modifier = Modifier) {
-    Log.v("debug", "IdentityList recompose")
     val model: RoutingServiceViewModel = hiltViewModel()
     val identities by model.repository.observeIdentitiesLiveData().observeAsState()
+    Log.v("debug", "identity list recompose")
     if (identities?.isNotEmpty() == false) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(text = "No identities yet")

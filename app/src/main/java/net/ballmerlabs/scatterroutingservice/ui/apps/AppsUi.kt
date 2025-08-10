@@ -181,7 +181,7 @@ fun AppCard(desktop: Boolean, name: String, ident: String?, modifier: Modifier =
                             DropdownMenuItem(text = {
                                 Text(
                                     text = "Delete",
-                                    color = MaterialTheme.colorScheme.onBackground
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                             }, onClick = {
                                 scope.launch(Dispatchers.Default) {
