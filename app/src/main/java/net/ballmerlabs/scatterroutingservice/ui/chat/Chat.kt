@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -54,6 +55,48 @@ data class SimpleMessage(
     val invalid: Boolean = false
 )
 val uuidlen = UUID.randomUUID().toString().length
+
+
+@Composable
+fun ChatBubble(message: SimpleMessage, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    Row(
+        modifier = if (message.invalid)
+            modifier
+                .fillMaxWidth()
+                .shadow(4.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.error)
+                .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
+        else if (message.owned)
+            modifier
+                .fillMaxWidth()
+                .shadow(4.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
+        else
+            modifier
+                .fillMaxWidth()
+                .shadow(4.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.secondary)
+                .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        val df = DateFormat.getDateFormat(context)
+        Text(
+            modifier = Modifier.weight(1f),
+            text = message.text,
+            color = MaterialTheme.colorScheme.onSecondary
+        )
+        Text(
+            text = df.format(message.date),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSecondary
+        )
+    }
+}
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -138,42 +181,7 @@ fun ChatView(modifier: Modifier = Modifier) {
         ) {
             for (m in message) {
                 item {
-                    Row(
-                        modifier = if (m.invalid)
-                            Modifier
-                                .fillMaxWidth()
-                                .shadow(4.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.error)
-                                .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
-                        else if (m.owned)
-                            Modifier
-                            .fillMaxWidth()
-                            .shadow(4.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.primary)
-                            .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
-                        else
-                            Modifier
-                                .fillMaxWidth()
-                                .shadow(4.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.secondary)
-                                .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        val df = DateFormat.getDateFormat(context)
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = m.text,
-                            color = MaterialTheme.colorScheme.onSecondary
-                        )
-                        Text(
-                            text = df.format(m.date),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
+                    ChatBubble(message = m)
                 }
             }
         }
