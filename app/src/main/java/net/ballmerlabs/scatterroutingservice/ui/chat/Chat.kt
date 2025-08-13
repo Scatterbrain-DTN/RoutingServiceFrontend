@@ -40,6 +40,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.ScatterMessage
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
+import net.ballmerlabs.scatterroutingservice.db.LocalChat
 import net.ballmerlabs.scatterroutingservice.softCancelLaunch
 import java.util.Date
 import java.util.UUID
@@ -49,7 +50,11 @@ const val DEFAULT_APP = "defacto"
 data class SimpleMessage(
     val text: String,
     val date: Date,
+    val owned: Boolean,
+    val invalid: Boolean = false
 )
+val uuidlen = UUID.randomUUID().toString().length
+
 
 @OptIn(ExperimentalLayoutApi::class)
 @ExperimentalCoroutinesApi
@@ -62,18 +67,44 @@ fun ChatView(modifier: Modifier = Modifier) {
         .switchMap { l ->
             liveData {
                 scope.launch(Dispatchers.IO) {
+                    val local = model.datastore.localChatDao()
+                        .getByUuid(l.mapNotNull { v ->
+                            val message = v.body?.decodeToString()
+
+                            if (message != null && message.length > uuidlen + 1)
+                                UUID.fromString(message.slice(message.length - uuidlen..<message.length))
+                            else
+                                null
+                        })
+                        .associateBy { v -> v.uuid }
                     emit(l.map { v ->
-                        val message = v.body?.decodeToString()
-                        val uuidlen = UUID.randomUUID().toString().length
-                        if (message != null && message.length > uuidlen + 1)
+                        try {
+                            val message = v.body?.decodeToString()
+                            if (message != null && message.length > uuidlen + 1) {
+                                val uuid =
+                                    UUID.fromString(message.slice(message.length - uuidlen..<message.length))
+                                SimpleMessage(
+                                    text = message.removeRange(
+                                        message.length - uuidlen - 1,
+                                        message.length
+                                    ), date = v.receiveDate,
+                                    owned = local[uuid]?.owned ?: false
+                                )
+                            } else {
+                                SimpleMessage(
+                                    text = message ?: "null",
+                                    date = v.receiveDate,
+                                    owned = false
+                                )
+                            }
+                        } catch (exc: Exception) {
                             SimpleMessage(
-                                text = message.removeRange(
-                                    message.length - uuidlen - 1,
-                                    message.length
-                                ), date = v.receiveDate
+                                text = exc.message?:"Invalid",
+                                date = Date(),
+                                owned = false,
+                                invalid = true
                             )
-                        else
-                            SimpleMessage(text = message ?: "null", date = v.receiveDate)
+                        }
                     })
                 }
                 awaitCancellation()
@@ -108,12 +139,27 @@ fun ChatView(modifier: Modifier = Modifier) {
             for (m in message) {
                 item {
                     Row(
-                        modifier = Modifier
+                        modifier = if (m.invalid)
+                            Modifier
+                                .fillMaxWidth()
+                                .shadow(4.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.error)
+                                .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
+                        else if (m.owned)
+                            Modifier
                             .fillMaxWidth()
                             .shadow(4.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.secondary)
-                            .padding(vertical = 8.dp, horizontal = 8.dp),
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
+                        else
+                            Modifier
+                                .fillMaxWidth()
+                                .shadow(4.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.secondary)
+                                .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         val df = DateFormat.getDateFormat(context)
@@ -152,10 +198,18 @@ fun ChatView(modifier: Modifier = Modifier) {
             Button(
                 onClick = {
                     coroutineScope.softCancelLaunch {
+                        val uuid = UUID.randomUUID()
+                        model.datastore.localChatDao().insert(
+                            LocalChat(
+                                uuid = uuid,
+                                date = Date().time,
+                                owned = true
+                            )
+                        )
                         model.repository.sendMessage(
                             ScatterMessage.Builder.newInstance(
                                 context,
-                                "$chatText\n${UUID.randomUUID()}".encodeToByteArray()
+                                "$chatText\n${uuid}".encodeToByteArray()
                             )
                                 .setApplication(DEFAULT_APP)
                                 .build()

@@ -14,6 +14,9 @@ interface LocalChatsDao {
     @Query("SELECT * FROM local_chats WHERE uuid IN (:uuid)")
     suspend fun getByUuid(uuid: List<UUID>): List<LocalChat>
 
+    @Query("SELECT * FROM local_chats WHERE uuid IN (:uuid)")
+    suspend fun getByUuid(uuid: UUID): LocalChat
+
     suspend fun getSortedByUuid(uuid: List<UUID>): Map<UUID, LocalChat> {
         return getByUuid(uuid).associateBy { v -> v.uuid }
     }

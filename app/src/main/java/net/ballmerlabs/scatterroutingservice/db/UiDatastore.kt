@@ -24,9 +24,14 @@ class UuidTypeConverter {
     entities = [
         LocalChat::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
-    autoMigrations = []
+    autoMigrations = [
+        AutoMigration(
+            from = 1,
+            to = 2
+        )
+    ]
 )
 @TypeConverters(UuidTypeConverter::class)
 abstract class UiDatastore : RoomDatabase() {
