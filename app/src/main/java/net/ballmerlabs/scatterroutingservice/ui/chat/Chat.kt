@@ -94,12 +94,18 @@ fun ChatBubble(message: SimpleMessage, modifier: Modifier = Modifier) {
             Text(
                 modifier = Modifier.weight(1f),
                 text = message.text,
-                color = MaterialTheme.colorScheme.onSecondary
+                color = if (message.owned)
+                    MaterialTheme.colorScheme.onPrimary
+                else
+                    MaterialTheme.colorScheme.onSecondary
             )
             Text(
                 text = df.format(message.date),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondary
+                color = if (message.owned)
+                    MaterialTheme.colorScheme.onPrimary
+                else
+                    MaterialTheme.colorScheme.onSecondary
             )
         }
     }
