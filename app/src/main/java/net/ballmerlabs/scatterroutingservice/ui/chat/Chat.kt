@@ -61,40 +61,47 @@ val uuidlen = UUID.randomUUID().toString().length
 fun ChatBubble(message: SimpleMessage, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     Row(
-        modifier = if (message.invalid)
-            modifier
-                .fillMaxWidth()
-                .shadow(4.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.error)
-                .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
-        else if (message.owned)
-            modifier
-                .fillMaxWidth()
-                .shadow(4.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
+        modifier = if (message.owned)
+            modifier.padding(start = 16.dp, end = 0.dp)
         else
-            modifier
-                .fillMaxWidth()
-                .shadow(4.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.secondary)
-                .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+            modifier.padding(start = 0.dp, end = 16.dp)
     ) {
-        val df = DateFormat.getDateFormat(context)
-        Text(
-            modifier = Modifier.weight(1f),
-            text = message.text,
-            color = MaterialTheme.colorScheme.onSecondary
-        )
-        Text(
-            text = df.format(message.date),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSecondary
-        )
+        Row(
+            modifier = if (message.invalid)
+                Modifier
+                    .fillMaxWidth()
+                    .shadow(4.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.error)
+                    .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
+            else if (message.owned)
+                Modifier
+                    .fillMaxWidth()
+                    .shadow(4.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(top = 8.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
+            else
+                Modifier
+                    .fillMaxWidth()
+                    .shadow(4.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.secondary)
+                    .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            val df = DateFormat.getDateFormat(context)
+            Text(
+                modifier = Modifier.weight(1f),
+                text = message.text,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+            Text(
+                text = df.format(message.date),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+        }
     }
 }
 
