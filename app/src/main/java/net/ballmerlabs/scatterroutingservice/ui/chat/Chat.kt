@@ -176,7 +176,7 @@ fun ChatView(modifier: Modifier = Modifier) {
         state.scrollToItem(0)
     }
     Column(
-        modifier = modifier.imePadding(),
+        modifier = modifier,
         verticalArrangement = Arrangement.Bottom
     ) {
 
@@ -189,7 +189,6 @@ fun ChatView(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(8.dp)
                 .weight(1f)
-                .imePadding()
 
         ) {
             for (m in message) {

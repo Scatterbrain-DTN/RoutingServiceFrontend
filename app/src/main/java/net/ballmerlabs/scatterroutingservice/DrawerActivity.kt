@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.mandatorySystemGesturesPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -481,6 +482,7 @@ class DrawerActivity : AppCompatActivity() {
                     modifier = Modifier.fillMaxSize()
                         .displayCutoutPadding()
                         .mandatorySystemGesturesPadding()
+                        .navigationBarsPadding()
                 ) {
                     Scaffold(
                         content = { pad ->
