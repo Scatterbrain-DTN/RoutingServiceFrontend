@@ -24,6 +24,7 @@ buildscript {
         classpath libs.gradle.versions.plugin
         classpath libs.publish.plugin
         classpath libs.org.jacoco.core
+        classpath libs.org.jacoco.agent
         classpath libs.kotlin.gradle.plugin
         classpath libs.kotlin.metadata.jvm
         classpath libs.google.services  // Google Services plugin

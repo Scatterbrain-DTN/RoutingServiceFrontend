@@ -19,7 +19,7 @@ android {
         applicationId "net.ballmerlabs.scatterroutingservice"
         minSdkVersion 26
         targetSdkVersion 36
-        versionCode 98
+        versionCode 99
         compileSdk 36
 
         javaCompileOptions {
@@ -40,6 +40,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     packagingOptions {
+        exclude 'lib/x86/libsqlite3x.so'
+        exclude 'lib/armeabi-v7a/libsqlite3x.so'
         resources {
             pickFirsts += ['META-INF/com.google.dagger_dagger.version']
         }
@@ -106,6 +108,7 @@ android {
         checkReleaseBuilds false
         disable 'JvmStaticProvidesInObjectDetector', 'FieldSiteTargetOnQualifierAnnotation', 'ModuleCompanionObjects', 'ModuleCompanionObjectsNotInModuleParent'
     }
+    compileSdk 36
 }
 
 composeCompiler {
