@@ -63,7 +63,7 @@ android {
         }
     }
 
-    //apply from: "../ScatterRoutingService/scatterbrainSDK/gradle/jacoco.gradle"
+    apply from: "../ScatterRoutingService/scatterbrainSDK/gradle/jacoco.gradle"
 
 
     namespace 'net.ballmerlabs.scatterroutingservice'
