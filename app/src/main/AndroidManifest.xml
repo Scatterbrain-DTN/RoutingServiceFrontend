@@ -68,7 +68,8 @@
         <activity
             android:name=".DrawerActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustNothing">
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
