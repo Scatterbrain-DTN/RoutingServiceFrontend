@@ -6,6 +6,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
@@ -181,7 +182,7 @@ fun FirstStartWizard(
 
     if (show && model.states.isNotEmpty()) {
         var state by remember { mutableStateOf(model.states[0]) }
-        Surface(modifier = modifier) {
+        Surface(modifier = modifier.background(MaterialTheme.colorScheme.background)) {
             val pagerState = rememberPagerState(pageCount = { model.states.size })
                 Row(modifier = Modifier.fillMaxSize(),horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     val arrowWidth = 15.dp

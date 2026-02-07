@@ -82,7 +82,7 @@ private val LightColorScheme = lightColorScheme(
     error = brightAntiTeal,
     secondaryContainer = surfaceBlue,
     surfaceContainer = surfaceBlue,
-    surface = dimBlue,
+    surface = white,
     onSecondary = Color.White,
     surfaceVariant = surfaceGreen,
     surfaceTint = brightGreen,
@@ -92,7 +92,7 @@ private val LightColorScheme = lightColorScheme(
     surfaceContainerHighest = brightTeal,
     surfaceBright = surfaceGreen,
     surfaceContainerLowest = dimTeal,
-    background = dimBlue,
+    background = white,
 
 )
 
