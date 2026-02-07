@@ -14,6 +14,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -186,7 +187,7 @@ class DrawerActivity : AppCompatActivity() {
     @Composable
     fun TopBar(navController: NavController) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        Column {
+        Column() {
             TopAppBar(
                 title = { Text(text = navBackStackEntry?.destination?.route?:getString(R.string.app_name)) },
                 colors = TopAppBarColors(
@@ -196,7 +197,8 @@ class DrawerActivity : AppCompatActivity() {
                     titleContentColor = MaterialTheme.colorScheme.onBackground,
                     scrolledContainerColor = MaterialTheme.colorScheme.background
                 ),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
+                expandedHeight = 16.dp
             )
             TabSwitcher(navController)
         }
@@ -451,13 +453,14 @@ class DrawerActivity : AppCompatActivity() {
         wizardViewModel.onBattery = { ignoreBatteryOptimizations() }
 
         setContent {
+            enableEdgeToEdge()
             val controller = rememberNavController()
-
             HandleDesktopImport(navController = controller)
 
             val state = model.repository.observeRouterState().value
 
             val scope = rememberCoroutineScope()
+
             ScatterbrainTheme() {
                 val pairingState by model.repository.observePairingAttempts().observeAsState(
                     PairingState(
@@ -480,9 +483,7 @@ class DrawerActivity : AppCompatActivity() {
 
                 FirstStartWizard(
                     modifier = Modifier.fillMaxSize()
-                        .displayCutoutPadding()
                         .mandatorySystemGesturesPadding()
-                        .navigationBarsPadding()
                 ) {
                     Scaffold(
                         content = { pad ->

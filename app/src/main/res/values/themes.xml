@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.RoutingServiceFrontend" parent="Theme.MaterialComponents.DayNight">
+    <style name="Theme.RoutingServiceFrontend" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
@@ -19,6 +19,6 @@
 
     </style>
 
-    <style name="Theme.RoutingServiceFrontend.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.RoutingServiceFrontend.AppBarOverlay" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
 
 </resources>
