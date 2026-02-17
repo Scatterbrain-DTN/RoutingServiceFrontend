@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 import net.ballmerlabs.uscatterbrain.util.logsDir
 import net.ballmerlabs.uscatterbrain.util.scatterLog
 import java.io.File
+import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -43,11 +44,18 @@ fun getLogStruct(text: String): LogStruct {
     )
 }
 
+
+data class LogItem(
+    var pos: Long,
+    val list: SnapshotStateList<LogStruct> = SnapshotStateList(),
+    val date: Date = Date()
+)
+
 @Singleton
 class LogObserver @Inject constructor(
 ) {
     private val logScope = CoroutineScope(SupervisorJob())
-    val mappedLogs = ConcurrentHashMap<String, Pair<Long, SnapshotStateList<LogStruct>>>()
+    val mappedLogs = ConcurrentHashMap<String, LogItem>()
     private val logger by scatterLog()
     private val refreshLock = AtomicBoolean()
     private val observer by lazy {
@@ -73,7 +81,7 @@ class LogObserver @Inject constructor(
             if (!lock) {
                 try {
                     if (!path.isNullOrEmpty()) {
-                        val buf = mappedLogs.putIfAbsent(path, Pair(0, SnapshotStateList()))
+                        val buf = mappedLogs.putIfAbsent(path, LogItem(pos = 0))
                         val file = File(logsDir, path)
                         val reader = file.inputStream()
                         val channel = reader.channel
@@ -89,16 +97,20 @@ class LogObserver @Inject constructor(
                                     list.add(getLogStruct(x))
                                 }
                                 logLiveData.postValue(list)
-                                mappedLogs[path] = Pair(channel.position(), list)
+                                mappedLogs[path] = LogItem(pos = channel.position(), list = list)
 
                             } else {
-                                reader.skip(buf.first)
+                                reader.skip(buf.pos)
                                 val s = buffered.lines().map { v -> getLogStruct(v) }.asSequence()
+
                                 withContext(Dispatchers.Main) {
-                                    buf.second.addAll(s)
+                                    buf.list.addAll(s)
+                                    if (buf.list.size > MAX_LINES) {
+                                        buf.list.removeRange(0, buf.list.size - MAX_LINES)
+                                    }
                                 }
-                                logLiveData.postValue(buf.second)
-                                mappedLogs[path] = Pair(channel.position(), buf.second)
+                                logLiveData.postValue(buf.list)
+                                mappedLogs[path] = LogItem(pos = channel.position(), list = buf.list, date = buf.date)
                             }
                         }
                         reader.close()
@@ -114,6 +126,19 @@ class LogObserver @Inject constructor(
 
     }
 
+    private fun prune() {
+        while (mappedLogs.size > 4) {
+            val remove = mappedLogs.entries.minByOrNull { (k, v) -> v.date }?.key
+
+            if (remove != null) {
+                mappedLogs.remove(remove)
+            } else {
+                break
+            }
+
+        }
+    }
+
     private fun getLogObserver(): FileObserver? {
         val cache = logsDir
         if (cache != null) {
@@ -122,6 +147,7 @@ class LogObserver @Inject constructor(
                     when (event) {
                         CLOSE_WRITE -> {
                             postValue(path)
+                            prune()
                         }
 
                         OPEN -> {
@@ -140,4 +166,8 @@ class LogObserver @Inject constructor(
     }
 
     val logLiveData = MutableLiveData<SnapshotStateList<LogStruct>>()
+
+    companion object {
+        const val MAX_LINES = 1024
+    }
 }
