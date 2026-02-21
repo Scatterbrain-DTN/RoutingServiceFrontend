@@ -3,6 +3,7 @@ package net.ballmerlabs.scatterroutingservice.ui.debug
 import android.os.FileObserver
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
@@ -101,16 +102,17 @@ class LogObserver @Inject constructor(
 
                             } else {
                                 reader.skip(buf.pos)
-                                val s = buffered.lines().map { v -> getLogStruct(v) }.asSequence()
+                                val items = buffered.lines().map { v -> getLogStruct(v) }
 
-                                withContext(Dispatchers.Main) {
-                                    buf.list.addAll(s)
-                                    if (buf.list.size > MAX_LINES) {
-                                        buf.list.removeRange(0, buf.list.size - MAX_LINES)
-                                    }
+                                val b: SnapshotStateList<LogStruct> = buf.list.toMutableStateList()
+
+                                b.addAll(items.asSequence())
+
+                                if (b.size > MAX_LINES) {
+                                    b.removeRange(0, b.size - MAX_LINES)
                                 }
-                                logLiveData.postValue(buf.list)
-                                mappedLogs[path] = LogItem(pos = channel.position(), list = buf.list, date = buf.date)
+                                logLiveData.postValue(b)
+                                mappedLogs[path] = LogItem(pos = channel.position(), list = b, date = buf.date)
                             }
                         }
                         reader.close()
