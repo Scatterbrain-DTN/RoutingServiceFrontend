@@ -449,11 +449,10 @@ class DrawerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         applicationContext.initDiskLogging()
         model.logObserver.enableObserver()
-
+        enableEdgeToEdge()
         wizardViewModel.onBattery = { ignoreBatteryOptimizations() }
 
         setContent {
-            enableEdgeToEdge()
             val controller = rememberNavController()
             HandleDesktopImport(navController = controller)
 
