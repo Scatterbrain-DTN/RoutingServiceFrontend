@@ -53,5 +53,12 @@ tasks.register('clean', Delete) {
 repositories {
     google()
 }
+nexusPublishing {
+    repositories {
+        ivyRepository {
+            publicationType = io.github.gradlenexus.publishplugin.NexusRepository.PublicationType.IVY
+        }
+    }
+}
 
 apply from: 'ScatterRoutingService/scatterbrainSDK/scripts/publish-root.gradle'
