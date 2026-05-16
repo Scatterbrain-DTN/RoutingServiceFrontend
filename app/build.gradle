@@ -18,9 +18,9 @@ android {
     defaultConfig {
         applicationId "net.ballmerlabs.scatterroutingservice"
         minSdkVersion 26
-        targetSdkVersion 36
+        targetSdkVersion 37
         versionCode 106
-        compileSdk 36
+        compileSdk 37
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -107,7 +107,7 @@ android {
         checkReleaseBuilds false
         disable 'JvmStaticProvidesInObjectDetector', 'FieldSiteTargetOnQualifierAnnotation', 'ModuleCompanionObjects', 'ModuleCompanionObjectsNotInModuleParent'
     }
-    compileSdk 36
+    compileSdk 37
 }
 
 composeCompiler {
