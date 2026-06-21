@@ -173,6 +173,7 @@ dependencies {
     // Room
     implementation libs.room.runtime
     ksp libs.room.compiler
+    ksp libs.kotlin.metadata.jvm
     implementation libs.room.ktx
 
 }
