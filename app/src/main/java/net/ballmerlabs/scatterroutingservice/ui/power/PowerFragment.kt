@@ -49,6 +49,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ballmerlabs.scatterbrainsdk.MeshtasticConnectionConfig
+import net.ballmerlabs.scatterbrainsdk.MeshtasticMode
 import net.ballmerlabs.scatterbrainsdk.RouterState
 import net.ballmerlabs.scatterroutingservice.BluetoothState
 import net.ballmerlabs.scatterroutingservice.R
@@ -295,7 +297,7 @@ fun EnabledTransports(modifier: Modifier = Modifier) {
 
                             try {
                                 if (set.contains("meshtastic") && appInstalled) {
-                                    viewModel.repository.startMeshtastic()
+                                    viewModel.repository.startMeshtastic(MeshtasticConnectionConfig(mode = MeshtasticMode.BLUETOOTH))
                                 }
                             } catch (exc: Exception) {
                                 Log.e("debug", "failed to start/stop meshtastic: $exc")

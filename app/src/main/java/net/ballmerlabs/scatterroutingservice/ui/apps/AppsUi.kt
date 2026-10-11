@@ -55,6 +55,8 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import net.ballmerlabs.scatterbrainsdk.MeshtasticConnectionConfig
+import net.ballmerlabs.scatterbrainsdk.MeshtasticMode
 import net.ballmerlabs.scatterroutingservice.R
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.ui.ImmutableApps
@@ -287,7 +289,11 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
                         scope.launch {
                             prefs.edit { prefs ->
                                 if (option != "disabled") {
-                                    if (routingServiceViewModel.repository.startMeshtastic()) {
+                                    if (routingServiceViewModel.repository.startMeshtastic(
+                                            MeshtasticConnectionConfig(
+                                                mode = MeshtasticMode.BLUETOOTH
+                                            )
+                                    )) {
                                         prefs[stringPreferencesKey(settingsEnable)] = option
                                     }
                                 } else {
