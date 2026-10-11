@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.Identity
 import net.ballmerlabs.scatterbrainsdk.NamePackage
-import net.ballmerlabs.scatterbrainsdk.internal.handlers
 import net.ballmerlabs.scatterroutingservice.db.UiDatastore
 import net.ballmerlabs.scatterroutingservice.ui.DesktopObserver
 import net.ballmerlabs.scatterroutingservice.ui.debug.LogObserver

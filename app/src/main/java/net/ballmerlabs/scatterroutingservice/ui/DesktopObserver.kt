@@ -2,10 +2,8 @@ package net.ballmerlabs.scatterroutingservice.ui
 
 import androidx.lifecycle.MutableLiveData
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.immutableListOf
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.ballmerlabs.scatterbrainsdk.Apps

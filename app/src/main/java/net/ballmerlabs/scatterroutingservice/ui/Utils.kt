@@ -47,8 +47,6 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
-import java.io.Serializable
-import java.lang.IllegalStateException
 import java.util.Optional
 
 @Composable

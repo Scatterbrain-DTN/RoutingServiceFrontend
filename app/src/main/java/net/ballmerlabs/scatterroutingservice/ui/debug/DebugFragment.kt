@@ -1,7 +1,6 @@
 package net.ballmerlabs.scatterroutingservice.ui.debug
 
 import android.net.Uri
-import android.widget.Spinner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement

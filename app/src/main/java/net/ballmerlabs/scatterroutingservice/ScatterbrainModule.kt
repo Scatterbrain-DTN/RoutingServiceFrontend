@@ -2,7 +2,6 @@ package net.ballmerlabs.scatterroutingservice
 
 import android.bluetooth.BluetoothManager
 import android.content.Context
-import android.health.connect.datatypes.units.Power
 import android.net.wifi.WifiManager
 import android.os.PowerManager
 import androidx.room.Room

@@ -11,7 +11,6 @@ import androidx.preference.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.uscatterbrain.isActive
 import net.ballmerlabs.uscatterbrain.util.scatterLog

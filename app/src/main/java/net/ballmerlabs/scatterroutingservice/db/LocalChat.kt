@@ -3,7 +3,6 @@ package net.ballmerlabs.scatterroutingservice.db
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
 import java.util.UUID
 
 @Entity(tableName = "local_chats")
