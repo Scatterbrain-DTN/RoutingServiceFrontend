@@ -297,7 +297,8 @@ fun EnabledTransports(modifier: Modifier = Modifier) {
 
                             try {
                                 if (set.contains("meshtastic") && appInstalled) {
-                                    viewModel.repository.startMeshtastic(MeshtasticConnectionConfig(mode = MeshtasticMode.BLUETOOTH))
+                                    //TODO: handle autostart
+                                    //viewModel.repository.startMeshtastic(MeshtasticConnectionConfig(mode = MeshtasticMode.BLUETOOTH))
                                 }
                             } catch (exc: Exception) {
                                 Log.e("debug", "failed to start/stop meshtastic: $exc")

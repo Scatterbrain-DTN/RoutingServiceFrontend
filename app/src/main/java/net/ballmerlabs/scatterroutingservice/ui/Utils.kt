@@ -106,6 +106,7 @@ data class SbSettingsList(
         horizontalAlignment: Alignment.Horizontal = Alignment.Start,
         verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(4.dp),
     ) {
+
         Column(
             modifier = modifier,
             verticalArrangement = verticalArrangement,

@@ -261,7 +261,9 @@ fun FirstStartWizard(
                 }
         }
     } else {
-        content()
+        Column(modifier = modifier) {
+            content()
+        }
     }
 
 }

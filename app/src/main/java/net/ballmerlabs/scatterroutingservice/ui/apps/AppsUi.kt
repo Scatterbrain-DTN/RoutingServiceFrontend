@@ -1,6 +1,8 @@
 package net.ballmerlabs.scatterroutingservice.ui.apps
 
+import android.graphics.Mesh
 import android.util.Log
+import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,23 +12,31 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,18 +49,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import cash.z.ecc.android.bip39.Mnemonics
+import com.polidea.rxandroidble2.RxBleDevice
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
@@ -62,13 +76,11 @@ import net.ballmerlabs.scatterroutingservice.RoutingServiceViewModel
 import net.ballmerlabs.scatterroutingservice.ui.ImmutableApps
 import net.ballmerlabs.scatterroutingservice.ui.SbCard
 import net.ballmerlabs.scatterroutingservice.ui.SbSettingsList
-import net.ballmerlabs.scatterroutingservice.ui.isAppInstalled
 import net.ballmerlabs.uscatterbrain.dataStore
 import net.ballmerlabs.uscatterbrain.network.LibsodiumInterface
 import net.ballmerlabs.uscatterbrain.network.b64
 import net.ballmerlabs.uscatterbrain.network.desktop.DesktopAddrs
 import net.ballmerlabs.uscatterbrain.network.desktop.DesktopPower
-import net.ballmerlabs.uscatterbrain.network.meshtastic.prefix
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.util.Date
@@ -143,7 +155,6 @@ fun AppCard(desktop: Boolean, name: String, ident: String?, modifier: Modifier =
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
-                modifier = Modifier.fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = name, style = MaterialTheme.typography.titleMedium)
@@ -155,7 +166,6 @@ fun AppCard(desktop: Boolean, name: String, ident: String?, modifier: Modifier =
             }
 
             Column(
-                modifier = Modifier.fillMaxHeight(),
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
@@ -213,7 +223,7 @@ fun AppsList(modifier: Modifier = Modifier) {
 
     Column {
         LazyColumn(
-            modifier = modifier,
+            modifier = modifier.height(100.dp),
             state = state,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -223,7 +233,8 @@ fun AppsList(modifier: Modifier = Modifier) {
                     AppCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .defaultMinSize(minHeight = 64.dp),
+                            .defaultMinSize(minHeight = 64.dp)
+                            .height(IntrinsicSize.Min),
                         name = app.name,
                         ident = app.id,
                         desktop = false
@@ -237,7 +248,8 @@ fun AppsList(modifier: Modifier = Modifier) {
                     AppCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .defaultMinSize(minHeight = 64.dp),
+                            .defaultMinSize(minHeight = 64.dp)
+                            .height(IntrinsicSize.Min),
                         name = app.name,
                         ident = app.remoteFingerprint.b64(),
                         desktop = true
@@ -255,12 +267,24 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
 
     val routingServiceViewModel: RoutingServiceViewModel = hiltViewModel()
     val settingsEnable = stringResource(R.string.pref_meshtastic)
+    val meshtasticMode = stringResource(R.string.pref_meshtastic_mode)
     val opts = stringArrayResource(R.array.meshtastic_options)
+    val modes = stringArrayResource(R.array.meshtastic_modes)
     val descriptions = stringArrayResource(R.array.meshtastic_descriptions)
     val prefs = context.dataStore
     val scope = rememberCoroutineScope()
-    val enabled by prefs.data.map { pref -> pref[stringPreferencesKey(settingsEnable)]?:opts[1] }
+    val enabled by remember {
+        prefs.data.map { pref ->
+            pref[stringPreferencesKey(settingsEnable)] ?: opts[1]
+        }
+    }
         .collectAsState(opts[1])
+    val mode by remember {
+        prefs.data.map { pref ->
+            pref[stringPreferencesKey(meshtasticMode)] ?: modes[0]
+        }
+    }
+        .collectAsState(modes[0])
 
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -289,13 +313,13 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
                         scope.launch {
                             prefs.edit { prefs ->
                                 if (option != "disabled") {
-                                    if (routingServiceViewModel.repository.startMeshtastic(
-                                            MeshtasticConnectionConfig(
-                                                mode = MeshtasticMode.BLUETOOTH
-                                            )
-                                    )) {
-                                        prefs[stringPreferencesKey(settingsEnable)] = option
-                                    }
+//                                    if (routingServiceViewModel.repository.startMeshtastic(
+//                                            MeshtasticConnectionConfig(
+//                                                mode = MeshtasticMode.BLUETOOTH
+//                                            )
+//                                        )) {
+                                    prefs[stringPreferencesKey(settingsEnable)] = option
+//                                    }
                                 } else {
                                     prefs[stringPreferencesKey(settingsEnable)] = option
                                 }
@@ -317,8 +341,112 @@ fun MeshtasticSettings(modifier: Modifier = Modifier) {
                 )
             }
         }
+
+        Text("Connection mode")
+        for (option in modes) {
+            Row(
+                modifier = Modifier.selectable(
+                    selected = mode == option,
+                    onClick = {
+                        scope.launch {
+                            prefs.edit { prefs ->
+                                prefs[stringPreferencesKey(meshtasticMode)] = option
+                            }
+                        }
+                    },
+                    role = Role.RadioButton
+                ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = mode == option,
+                    onClick = null,
+                )
+                Text(
+                    text = option,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+        }
+        if (mode == "ble") {
+            MeshtasticModeBle()
+        } else {
+            TcpConnectMode()
+        }
     }
 }
+
+
+@Composable
+fun TcpConnectMode(modifier: Modifier = Modifier) {
+    val controller = rememberTextFieldState()
+    val viewModel: RoutingServiceViewModel = hiltViewModel()
+    val scope = rememberCoroutineScope()
+    val url = controller.text.isEmpty() || Patterns.WEB_URL.matcher(controller.text.toString()).matches()
+    Row(modifier = modifier) {
+        OutlinedTextField(
+            state = controller,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+            placeholder = { Text("127.0.0.1:8000") },
+            supportingText = {
+                if (!url) {
+                    Text("Please enter a valid hostname")
+                }
+            },
+        )
+
+        Button(onClick = {
+            scope.launch {
+                viewModel.repository.startMeshtastic(
+                    MeshtasticConnectionConfig(
+                        mode = MeshtasticMode.TCP,
+                        connection = url.toString()
+                    )
+                )
+            }
+        }) { Text("Connect") }
+    }
+}
+
+
+@Composable
+fun BleDevice(device: RxBleDevice, modifier: Modifier = Modifier) {
+    val viewModel: RoutingServiceViewModel = hiltViewModel()
+    val scope = rememberCoroutineScope()
+    Row(modifier
+        .background(color = MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(16.dp))
+        .fillMaxWidth()
+        .padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        Column {
+            Text(device.name ?: "N/A", color = MaterialTheme.colorScheme.onSecondary)
+            Text(device.macAddress, color = MaterialTheme.colorScheme.onSecondary)
+        }
+        TextButton(onClick = {
+            scope.launch {
+                viewModel.repository.startMeshtastic(
+                    MeshtasticConnectionConfig(
+                        mode = MeshtasticMode.BLUETOOTH,
+                        connection = device.macAddress
+                    )
+                )
+            }
+        }) { Text("Connect") }
+    }
+}
+
+@Composable
+fun MeshtasticModeBle(modifier: Modifier = Modifier) {
+    val viewModel: RoutingServiceViewModel = hiltViewModel()
+    val devices by viewModel.bleScan(LocalContext.current).observeAsState()
+    Text("got devices ${devices?.size}")
+    Column(modifier = modifier.heightIn(max = 200.dp).verticalScroll(rememberScrollState())) {
+        for (device in devices ?: listOf()) {
+            BleDevice(device)
+        }
+    }
+}
+
 
 @Composable
 fun ToggleView(modifier: Modifier = Modifier) {
@@ -389,20 +517,20 @@ fun ToggleView(modifier: Modifier = Modifier) {
 
 @Composable
 fun AppsView(modifier: Modifier = Modifier) {
+    val state = rememberScrollState()
     var items = SbSettingsList()
         .item("Desktop settings") {
             ToggleView(modifier = Modifier.fillMaxWidth())
         }
 
-    val appInstalled = LocalContext.current.isAppInstalled(prefix)
-    if (appInstalled) {
-        items = items.item("Meshtastic settings") {
-            MeshtasticSettings(modifier = Modifier.fillMaxWidth())
-        }
+    items = items.item("Meshtastic settings") {
+        MeshtasticSettings(modifier = Modifier.fillMaxWidth())
     }
 
     items.item("Connected apps") {
         AppsList(modifier = Modifier.fillMaxWidth())
-    }.Display(modifier = modifier)
+    }.Display(modifier = modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState()))
 
 }

@@ -165,6 +165,7 @@ dependencies {
     implementation libs.accompanist.permissions
     implementation libs.androidx.datastore.preferences
     implementation libs.room.runtime
+    implementation libs.androidx.lifecycle.reactivestreams.ktx
     ksp libs.room.compiler // For Kotlin use kapt instead of annotationProcessor
     androidTestImplementation libs.room.testing
 

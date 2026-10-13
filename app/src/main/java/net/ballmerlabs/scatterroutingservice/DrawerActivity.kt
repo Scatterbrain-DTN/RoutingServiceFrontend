@@ -24,10 +24,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.mandatorySystemGesturesPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -460,56 +463,56 @@ class DrawerActivity : AppCompatActivity() {
 
                 FirstStartWizard(
                     modifier = Modifier.fillMaxSize()
+                        .imePadding()
                         .mandatorySystemGesturesPadding()
                 ) {
                     Scaffold(
+                        modifier = Modifier.fillMaxSize(),
                         content = { pad ->
-                            NavHost(
-                                modifier = Modifier
-                                    .padding(pad)
-                                    .imePadding()
-                                ,
-                                navController = controller,
-                                startDestination = if (state == RouterState.DISCOVERING) NAV_CHAT else NAV_POWER
-                            ) {
+                            Column(modifier = Modifier.padding(pad)) {
+                                NavHost(
+                                    navController = controller,
+                                    startDestination = if (state == RouterState.DISCOVERING) NAV_CHAT else NAV_POWER
+                                ) {
 
-                                composable(NAV_CHAT) {
-                                    ScopeScatterbrainPermissions(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .imePadding(),
-                                        onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
-                                    ) {
-                                        ChatView(modifier = Modifier.fillMaxSize())
-                                    }
-                                }
-
-
-                                composable(NAV_POWER) {
-                                    ScopeScatterbrainPermissions(
-                                        modifier = Modifier
-                                            .fillMaxSize(),
-                                        onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
-                                    ) {
-                                        SideEffect {
-                                            model.onPermissionsGranted()
+                                    composable(NAV_CHAT) {
+                                        ScopeScatterbrainPermissions(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .imePadding(),
+                                            onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
+                                        ) {
+                                            ChatView(modifier = Modifier.fillMaxSize())
                                         }
-                                        PowerToggle()
                                     }
+
+
+                                    composable(NAV_POWER) {
+                                        ScopeScatterbrainPermissions(
+                                            modifier = Modifier
+                                                .fillMaxSize(),
+                                            onGrant = { scope.launch(Dispatchers.Default) { tryStart() } },
+                                        ) {
+                                            SideEffect {
+                                                model.onPermissionsGranted()
+                                            }
+                                            PowerToggle()
+                                        }
+                                    }
+
+                                    composable(NAV_IDENTITY) { IdentityManagement() }
+                                    composable(NAV_APPS) { AppsView() }
+                                    composable(NAV_DEBUG) { DebugView() }
+                                    composable(NAV_ABOUT) { About() }
+                                    dialog(NAV_CREATE_IDENTITY) { CreateIdentityDialog(controller) }
+                                    dialog("$NAV_PAIRING_REQUEST/{name}/{fingerprint}") {
+                                        PairingRequestDialog(
+                                            navController = controller
+                                        )
+                                    }
+
+
                                 }
-
-                                composable(NAV_IDENTITY) { IdentityManagement() }
-                                composable(NAV_APPS) { AppsView() }
-                                composable(NAV_DEBUG) { DebugView() }
-                                composable(NAV_ABOUT) { About() }
-                                dialog(NAV_CREATE_IDENTITY) { CreateIdentityDialog(controller) }
-                                dialog("$NAV_PAIRING_REQUEST/{name}/{fingerprint}") {
-                                    PairingRequestDialog(
-                                        navController = controller
-                                    )
-                                }
-
-
                             }
                         },
                         topBar = { TopBar(controller) },
