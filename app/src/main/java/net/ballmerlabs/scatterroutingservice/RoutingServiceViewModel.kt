@@ -95,7 +95,7 @@ class RoutingServiceViewModel @Inject constructor(
                 ScanSettings.Builder()
                     .build(),
                 ScanFilter.Builder()
-                    //          .setServiceUuid(ParcelUuid(UUID.fromString("6ba1b218-15a8-461f-9fa8-5dcae273eafd")))
+                    .setServiceUuid(ParcelUuid(UUID.fromString("6ba1b218-15a8-461f-9fa8-5dcae273eafd")))
                     .build()
             ).doFinally { currentScan = null }
                 .toFlowable(BackpressureStrategy.BUFFER)
