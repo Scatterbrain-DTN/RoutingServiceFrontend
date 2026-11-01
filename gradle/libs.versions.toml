@@ -2,7 +2,7 @@
 accompanistPermissions = "0.37.3"
 activity-compose = "1.13.0"
 activityKtx = "1.13.0"
-agp = "9.2.1"
+agp = "9.5.0"
 androidIdenticons = "v11"
 appcompat = "1.7.1"
 appintro = "6.3.1"

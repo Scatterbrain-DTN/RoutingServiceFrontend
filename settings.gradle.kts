@@ -1,7 +1,7 @@
 import java.io.File
 
-// TODO: maybe this works with kotlin DSL
-//includeBuild("ScatterRoutingService/meshtastic-sdk/")
+// TODO: fix
+includeBuild("ScatterRoutingService/meshtastic-sdk/")
 
 include(":app")
 include(":ScatterRoutingService:app")
