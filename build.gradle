@@ -70,3 +70,7 @@ dependencies {
 kotlin {
     jvmToolchain(21)
 }
+
+gradle.startParameter.excludedTaskNames.addAll(
+        gradle.startParameter.taskNames.findAll { it.contains("testClasses") }
+)
