@@ -16,6 +16,7 @@ import com.polidea.rxandroidble2.scan.ScanSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
@@ -44,6 +45,7 @@ class RoutingServiceViewModel @Inject constructor(
     val datastore: UiDatastore,
     val desktopObserver: DesktopObserver,
     val wifiManager: WifiManager,
+
 ) : AndroidViewModel(application) {
 
     val log by scatterLog()
@@ -107,10 +109,12 @@ class RoutingServiceViewModel @Inject constructor(
             current
         }
         return scan
+            .mergeWith(Flowable.fromIterable(client.connectedPeripherals))
             .map { res ->
                 devices[res.macAddress] = res
                 devices.values.toList()
             }
+            .onErrorReturn { listOf() }
             .toLiveData()
     }
 }
