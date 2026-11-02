@@ -424,12 +424,17 @@ fun BleDevice(device: RxBleDevice, modifier: Modifier = Modifier) {
         }
         TextButton(onClick = {
             scope.launch {
-                viewModel.repository.startMeshtastic(
-                    MeshtasticConnectionConfig(
-                        mode = MeshtasticMode.BLUETOOTH,
-                        connection = device.macAddress
+                try {
+                    viewModel.repository.startMeshtastic(
+                        MeshtasticConnectionConfig(
+                            mode = MeshtasticMode.BLUETOOTH,
+                            connection = device.macAddress
+                        )
                     )
-                )
+                } catch (exc: Exception) {
+                    exc.printStackTrace()
+                    Log.e("debug", "failed to connect: $exc")
+                }
             }
         }) { Text("Connect") }
     }
