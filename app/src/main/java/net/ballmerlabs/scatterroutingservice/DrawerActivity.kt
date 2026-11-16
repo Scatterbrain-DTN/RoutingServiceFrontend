@@ -50,6 +50,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -78,10 +79,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ballmerlabs.scatterbrainsdk.BinderWrapper
 import net.ballmerlabs.scatterbrainsdk.IdentityImportContract
+import net.ballmerlabs.scatterbrainsdk.MeshtasticConnectionConfig
+import net.ballmerlabs.scatterbrainsdk.MeshtasticMode
 import net.ballmerlabs.scatterbrainsdk.PairingStage
 import net.ballmerlabs.scatterbrainsdk.PairingState
 import net.ballmerlabs.scatterbrainsdk.RouterState
@@ -107,6 +111,8 @@ import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
 @InternalCoroutinesApi
@@ -434,12 +440,37 @@ class DrawerActivity : AppCompatActivity() {
         wizardViewModel.onBattery = { ignoreBatteryOptimizations() }
 
         setContent {
+//            val viewModel: RoutingServiceViewModel =
+//                androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel()
+
             val controller = rememberNavController()
             HandleDesktopImport(navController = controller)
 
             val state = model.repository.observeRouterState().value
 
             val scope = rememberCoroutineScope()
+
+
+//            LaunchedEffect(false) {
+//                viewModel.repository.startMeshtastic(
+//                    MeshtasticConnectionConfig(
+//                        mode = MeshtasticMode.BLUETOOTH,
+//                        connection = "58:CF:79:07:6B:E6"
+//                    )
+//                )
+//                scope.launch {
+//                    while (true) {
+//                        try {
+//                            Log.v("debug", "attempting send packet")
+//                            viewModel.repository.syncMeshtastic()
+//                        } catch (exc: Exception) {
+//                            Log.e("debug", "harness exception: $exc")
+//                            exc.printStackTrace()
+//                        }
+//                        delay(5.seconds)
+//                    }
+//                }
+//            }
 
             ScatterbrainTheme() {
                 val pairingState by model.repository.observePairingAttempts().observeAsState(
