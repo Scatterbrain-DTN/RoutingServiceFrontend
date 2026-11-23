@@ -24,13 +24,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.mandatorySystemGesturesPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -66,7 +63,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -99,6 +97,7 @@ import net.ballmerlabs.scatterroutingservice.ui.power.PowerToggle
 import net.ballmerlabs.scatterroutingservice.ui.theme.ScatterbrainTheme
 import net.ballmerlabs.scatterroutingservice.ui.wizard.FirstStartWizard
 import net.ballmerlabs.scatterroutingservice.ui.wizard.WizardViewModel
+import net.ballmerlabs.uscatterbrain.dataStore
 import net.ballmerlabs.uscatterbrain.isActive
 import net.ballmerlabs.uscatterbrain.isPassive
 import net.ballmerlabs.uscatterbrain.network.LibsodiumInterface
@@ -111,7 +110,6 @@ import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
@@ -136,7 +134,10 @@ class DrawerActivity : AppCompatActivity() {
         if (res?.isNotEmpty() == true) {
             val id = res[0]
             model.viewModelScope.softCancelLaunch {
-                model.repository.approveDesktopIdentity(model.desktopObserver.currentImport.value!!.handle, id.fingerprint)
+                model.repository.approveDesktopIdentity(
+                    model.desktopObserver.currentImport.value!!.handle,
+                    id.fingerprint
+                )
             }
         }
     }
@@ -158,7 +159,7 @@ class DrawerActivity : AppCompatActivity() {
 
     @SuppressLint("BatteryLife")
     private fun ignoreBatteryOptimizations() {
-        if(!pm.isIgnoringBatteryOptimizations(packageName)) {
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
             val intent = Intent().apply {
                 action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
                 data = "package:$packageName".toUri()
@@ -170,13 +171,16 @@ class DrawerActivity : AppCompatActivity() {
     }
 
 
-
     @Composable
     fun TopBar(navController: NavController) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         Column() {
             TopAppBar(
-                title = { Text(text = navBackStackEntry?.destination?.route?:getString(R.string.app_name)) },
+                title = {
+                    Text(
+                        text = navBackStackEntry?.destination?.route ?: getString(R.string.app_name)
+                    )
+                },
                 colors = TopAppBarColors(
                     actionIconContentColor = MaterialTheme.colorScheme.onBackground,
                     containerColor = MaterialTheme.colorScheme.background,
@@ -193,16 +197,17 @@ class DrawerActivity : AppCompatActivity() {
 
     @Composable
     fun TabSwitcher(navController: NavController) {
-        val indices = remember {   arrayOf(
-            Pair(NAV_CHAT, R.drawable.baseline_chat_24),
-            Pair(NAV_POWER, R.drawable.ic_baseline_power_settings_new_24),
-            Pair(NAV_IDENTITY, R.drawable.ic_baseline_perm_identity_24),
-            Pair(NAV_APPS, R.drawable.baseline_apps_24),
-            Pair(NAV_DEBUG, R.drawable.baseline_settings_applications_24),
-            Pair(NAV_ABOUT, R.drawable.ic_baseline_info_24)
+        val indices = remember {
+            arrayOf(
+                Pair(NAV_CHAT, R.drawable.baseline_chat_24),
+                Pair(NAV_POWER, R.drawable.ic_baseline_power_settings_new_24),
+                Pair(NAV_IDENTITY, R.drawable.ic_baseline_perm_identity_24),
+                Pair(NAV_APPS, R.drawable.baseline_apps_24),
+                Pair(NAV_DEBUG, R.drawable.baseline_settings_applications_24),
+                Pair(NAV_ABOUT, R.drawable.ic_baseline_info_24)
 
-        )
-            }
+            )
+        }
         val active = remember {
             mutableIntStateOf(0)
         }
@@ -234,7 +239,7 @@ class DrawerActivity : AppCompatActivity() {
 
     private suspend fun tryStart() {
         try {
-            if(checkSelfPermission(ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
+            if (checkSelfPermission(ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
                 Log.v(TAG, "tryStart")
                 model.repository.startService()
                 model.repository.bindService(timeout = 6000L)
@@ -252,7 +257,11 @@ class DrawerActivity : AppCompatActivity() {
         } catch (exc: RemoteException) {
             Log.e(TAG, "failed to start/bind $exc")
             withContext(Dispatchers.Main) {
-                Toast.makeText(applicationContext, "Failed to start background service: $exc", Toast.LENGTH_LONG)
+                Toast.makeText(
+                    applicationContext,
+                    "Failed to start background service: $exc",
+                    Toast.LENGTH_LONG
+                )
                     .show()
             }
         }
@@ -264,7 +273,11 @@ class DrawerActivity : AppCompatActivity() {
             model.repository.unbindService()
         } catch (exc: RemoteException) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(applicationContext, "Failed to unbind background service: $exc", Toast.LENGTH_LONG)
+                Toast.makeText(
+                    applicationContext,
+                    "Failed to unbind background service: $exc",
+                    Toast.LENGTH_LONG
+                )
                     .show()
             }
         }
@@ -290,19 +303,29 @@ class DrawerActivity : AppCompatActivity() {
                 Text(text = "Create Identity")
                 TextField(
                     value = name,
-                    onValueChange = { v -> name = v},
+                    onValueChange = { v -> name = v },
                     placeholder = { Text(text = "Identity name") }
                 )
                 Row {
-                    Button(onClick = { scope.launch(Dispatchers.Main) {
-                        try {
-                            val id = model.repository.generateIdentity(name)
-                            Toast.makeText(ctx, "Created identity ${id.fingerprint}", Toast.LENGTH_LONG).show()
-                        } catch (exc: RemoteException) {
-                            Toast.makeText(ctx, "Failed to create identity: $exc", Toast.LENGTH_LONG).show()
+                    Button(onClick = {
+                        scope.launch(Dispatchers.Main) {
+                            try {
+                                val id = model.repository.generateIdentity(name)
+                                Toast.makeText(
+                                    ctx,
+                                    "Created identity ${id.fingerprint}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } catch (exc: RemoteException) {
+                                Toast.makeText(
+                                    ctx,
+                                    "Failed to create identity: $exc",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            navController.popBackStack()
                         }
-                        navController.popBackStack()
-                    } }) {
+                    }) {
                         Text(text = "Create")
                     }
                     Button(onClick = { navController.popBackStack() }) {
@@ -333,12 +356,19 @@ class DrawerActivity : AppCompatActivity() {
                 try {
                     val dir = logsDir!!
 
-                    ZipOutputStream(BufferedOutputStream(context.contentResolver.openOutputStream(uri!!))).use { zip ->
+                    ZipOutputStream(
+                        BufferedOutputStream(
+                            context.contentResolver.openOutputStream(
+                                uri!!
+                            )
+                        )
+                    ).use { zip ->
                         dir.walkTopDown().forEach { f ->
-                            val name = f.absolutePath.removePrefix(dir.absolutePath).removePrefix("/")
-                            val entry = ZipEntry("$name${( if(f.isDirectory) "/" else "" )}")
+                            val name =
+                                f.absolutePath.removePrefix(dir.absolutePath).removePrefix("/")
+                            val entry = ZipEntry("$name${(if (f.isDirectory) "/" else "")}")
                             zip.putNextEntry(entry)
-                            if(f.isFile) {
+                            if (f.isFile) {
                                 f.inputStream().use { stream ->
                                     stream.copyTo(zip)
                                 }
@@ -355,7 +385,7 @@ class DrawerActivity : AppCompatActivity() {
             }
         }
         navController.addOnDestinationChangedListener { controller, destination, args ->
-            val s = when(destination.route) {
+            val s = when (destination.route) {
                 NAV_IDENTITY -> true
                 NAV_DEBUG -> true
                 else -> false
@@ -369,18 +399,19 @@ class DrawerActivity : AppCompatActivity() {
             FloatingActionButton(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 onClick = {
-                when(dest) {
-                    NAV_IDENTITY -> navController.navigate(NAV_CREATE_IDENTITY)
-                    NAV_DEBUG -> launcher.launch(
-                        "logs-${SimpleDateFormat("mm-dd-yyyy", Locale.ROOT).format(Date())}.zip"
-                    )
-                }
-            }) {
-                when(dest) {
+                    when (dest) {
+                        NAV_IDENTITY -> navController.navigate(NAV_CREATE_IDENTITY)
+                        NAV_DEBUG -> launcher.launch(
+                            "logs-${SimpleDateFormat("mm-dd-yyyy", Locale.ROOT).format(Date())}.zip"
+                        )
+                    }
+                }) {
+                when (dest) {
                     NAV_IDENTITY -> Icon(
                         painter = painterResource(id = R.drawable.ic_baseline_identity_add_24),
                         contentDescription = "Add identity"
                     )
+
                     NAV_DEBUG -> Icon(
                         painter = painterResource(id = R.drawable.baseline_share_24),
                         contentDescription = "Share logs"
@@ -397,7 +428,7 @@ class DrawerActivity : AppCompatActivity() {
         var block by remember {
             mutableStateOf(false)
         }
-        
+
         if (state != null && !block) {
             AlertDialog(
                 title = { Text(text = "Desktop app ${state?.appName}") },
@@ -428,7 +459,7 @@ class DrawerActivity : AppCompatActivity() {
                 }
             )
         }
-        
+
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -440,8 +471,8 @@ class DrawerActivity : AppCompatActivity() {
         wizardViewModel.onBattery = { ignoreBatteryOptimizations() }
 
         setContent {
-//            val viewModel: RoutingServiceViewModel =
-//                androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel()
+            val viewModel: RoutingServiceViewModel =
+                androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel()
 
             val controller = rememberNavController()
             HandleDesktopImport(navController = controller)
@@ -449,30 +480,41 @@ class DrawerActivity : AppCompatActivity() {
             val state = model.repository.observeRouterState().value
 
             val scope = rememberCoroutineScope()
+            val context = LocalContext.current
+            val prefs = remember { context.dataStore }
 
+            LaunchedEffect(false) {
+                val delay = 25
+                Log.v("debug", "waiting $delay seconds before announce")
+                // Give the other device time to come online
+                delay(delay.seconds)
 
-//            LaunchedEffect(false) {
-//                viewModel.repository.startMeshtastic(
-//                    MeshtasticConnectionConfig(
-//                        mode = MeshtasticMode.BLUETOOTH,
-//                        connection = "58:CF:79:07:6B:E6"
-//                    )
-//                )
-//                scope.launch {
-//                    while (true) {
-//                        try {
-//                            Log.v("debug", "attempting send packet")
-//                            viewModel.repository.syncMeshtastic()
-//                        } catch (exc: Exception) {
-//                            Log.e("debug", "harness exception: $exc")
-//                            exc.printStackTrace()
-//                        }
-//                        delay(5.seconds)
-//                    }
-//                }
-//            }
+                // check datastore for mac to connect to
+                prefs.data.collect { d ->
+                    val conn = d[stringPreferencesKey("blemac")]
+                    Log.v("debug", "attempting handshake test, mac=$conn")
+                    if (conn != null) {
+                        viewModel.repository.startMeshtastic(
+                            MeshtasticConnectionConfig(
+                                mode = MeshtasticMode.BLUETOOTH,
+                                connection = conn
+                            )
+                        )
+                        scope.launch {
+                            try {
+                                Log.v("debug", "attempting send packet")
+                                viewModel.repository.syncMeshtastic()
+                            } catch (exc: Exception) {
+                                Log.e("debug", "harness exception: $exc")
+                                exc.printStackTrace()
+                            }
 
-            ScatterbrainTheme() {
+                        }
+                    }
+                }
+            }
+
+            ScatterbrainTheme {
                 val pairingState by model.repository.observePairingAttempts().observeAsState(
                     PairingState(
                         appName = "",
@@ -493,7 +535,8 @@ class DrawerActivity : AppCompatActivity() {
 
 
                 FirstStartWizard(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                         .imePadding()
                         .mandatorySystemGesturesPadding()
                 ) {

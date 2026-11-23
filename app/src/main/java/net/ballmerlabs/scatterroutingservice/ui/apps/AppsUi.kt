@@ -414,6 +414,8 @@ fun TcpConnectMode(modifier: Modifier = Modifier) {
 fun BleDevice(device: RxBleDevice, modifier: Modifier = Modifier) {
     val viewModel: RoutingServiceViewModel = hiltViewModel()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val prefs = remember { context.dataStore }
     Row(modifier
         .background(color = MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(16.dp))
         .fillMaxWidth()
@@ -425,6 +427,9 @@ fun BleDevice(device: RxBleDevice, modifier: Modifier = Modifier) {
         TextButton(onClick = {
             scope.launch {
                 try {
+                    prefs.edit { p ->
+                        p[stringPreferencesKey("blemac")] = device.macAddress
+                    }
                     viewModel.repository.startMeshtastic(
                         MeshtasticConnectionConfig(
                             mode = MeshtasticMode.BLUETOOTH,
